@@ -1,13 +1,13 @@
 .. _api:
 
 =================
-Xonsh API
+Pygwin API
 =================
 
-The ``xonsh.api`` package is a set of public libraries that can be used
-in third-party projects as well as in xonsh extensions (xontribs).  If
-you are writing a xontrib, using ``xonsh.api`` is the recommended way to
-interact with xonsh internals.
+The ``pygwin.api`` package is a set of public libraries that can be used
+in third-party projects as well as in pygwin extensions (xontribs).  If
+you are writing a xontrib, using ``pygwin.api`` is the recommended way to
+interact with pygwin internals.
 
 .. warning::
 
@@ -17,24 +17,24 @@ interact with xonsh internals.
 For the full internal library reference, see :doc:`/lib/index`.
 
 
-``xonsh.api.subprocess``
+``pygwin.api.subprocess``
 ========================
 
-Drop-in replacements for :mod:`subprocess` functions that use xonsh's
+Drop-in replacements for :mod:`subprocess` functions that use pygwin's
 subprocess pipeline under the hood.
 
-.. autofunction:: xonsh.api.subprocess.run
+.. autofunction:: pygwin.api.subprocess.run
 
-.. autofunction:: xonsh.api.subprocess.check_call
+.. autofunction:: pygwin.api.subprocess.check_call
 
-.. autofunction:: xonsh.api.subprocess.check_output
+.. autofunction:: pygwin.api.subprocess.check_output
 
 
-``xonsh.api.os``
+``pygwin.api.os``
 ================
 
-Xonsh-powered utilities inspired by the :mod:`os` module.
+Pygwin-powered utilities inspired by the :mod:`os` module.
 
-.. autofunction:: xonsh.api.os.rmtree
+.. autofunction:: pygwin.api.os.rmtree
 
-.. autodata:: xonsh.api.os.indir
+.. autodata:: pygwin.api.os.indir

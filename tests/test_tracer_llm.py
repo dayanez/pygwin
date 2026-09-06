@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.tracer``.
+"""Smoke tests for ``pygwin.tracer``.
 
 Covers the pure helpers (``tracer_format_line``, ``_find_caller``) and the
 ``TracerType`` singleton's no-side-effect behavior. Actual ``sys.settrace``
@@ -8,7 +8,7 @@ never leave a global tracer installed.
 
 import sys
 
-from xonsh.tracer import (
+from pygwin.tracer import (
     COLORLESS_LINE,
     TracerType,
     _find_caller,
@@ -26,7 +26,7 @@ def test_tracer_type_is_singleton():
 
 
 def test_module_level_tracer_resolves_to_singleton():
-    """``xonsh.tracer.tracer`` is a LazyObject — once forced, it points
+    """``pygwin.tracer.tracer`` is a LazyObject — once forced, it points
     at the same TracerType singleton as a fresh ``TracerType()``."""
     t = TracerType()
     # forcing any attribute access loads the LazyObject
@@ -101,7 +101,7 @@ def test_tracer_format_line_color_with_pygments():
 
 
 def test_find_caller_returns_none_for_unmatchable_args(capsys):
-    """No frame in the test-runner stack contains an obvious xonsh-style
+    """No frame in the test-runner stack contains an obvious pygwin-style
     ``trace foo bar`` invocation, so ``_find_caller`` falls through to
     its warning + ``return None``."""
     result = _find_caller(["__nonsense__", "__token__"])

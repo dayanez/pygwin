@@ -9,8 +9,8 @@ code paths they exercise are still cross-platform — on Windows the
 
 import os
 
-from xonsh.pytest.tools import skip_if_on_windows
-from xonsh.xoreutils.xcontext import (
+from pygwin.pytest.tools import skip_if_on_windows
+from pygwin.xoreutils.xcontext import (
     _has_symlink_cycle,
     _is_executable_file,
     _resolve_one,
@@ -107,8 +107,8 @@ def test_resolve_one_not_executable_is_bad(tmp_path):
 def test_resolve_one_main_py_is_not_bad(tmp_path):
     """``__main__.py`` is exempt from the ``+x`` check — it's a valid
     ``python -m <pkg>`` entry point that is never marked executable.
-    ``xxonsh`` points at this file when xonsh is launched via
-    ``python -m xonsh``, and it must not be rendered red.
+    ``xpygwin`` points at this file when pygwin is launched via
+    ``python -m pygwin``, and it must not be rendered red.
     """
     pkg = tmp_path / "somepkg"
     pkg.mkdir()

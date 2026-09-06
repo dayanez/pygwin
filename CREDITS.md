@@ -3,9 +3,11 @@
 pygwin did not start from nothing. It started from [xonsh](https://github.com/xonsh/xonsh),
 a full featured, cross platform, Python powered shell built and maintained by the
 xonsh developers and its community of contributors since 2015. pygwin's parser, execer,
-built-in shells, completion system, and the large majority of the code in the `xonsh/`
+built-in shells, completion system, and the large majority of the code in the `pygwin/`
 directory of this repository are that project's work, copied into this repo and given a
-new name, a new license, and a new direction.
+new name, a new license, and a new direction. Every identifier that said `xonsh` was
+mechanically renamed to `pygwin`, but the logic underneath, and the credit for writing
+it, is xonsh's.
 
 Nothing in this file is meant to erase that. It is meant to keep it visible.
 

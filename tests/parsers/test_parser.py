@@ -1,4 +1,4 @@
-"""Tests the xonsh parser."""
+"""Tests the pygwin parser."""
 
 import ast
 import itertools
@@ -6,9 +6,9 @@ import textwrap
 
 import pytest
 
-from xonsh.parsers.ast import AST, Call, Pass, With, is_const_str
-from xonsh.parsers.fstring_adaptor import FStringAdaptor
-from xonsh.pytest.tools import (
+from pygwin.parsers.ast import AST, Call, Pass, With, is_const_str
+from pygwin.parsers.fstring_adaptor import FStringAdaptor
+from pygwin.pytest.tools import (
     skip_if_pre_3_8,
     skip_if_pre_3_10,
     skip_if_pre_3_12,
@@ -16,12 +16,12 @@ from xonsh.pytest.tools import (
 
 
 @pytest.fixture
-def check_xonsh(check_xonsh_ast):
+def check_pygwin(check_pygwin_ast):
     def factory(xenv, inp, run=True, mode="exec"):
         __tracebackhide__ = True
         if not inp.endswith("\n"):
             inp += "\n"
-        check_xonsh_ast(xenv, inp, run=run, mode=mode)
+        check_pygwin_ast(xenv, inp, run=run, mode=mode)
 
     return factory
 
@@ -30,7 +30,7 @@ def check_xonsh(check_xonsh_ast):
 def eval_code(parser, xsh):
     def factory(inp, mode="eval", **loc_vars):
         obs = parser.parse(inp, debug_level=1)
-        bytecode = compile(obs, "<test-xonsh-ast>", mode)
+        bytecode = compile(obs, "<test-pygwin-ast>", mode)
         return eval(bytecode, loc_vars)
 
     return factory
@@ -103,10 +103,10 @@ def test_string_literal_concat(first_prefix, second_prefix, check_ast):
     )
 
 
-def test_f_env_var(check_xonsh_ast):
-    check_xonsh_ast({}, 'f"{$HOME}"', run=False)
-    check_xonsh_ast({}, "f'{$XONSH_DEBUG}'", run=False)
-    check_xonsh_ast({}, 'F"{$PATH} and {$XONSH_DEBUG}"', run=False)
+def test_f_env_var(check_pygwin_ast):
+    check_pygwin_ast({}, 'f"{$HOME}"', run=False)
+    check_pygwin_ast({}, "f'{$PYGWIN_DEBUG}'", run=False)
+    check_pygwin_ast({}, 'F"{$PATH} and {$PYGWIN_DEBUG}"', run=False)
 
 
 fstring_adaptor_parameters = [
@@ -167,9 +167,9 @@ def test_fstring_adaptor(inp, exp, xsh, monkeypatch):
     ],
 )
 def test_fstring_adaptor_captured_subproc(inp):
-    """FStringAdaptor must recognize @$(...) and @!(...) xonsh expressions.
+    """FStringAdaptor must recognize @$(...) and @!(...) pygwin expressions.
 
-    Regression test: previously RE_XONSH_EXPR only covered $(...), @(...),
+    Regression test: previously RE_PYGWIN_EXPR only covered $(...), @(...),
     !(...) and similar — but @$(...) (captured injection) and @!(...)
     (captured object) were missing, causing SyntaxError in f-strings.
     """
@@ -186,13 +186,13 @@ def test_fstring_adaptor_captured_subproc(inp):
         'f"{a.b.c()} {$HOME}"',
     ],
 )
-def test_fstring_adaptor_func_call_with_xonsh_expr(inp):
+def test_fstring_adaptor_func_call_with_pygwin_expr(inp):
     """FStringAdaptor must not crash on f-strings mixing function calls
-    with xonsh expressions.
+    with pygwin expressions.
 
     Regression test: ``_fix_eval_field_params`` previously unconditionally
     accessed ``node.func.value.id``, assuming every ``ast.Call`` in the
-    patched AST is a ``__xonsh__.eval_fstring_field(...)`` call. For
+    patched AST is a ``__pygwin__.eval_fstring_field(...)`` call. For
     user calls like ``len(x)``, ``node.func`` is an ``ast.Name`` (no
     ``.value``), and for ``a.b.c()`` ``node.func.value`` is itself an
     ``ast.Attribute`` (no ``.id``) — both raise ``AttributeError``.
@@ -224,7 +224,7 @@ def test_fstring_adaptor_pathsearch(inp, exp, xsh, monkeypatch):
 
 from tests.parsers.test_parser_fstring_llm import (  # noqa: F401
     TestPEP701FStrings,
-    TestPEP701XonshFStrings,
+    TestPEP701PygwinFStrings,
 )
 
 
@@ -2356,10 +2356,10 @@ def test_pep695_combined(check_stmts):
 
 
 @skip_if_pre_3_12
-def test_pep695_integration(xonsh_execer):
-    """Integration: compile and execute PEP 695 code through xonsh execer."""
+def test_pep695_integration(pygwin_execer):
+    """Integration: compile and execute PEP 695 code through pygwin execer."""
     glbs = {}
-    xonsh_execer.exec(
+    pygwin_execer.exec(
         "type Vector[T] = list[T]\n"
         "class Box[T]:\n"
         "    def __init__(self, val: T) -> None:\n"
@@ -2396,10 +2396,10 @@ def test_except_star_else_finally(check_stmts):
     )
 
 
-def test_except_star_integration(xonsh_execer):
+def test_except_star_integration(pygwin_execer):
     """Integration: except* catches ExceptionGroup members."""
     glbs = {}
-    xonsh_execer.exec(
+    pygwin_execer.exec(
         "result = []\n"
         "try:\n"
         "    raise ExceptionGroup('eg', [ValueError(1), TypeError(2)])\n"
@@ -2435,78 +2435,78 @@ def test_named_expr_while(check_stmts):
 
 
 #
-# Xonsh specific syntax
+# Pygwin specific syntax
 #
 
 
-def test_path_literal(check_xonsh_ast):
-    check_xonsh_ast({}, 'p"/foo"', False)
-    check_xonsh_ast({}, 'pr"/foo"', False)
-    check_xonsh_ast({}, 'rp"/foo"', False)
-    check_xonsh_ast({}, 'pR"/foo"', False)
-    check_xonsh_ast({}, 'Rp"/foo"', False)
+def test_path_literal(check_pygwin_ast):
+    check_pygwin_ast({}, 'p"/foo"', False)
+    check_pygwin_ast({}, 'pr"/foo"', False)
+    check_pygwin_ast({}, 'rp"/foo"', False)
+    check_pygwin_ast({}, 'pR"/foo"', False)
+    check_pygwin_ast({}, 'Rp"/foo"', False)
 
 
-def test_path_fstring_literal(check_xonsh_ast):
-    check_xonsh_ast({}, 'pf"/foo"', False)
-    check_xonsh_ast({}, 'fp"/foo"', False)
-    check_xonsh_ast({}, 'pF"/foo"', False)
-    check_xonsh_ast({}, 'Fp"/foo"', False)
-    check_xonsh_ast({}, 'pf"/foo{1+1}"', False)
-    check_xonsh_ast({}, 'fp"/foo{1+1}"', False)
-    check_xonsh_ast({}, 'pF"/foo{1+1}"', False)
-    check_xonsh_ast({}, 'Fp"/foo{1+1}"', False)
+def test_path_fstring_literal(check_pygwin_ast):
+    check_pygwin_ast({}, 'pf"/foo"', False)
+    check_pygwin_ast({}, 'fp"/foo"', False)
+    check_pygwin_ast({}, 'pF"/foo"', False)
+    check_pygwin_ast({}, 'Fp"/foo"', False)
+    check_pygwin_ast({}, 'pf"/foo{1+1}"', False)
+    check_pygwin_ast({}, 'fp"/foo{1+1}"', False)
+    check_pygwin_ast({}, 'pF"/foo{1+1}"', False)
+    check_pygwin_ast({}, 'Fp"/foo{1+1}"', False)
 
 
 @pytest.mark.parametrize(
     "first_prefix, second_prefix",
     itertools.product(["p", "pf", "pr"], repeat=2),
 )
-def test_path_literal_concat(first_prefix, second_prefix, check_xonsh_ast):
-    check_xonsh_ast(
+def test_path_literal_concat(first_prefix, second_prefix, check_pygwin_ast):
+    check_pygwin_ast(
         {}, first_prefix + r"'11{a}22\n'" + " " + second_prefix + r"'33{b}44\n'", False
     )
 
 
-def test_dollar_name(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": 42}, "$WAKKA")
+def test_dollar_name(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": 42}, "$WAKKA")
 
 
-def test_dollar_py(check_xonsh):
-    check_xonsh({"WAKKA": 42}, 'x = "WAKKA"; y = ${x}')
+def test_dollar_py(check_pygwin):
+    check_pygwin({"WAKKA": 42}, 'x = "WAKKA"; y = ${x}')
 
 
-def test_dollar_py_test(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": 42}, '${None or "WAKKA"}')
+def test_dollar_py_test(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": 42}, '${None or "WAKKA"}')
 
 
-def test_dollar_py_recursive_name(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": 42, "JAWAKA": "WAKKA"}, "${$JAWAKA}")
+def test_dollar_py_recursive_name(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": 42, "JAWAKA": "WAKKA"}, "${$JAWAKA}")
 
 
-def test_dollar_py_test_recursive_name(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": 42, "JAWAKA": "WAKKA"}, "${None or $JAWAKA}")
+def test_dollar_py_test_recursive_name(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": 42, "JAWAKA": "WAKKA"}, "${None or $JAWAKA}")
 
 
-def test_dollar_py_test_recursive_test(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": 42, "JAWAKA": "WAKKA"}, '${${"JAWA" + $JAWAKA[-2:]}}')
+def test_dollar_py_test_recursive_test(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": 42, "JAWAKA": "WAKKA"}, '${${"JAWA" + $JAWAKA[-2:]}}')
 
 
-def test_dollar_name_set(check_xonsh):
-    check_xonsh({"WAKKA": 42}, "$WAKKA = 42")
+def test_dollar_name_set(check_pygwin):
+    check_pygwin({"WAKKA": 42}, "$WAKKA = 42")
 
 
-def test_dollar_py_set(check_xonsh):
-    check_xonsh({"WAKKA": 42}, 'x = "WAKKA"; ${x} = 65')
+def test_dollar_py_set(check_pygwin):
+    check_pygwin({"WAKKA": 42}, 'x = "WAKKA"; ${x} = 65')
 
 
 def test_bare_builtin_becomes_cmd_call(parser, xsh):
-    """Bare builtin name as statement should become __xonsh__.builtin_cmd() call."""
+    """Bare builtin name as statement should become __pygwin__.builtin_cmd() call."""
     import ast as stdlib_ast
 
     tree = parser.parse("zip\n", debug_level=0)
     xsh.env.update({})
-    from xonsh.parsers.ast import CtxAwareTransformer
+    from pygwin.parsers.ast import CtxAwareTransformer
 
     ctxtr = CtxAwareTransformer(parser)
     tree = ctxtr.ctxvisit(tree, "zip\n", set(dir(__builtins__)))
@@ -2528,14 +2528,14 @@ def _builtins_ctx():
 def test_flag_pattern_becomes_subproc_when_flag_enabled(parser, xsh, monkeypatch):
     """``zip --help`` / ``id -a`` parse as Python ``BinOp(Sub)`` and would
     blow up at runtime (``-help`` → ``_Helper.__neg__`` → TypeError). With
-    ``$XONSH_BUILTINS_TO_CMD=True`` and LHS being a known alias/command,
+    ``$PYGWIN_BUILTINS_TO_CMD=True`` and LHS being a known alias/command,
     the transformer must re-parse the line as subprocess so the user gets
     the expected behaviour."""
     import ast as stdlib_ast
 
-    from xonsh.parsers.ast import CtxAwareTransformer
+    from pygwin.parsers.ast import CtxAwareTransformer
 
-    monkeypatch.setitem(xsh.env, "XONSH_BUILTINS_TO_CMD", True)
+    monkeypatch.setitem(xsh.env, "PYGWIN_BUILTINS_TO_CMD", True)
     monkeypatch.setitem(xsh.aliases, "zip", ["zip"])
     code = "zip --help\n"
     tree = parser.parse(code, debug_level=0)
@@ -2547,13 +2547,13 @@ def test_flag_pattern_becomes_subproc_when_flag_enabled(parser, xsh, monkeypatch
 
 
 def test_flag_pattern_stays_python_when_flag_disabled(parser, xsh, monkeypatch):
-    """With ``$XONSH_BUILTINS_TO_CMD`` off (default), the flag-pattern
+    """With ``$PYGWIN_BUILTINS_TO_CMD`` off (default), the flag-pattern
     rewrite must not fire — preserves the legacy behaviour."""
     import ast as stdlib_ast
 
-    from xonsh.parsers.ast import CtxAwareTransformer
+    from pygwin.parsers.ast import CtxAwareTransformer
 
-    monkeypatch.setitem(xsh.env, "XONSH_BUILTINS_TO_CMD", False)
+    monkeypatch.setitem(xsh.env, "PYGWIN_BUILTINS_TO_CMD", False)
     monkeypatch.setitem(xsh.aliases, "zip", ["zip"])
     code = "zip --help\n"
     tree = parser.parse(code, debug_level=0)
@@ -2567,13 +2567,13 @@ def test_flag_pattern_stays_python_when_flag_disabled(parser, xsh, monkeypatch):
 
 def test_flag_pattern_leaves_user_arithmetic_alone(parser, xsh, monkeypatch):
     """``x - -y`` with user-defined ``x``/``y`` must stay as plain arithmetic,
-    even with ``$XONSH_BUILTINS_TO_CMD`` on and a command of the same name
+    even with ``$PYGWIN_BUILTINS_TO_CMD`` on and a command of the same name
     on $PATH."""
     import ast as stdlib_ast
 
-    from xonsh.parsers.ast import CtxAwareTransformer
+    from pygwin.parsers.ast import CtxAwareTransformer
 
-    monkeypatch.setitem(xsh.env, "XONSH_BUILTINS_TO_CMD", True)
+    monkeypatch.setitem(xsh.env, "PYGWIN_BUILTINS_TO_CMD", True)
     monkeypatch.setitem(xsh.aliases, "ls", ["ls"])
     code = "ls = 10\nls - -5\n"
     tree = parser.parse(code, debug_level=0)
@@ -2589,7 +2589,7 @@ def test_walrus_in_assign_ctx(parser, xsh):
     """Walrus operator variable in RHS should be tracked in context."""
     import ast as stdlib_ast
 
-    from xonsh.parsers.ast import CtxAwareTransformer
+    from pygwin.parsers.ast import CtxAwareTransformer
 
     code = "x = (y := 5)\ny\n"
     tree = parser.parse(code, debug_level=0)
@@ -2602,7 +2602,7 @@ def test_walrus_in_assign_ctx(parser, xsh):
 
 def test_async_for_ctx(parser, xsh):
     """Variables from async for should be tracked in context."""
-    from xonsh.parsers.ast import CtxAwareTransformer
+    from pygwin.parsers.ast import CtxAwareTransformer
 
     code = "async def f():\n    async for x in items:\n        x\n"
     tree = parser.parse(code, debug_level=0)
@@ -2618,17 +2618,17 @@ def test_async_for_ctx(parser, xsh):
 
 
 @skip_if_pre_3_8
-def test_dollar_name_walrus(check_xonsh):
-    check_xonsh({}, "x = ($WAKKA := 42)\nassert x == 42\nassert $WAKKA == 42")
+def test_dollar_name_walrus(check_pygwin):
+    check_pygwin({}, "x = ($WAKKA := 42)\nassert x == 42\nassert $WAKKA == 42")
 
 
 @skip_if_pre_3_8
-def test_dollar_name_walrus_subprocess(check_xonsh_ast):
-    check_xonsh_ast({}, "$(echo @($WAKKA := 'hello'))", False)
+def test_dollar_name_walrus_subprocess(check_pygwin_ast):
+    check_pygwin_ast({}, "$(echo @($WAKKA := 'hello'))", False)
 
 
-def test_dollar_sub(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls)", False)
+def test_dollar_sub(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls)", False)
 
 
 @pytest.mark.parametrize(
@@ -2639,54 +2639,54 @@ def test_dollar_sub(check_xonsh_ast):
         "$( ls )",
     ],
 )
-def test_dollar_sub_space(expr, check_xonsh_ast):
-    check_xonsh_ast({}, expr, False)
+def test_dollar_sub_space(expr, check_pygwin_ast):
+    check_pygwin_ast({}, expr, False)
 
 
-def test_ls_dot(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls .)", False)
+def test_ls_dot(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls .)", False)
 
 
-def test_lambda_in_atparens(check_xonsh_ast):
-    check_xonsh_ast(
+def test_lambda_in_atparens(check_pygwin_ast):
+    check_pygwin_ast(
         {}, '$(echo hello | @(lambda a, s=None: "hey!") foo bar baz)', False
     )
 
 
-def test_generator_in_atparens(check_xonsh_ast):
-    check_xonsh_ast({}, "$(echo @(i**2 for i in range(20)))", False)
+def test_generator_in_atparens(check_pygwin_ast):
+    check_pygwin_ast({}, "$(echo @(i**2 for i in range(20)))", False)
 
 
-def test_bare_tuple_in_atparens(check_xonsh_ast):
-    check_xonsh_ast({}, '$(echo @("a", 7))', False)
+def test_bare_tuple_in_atparens(check_pygwin_ast):
+    check_pygwin_ast({}, '$(echo @("a", 7))', False)
 
 
-def test_nested_madness(check_xonsh_ast):
-    check_xonsh_ast(
+def test_nested_madness(check_pygwin_ast):
+    check_pygwin_ast(
         {},
         "$(@$(which echo) ls | @(lambda a, s=None: $(@(s.strip()) @(a[1]))) foo -la baz)",
         False,
     )
 
 
-def test_atbang_macro_simple(check_xonsh_ast):
-    check_xonsh_ast({}, "$(echo @!(2+2))", False)
+def test_atbang_macro_simple(check_pygwin_ast):
+    check_pygwin_ast({}, "$(echo @!(2+2))", False)
 
 
-def test_atbang_macro_complex_expr(check_xonsh_ast):
-    check_xonsh_ast({}, "$(echo @!(x if x > 0 else -x))", False)
+def test_atbang_macro_complex_expr(check_pygwin_ast):
+    check_pygwin_ast({}, "$(echo @!(x if x > 0 else -x))", False)
 
 
-def test_atbang_macro_nested_parens(check_xonsh_ast):
-    check_xonsh_ast({}, "$(echo @!(dict(a=1)))", False)
+def test_atbang_macro_nested_parens(check_pygwin_ast):
+    check_pygwin_ast({}, "$(echo @!(dict(a=1)))", False)
 
 
-def test_atbang_macro_fstring(check_xonsh_ast):
-    check_xonsh_ast({}, '$(echo @!(f"{x} = {y}"))', False)
+def test_atbang_macro_fstring(check_pygwin_ast):
+    check_pygwin_ast({}, '$(echo @!(f"{x} = {y}"))', False)
 
 
-def test_atbang_macro_quotes(check_xonsh_ast):
-    check_xonsh_ast({}, "$(echo @!('hello world'))", False)
+def test_atbang_macro_quotes(check_pygwin_ast):
+    check_pygwin_ast({}, "$(echo @!('hello world'))", False)
 
 
 def test_atbang_macro_source_text(parser):
@@ -2729,28 +2729,28 @@ def test_atbang_macro_source_text_fstring(parser):
         pytest.fail('Expected Constant(value=\'f"{x}"\') in AST for @!(f"{x}")')
 
 
-def test_atparens_intoken(check_xonsh_ast):
-    check_xonsh_ast({}, "![echo /x/@(y)/z]", False)
+def test_atparens_intoken(check_pygwin_ast):
+    check_pygwin_ast({}, "![echo /x/@(y)/z]", False)
 
 
-def test_ls_dot_nesting(check_xonsh_ast):
-    check_xonsh_ast({}, '$(ls @(None or "."))', False)
+def test_ls_dot_nesting(check_pygwin_ast):
+    check_pygwin_ast({}, '$(ls @(None or "."))', False)
 
 
-def test_ls_dot_nesting_var(check_xonsh):
-    check_xonsh({}, 'x = "."; $(ls @(None or x))', False)
+def test_ls_dot_nesting_var(check_pygwin):
+    check_pygwin({}, 'x = "."; $(ls @(None or x))', False)
 
 
-def test_ls_dot_str(check_xonsh_ast):
-    check_xonsh_ast({}, '$(ls ".")', False)
+def test_ls_dot_str(check_pygwin_ast):
+    check_pygwin_ast({}, '$(ls ".")', False)
 
 
-def test_ls_nest_ls(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls $(ls))", False)
+def test_ls_nest_ls(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls $(ls))", False)
 
 
-def test_ls_nest_ls_dashl(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls $(ls) -l)", False)
+def test_ls_nest_ls_dashl(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls $(ls) -l)", False)
 
 
 @pytest.mark.parametrize(
@@ -2762,20 +2762,20 @@ def test_ls_nest_ls_dashl(check_xonsh_ast):
         "![echo prefix$(echo 1)suffix]",
     ],
 )
-def test_dollar_paren_adjacent_text(case, check_xonsh_ast):
-    check_xonsh_ast({}, case, False)
+def test_dollar_paren_adjacent_text(case, check_pygwin_ast):
+    check_pygwin_ast({}, case, False)
 
 
-def test_ls_envvar_strval(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": "."}, "$(ls $WAKKA)", False)
+def test_ls_envvar_strval(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": "."}, "$(ls $WAKKA)", False)
 
 
-def test_ls_envvar_listval(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": [".", "."]}, "$(ls $WAKKA)", False)
+def test_ls_envvar_listval(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": [".", "."]}, "$(ls $WAKKA)", False)
 
 
-def test_bang_sub(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls)", False)
+def test_bang_sub(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls)", False)
 
 
 @pytest.mark.parametrize(
@@ -2786,194 +2786,194 @@ def test_bang_sub(check_xonsh_ast):
         "!( ls )",
     ],
 )
-def test_bang_sub_space(expr, check_xonsh_ast):
-    check_xonsh_ast({}, expr, False)
+def test_bang_sub_space(expr, check_pygwin_ast):
+    check_pygwin_ast({}, expr, False)
 
 
-def test_bang_ls_dot(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls .)", False)
+def test_bang_ls_dot(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls .)", False)
 
 
-def test_bang_ls_dot_nesting(check_xonsh_ast):
-    check_xonsh_ast({}, '!(ls @(None or "."))', False)
+def test_bang_ls_dot_nesting(check_pygwin_ast):
+    check_pygwin_ast({}, '!(ls @(None or "."))', False)
 
 
-def test_bang_ls_dot_nesting_var(check_xonsh):
-    check_xonsh({}, 'x = "."; !(ls @(None or x))', False)
+def test_bang_ls_dot_nesting_var(check_pygwin):
+    check_pygwin({}, 'x = "."; !(ls @(None or x))', False)
 
 
-def test_bang_ls_dot_str(check_xonsh_ast):
-    check_xonsh_ast({}, '!(ls ".")', False)
+def test_bang_ls_dot_str(check_pygwin_ast):
+    check_pygwin_ast({}, '!(ls ".")', False)
 
 
-def test_bang_ls_nest_ls(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls $(ls))", False)
+def test_bang_ls_nest_ls(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls $(ls))", False)
 
 
-def test_bang_ls_nest_ls_dashl(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls $(ls) -l)", False)
+def test_bang_ls_nest_ls_dashl(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls $(ls) -l)", False)
 
 
-def test_bang_ls_envvar_strval(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": "."}, "!(ls $WAKKA)", False)
+def test_bang_ls_envvar_strval(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": "."}, "!(ls $WAKKA)", False)
 
 
-def test_bang_ls_envvar_listval(check_xonsh_ast):
-    check_xonsh_ast({"WAKKA": [".", "."]}, "!(ls $WAKKA)", False)
+def test_bang_ls_envvar_listval(check_pygwin_ast):
+    check_pygwin_ast({"WAKKA": [".", "."]}, "!(ls $WAKKA)", False)
 
 
-def test_bang_envvar_args(check_xonsh_ast):
-    check_xonsh_ast({"LS": "ls"}, "!($LS .)", False)
+def test_bang_envvar_args(check_pygwin_ast):
+    check_pygwin_ast({"LS": "ls"}, "!($LS .)", False)
 
 
-def test_question(check_xonsh_ast):
-    check_xonsh_ast({}, "range?")
+def test_question(check_pygwin_ast):
+    check_pygwin_ast({}, "range?")
 
 
-def test_dobquestion(check_xonsh_ast):
-    check_xonsh_ast({}, "range??")
+def test_dobquestion(check_pygwin_ast):
+    check_pygwin_ast({}, "range??")
 
 
-def test_question_chain(check_xonsh_ast):
-    check_xonsh_ast({}, "range?.index?")
+def test_question_chain(check_pygwin_ast):
+    check_pygwin_ast({}, "range?.index?")
 
 
-def test_envvar_question(check_xonsh_ast):
-    check_xonsh_ast({}, "$HOME?")
+def test_envvar_question(check_pygwin_ast):
+    check_pygwin_ast({}, "$HOME?")
 
 
-def test_envvar_double_question(check_xonsh_ast):
-    check_xonsh_ast({}, "$HOME??")
+def test_envvar_double_question(check_pygwin_ast):
+    check_pygwin_ast({}, "$HOME??")
 
 
-def test_ls_regex(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls `[Ff]+i*LE` -l)", False)
+def test_ls_regex(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls `[Ff]+i*LE` -l)", False)
 
 
 @pytest.mark.parametrize("p", ["", "p"])
 @pytest.mark.parametrize("f", ["", "f"])
 @pytest.mark.parametrize("glob_type", ["", "r", "g"])
-def test_backtick(p, f, glob_type, check_xonsh_ast):
-    check_xonsh_ast({}, f"print({p}{f}{glob_type}`.*`)", False)
+def test_backtick(p, f, glob_type, check_pygwin_ast):
+    check_pygwin_ast({}, f"print({p}{f}{glob_type}`.*`)", False)
 
 
-def test_ls_regex_octothorpe(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls `#[Ff]+i*LE` -l)", False)
+def test_ls_regex_octothorpe(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls `#[Ff]+i*LE` -l)", False)
 
 
-def test_ls_explicitregex(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls r`[Ff]+i*LE` -l)", False)
+def test_ls_explicitregex(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls r`[Ff]+i*LE` -l)", False)
 
 
-def test_ls_explicitregex_octothorpe(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls r`#[Ff]+i*LE` -l)", False)
+def test_ls_explicitregex_octothorpe(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls r`#[Ff]+i*LE` -l)", False)
 
 
-def test_ls_glob(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls g`[Ff]+i*LE` -l)", False)
+def test_ls_glob(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls g`[Ff]+i*LE` -l)", False)
 
 
-def test_ls_glob_octothorpe(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls g`#[Ff]+i*LE` -l)", False)
+def test_ls_glob_octothorpe(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls g`#[Ff]+i*LE` -l)", False)
 
 
-def test_ls_customsearch(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls @foo`[Ff]+i*LE` -l)", False)
+def test_ls_customsearch(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls @foo`[Ff]+i*LE` -l)", False)
 
 
-def test_custombacktick(check_xonsh_ast):
-    check_xonsh_ast({}, "print(@foo`.*`)", False)
+def test_custombacktick(check_pygwin_ast):
+    check_pygwin_ast({}, "print(@foo`.*`)", False)
 
 
-def test_ls_customsearch_octothorpe(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls @foo`#[Ff]+i*LE` -l)", False)
+def test_ls_customsearch_octothorpe(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls @foo`#[Ff]+i*LE` -l)", False)
 
 
-def test_injection(check_xonsh_ast):
-    check_xonsh_ast({}, "$[@$(which python)]", False)
+def test_injection(check_pygwin_ast):
+    check_pygwin_ast({}, "$[@$(which python)]", False)
 
 
-def test_rhs_nested_injection(check_xonsh_ast):
-    check_xonsh_ast({}, "$[ls @$(dirname @$(which python))]", False)
+def test_rhs_nested_injection(check_pygwin_ast):
+    check_pygwin_ast({}, "$[ls @$(dirname @$(which python))]", False)
 
 
-def test_merged_injection(check_xonsh_ast):
-    tree = check_xonsh_ast({}, "![a@$(echo 1 2)b]", False, return_obs=True)
+def test_merged_injection(check_pygwin_ast):
+    tree = check_pygwin_ast({}, "![a@$(echo 1 2)b]", False, return_obs=True)
     assert isinstance(tree, AST)
     func = tree.body.args[0].right.func
     assert func.attr == "list_of_list_of_strs_outer_product"
 
 
-def test_backtick_octothorpe(check_xonsh_ast):
-    check_xonsh_ast({}, "print(`#.*`)", False)
+def test_backtick_octothorpe(check_pygwin_ast):
+    check_pygwin_ast({}, "print(`#.*`)", False)
 
 
-def test_uncaptured_sub(check_xonsh_ast):
-    check_xonsh_ast({}, "$[ls]", False)
+def test_uncaptured_sub(check_pygwin_ast):
+    check_pygwin_ast({}, "$[ls]", False)
 
 
-def test_hiddenobj_sub(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls]", False)
+def test_hiddenobj_sub(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls]", False)
 
 
-def test_slash_envarv_echo(check_xonsh_ast):
-    check_xonsh_ast({}, "![echo $HOME/place]", False)
+def test_slash_envarv_echo(check_pygwin_ast):
+    check_pygwin_ast({}, "![echo $HOME/place]", False)
 
 
-def test_echo_double_eq(check_xonsh_ast):
-    check_xonsh_ast({}, "![echo yo==yo]", False)
+def test_echo_double_eq(check_pygwin_ast):
+    check_pygwin_ast({}, "![echo yo==yo]", False)
 
 
-def test_bang_two_cmds_one_pipe(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls | grep wakka)", False)
+def test_bang_two_cmds_one_pipe(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls | grep wakka)", False)
 
 
-def test_bang_three_cmds_two_pipes(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls | grep wakka | grep jawaka)", False)
+def test_bang_three_cmds_two_pipes(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls | grep wakka | grep jawaka)", False)
 
 
-def test_bang_one_cmd_write(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls > x.py)", False)
+def test_bang_one_cmd_write(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls > x.py)", False)
 
 
-def test_bang_one_cmd_append(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls >> x.py)", False)
+def test_bang_one_cmd_append(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls >> x.py)", False)
 
 
-def test_bang_two_cmds_write(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls | grep wakka > x.py)", False)
+def test_bang_two_cmds_write(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls | grep wakka > x.py)", False)
 
 
-def test_bang_two_cmds_append(check_xonsh_ast):
-    check_xonsh_ast({}, "!(ls | grep wakka >> x.py)", False)
+def test_bang_two_cmds_append(check_pygwin_ast):
+    check_pygwin_ast({}, "!(ls | grep wakka >> x.py)", False)
 
 
-def test_bang_cmd_background(check_xonsh_ast):
-    check_xonsh_ast({}, "!(emacs ugggh &)", False)
+def test_bang_cmd_background(check_pygwin_ast):
+    check_pygwin_ast({}, "!(emacs ugggh &)", False)
 
 
-def test_bang_cmd_background_nospace(check_xonsh_ast):
-    check_xonsh_ast({}, "!(emacs ugggh&)", False)
+def test_bang_cmd_background_nospace(check_pygwin_ast):
+    check_pygwin_ast({}, "!(emacs ugggh&)", False)
 
 
-def test_bang_git_quotes_no_space(check_xonsh_ast):
-    check_xonsh_ast({}, '![git commit -am "wakka"]', False)
+def test_bang_git_quotes_no_space(check_pygwin_ast):
+    check_pygwin_ast({}, '![git commit -am "wakka"]', False)
 
 
-def test_bang_git_quotes_space(check_xonsh_ast):
-    check_xonsh_ast({}, '![git commit -am "wakka jawaka"]', False)
+def test_bang_git_quotes_space(check_pygwin_ast):
+    check_pygwin_ast({}, '![git commit -am "wakka jawaka"]', False)
 
 
-def test_bang_git_two_quotes_space(check_xonsh):
-    check_xonsh(
+def test_bang_git_two_quotes_space(check_pygwin):
+    check_pygwin(
         {},
         '![git commit -am "wakka jawaka"]\n![git commit -am "flock jawaka"]\n',
         False,
     )
 
 
-def test_bang_git_two_quotes_space_space(check_xonsh):
-    check_xonsh(
+def test_bang_git_two_quotes_space_space(check_pygwin):
+    check_pygwin(
         {},
         '![git commit -am "wakka jawaka" ]\n'
         '![git commit -am "flock jawaka milwaka" ]\n',
@@ -2981,92 +2981,92 @@ def test_bang_git_two_quotes_space_space(check_xonsh):
     )
 
 
-def test_bang_ls_quotes_3_space(check_xonsh_ast):
-    check_xonsh_ast({}, '![ls "wakka jawaka baraka"]', False)
+def test_bang_ls_quotes_3_space(check_pygwin_ast):
+    check_pygwin_ast({}, '![ls "wakka jawaka baraka"]', False)
 
 
-def test_two_cmds_one_pipe(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls | grep wakka)", False)
+def test_two_cmds_one_pipe(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls | grep wakka)", False)
 
 
-def test_three_cmds_two_pipes(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls | grep wakka | grep jawaka)", False)
+def test_three_cmds_two_pipes(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls | grep wakka | grep jawaka)", False)
 
 
-def test_two_cmds_one_and_brackets(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls me] and ![grep wakka]", False)
+def test_two_cmds_one_and_brackets(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls me] and ![grep wakka]", False)
 
 
-def test_three_cmds_two_ands(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls] and ![grep wakka] and ![grep jawaka]", False)
+def test_three_cmds_two_ands(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls] and ![grep wakka] and ![grep jawaka]", False)
 
 
-def test_two_cmds_one_doubleamps(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls] && ![grep wakka]", False)
+def test_two_cmds_one_doubleamps(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls] && ![grep wakka]", False)
 
 
-def test_three_cmds_two_doubleamps(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls] && ![grep wakka] && ![grep jawaka]", False)
+def test_three_cmds_two_doubleamps(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls] && ![grep wakka] && ![grep jawaka]", False)
 
 
-def test_two_cmds_one_or(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls] or ![grep wakka]", False)
+def test_two_cmds_one_or(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls] or ![grep wakka]", False)
 
 
-def test_three_cmds_two_ors(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls] or ![grep wakka] or ![grep jawaka]", False)
+def test_three_cmds_two_ors(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls] or ![grep wakka] or ![grep jawaka]", False)
 
 
-def test_two_cmds_one_doublepipe(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls] || ![grep wakka]", False)
+def test_two_cmds_one_doublepipe(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls] || ![grep wakka]", False)
 
 
-def test_three_cmds_two_doublepipe(check_xonsh_ast):
-    check_xonsh_ast({}, "![ls] || ![grep wakka] || ![grep jawaka]", False)
+def test_three_cmds_two_doublepipe(check_pygwin_ast):
+    check_pygwin_ast({}, "![ls] || ![grep wakka] || ![grep jawaka]", False)
 
 
-def test_one_cmd_write(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls > x.py)", False)
+def test_one_cmd_write(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls > x.py)", False)
 
 
-def test_one_cmd_append(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls >> x.py)", False)
+def test_one_cmd_append(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls >> x.py)", False)
 
 
-def test_two_cmds_write(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls | grep wakka > x.py)", False)
+def test_two_cmds_write(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls | grep wakka > x.py)", False)
 
 
-def test_two_cmds_append(check_xonsh_ast):
-    check_xonsh_ast({}, "$(ls | grep wakka >> x.py)", False)
+def test_two_cmds_append(check_pygwin_ast):
+    check_pygwin_ast({}, "$(ls | grep wakka >> x.py)", False)
 
 
-def test_cmd_background(check_xonsh_ast):
-    check_xonsh_ast({}, "$(emacs ugggh &)", False)
+def test_cmd_background(check_pygwin_ast):
+    check_pygwin_ast({}, "$(emacs ugggh &)", False)
 
 
-def test_cmd_background_nospace(check_xonsh_ast):
-    check_xonsh_ast({}, "$(emacs ugggh&)", False)
+def test_cmd_background_nospace(check_pygwin_ast):
+    check_pygwin_ast({}, "$(emacs ugggh&)", False)
 
 
-def test_git_quotes_no_space(check_xonsh_ast):
-    check_xonsh_ast({}, '$[git commit -am "wakka"]', False)
+def test_git_quotes_no_space(check_pygwin_ast):
+    check_pygwin_ast({}, '$[git commit -am "wakka"]', False)
 
 
-def test_git_quotes_space(check_xonsh_ast):
-    check_xonsh_ast({}, '$[git commit -am "wakka jawaka"]', False)
+def test_git_quotes_space(check_pygwin_ast):
+    check_pygwin_ast({}, '$[git commit -am "wakka jawaka"]', False)
 
 
-def test_git_two_quotes_space(check_xonsh):
-    check_xonsh(
+def test_git_two_quotes_space(check_pygwin):
+    check_pygwin(
         {},
         '$[git commit -am "wakka jawaka"]\n$[git commit -am "flock jawaka"]\n',
         False,
     )
 
 
-def test_git_two_quotes_space_space(check_xonsh):
-    check_xonsh(
+def test_git_two_quotes_space_space(check_pygwin):
+    check_pygwin(
         {},
         '$[git commit -am "wakka jawaka" ]\n'
         '$[git commit -am "flock jawaka milwaka" ]\n',
@@ -3074,36 +3074,36 @@ def test_git_two_quotes_space_space(check_xonsh):
     )
 
 
-def test_ls_quotes_3_space(check_xonsh_ast):
-    check_xonsh_ast({}, '$[ls "wakka jawaka baraka"]', False)
+def test_ls_quotes_3_space(check_pygwin_ast):
+    check_pygwin_ast({}, '$[ls "wakka jawaka baraka"]', False)
 
 
-def test_leading_envvar_assignment(check_xonsh_ast):
-    check_xonsh_ast({}, "![$FOO='foo' $BAR=2 echo r'$BAR']", False)
+def test_leading_envvar_assignment(check_pygwin_ast):
+    check_pygwin_ast({}, "![$FOO='foo' $BAR=2 echo r'$BAR']", False)
 
 
-def test_leading_envvar_assignment_bool(check_xonsh_ast):
-    check_xonsh_ast({}, "![$QWE=False echo 1]", False)
+def test_leading_envvar_assignment_bool(check_pygwin_ast):
+    check_pygwin_ast({}, "![$QWE=False echo 1]", False)
 
 
-def test_leading_envvar_assignment_true(check_xonsh_ast):
-    check_xonsh_ast({}, "![$QWE=True echo 1]", False)
+def test_leading_envvar_assignment_true(check_pygwin_ast):
+    check_pygwin_ast({}, "![$QWE=True echo 1]", False)
 
 
-def test_leading_envvar_assignment_none(check_xonsh_ast):
-    check_xonsh_ast({}, "![$QWE=None echo 1]", False)
+def test_leading_envvar_assignment_none(check_pygwin_ast):
+    check_pygwin_ast({}, "![$QWE=None echo 1]", False)
 
 
-def test_echo_comma(check_xonsh_ast):
-    check_xonsh_ast({}, "![echo ,]", False)
+def test_echo_comma(check_pygwin_ast):
+    check_pygwin_ast({}, "![echo ,]", False)
 
 
-def test_echo_internal_comma(check_xonsh_ast):
-    check_xonsh_ast({}, "![echo 1,2]", False)
+def test_echo_internal_comma(check_pygwin_ast):
+    check_pygwin_ast({}, "![echo 1,2]", False)
 
 
-def test_comment_only(check_xonsh_ast):
-    check_xonsh_ast({}, "# hello")
+def test_comment_only(check_pygwin_ast):
+    check_pygwin_ast({}, "# hello")
 
 
 @pytest.mark.parametrize(
@@ -3119,8 +3119,8 @@ def test_parse_hash_in_arg_no_hang(inp, xsh):
     xsh.execer.compile(inp, mode="single", glbs={}, locs={})
 
 
-def test_echo_slash_question(check_xonsh_ast):
-    check_xonsh_ast({}, "![echo /?]", False)
+def test_echo_slash_question(check_pygwin_ast):
+    check_pygwin_ast({}, "![echo /?]", False)
 
 
 @pytest.mark.parametrize(
@@ -3138,18 +3138,18 @@ def test_echo_slash_question(check_xonsh_ast):
         "[a@([1,2])]@([3,4])",
     ],
 )
-def test_echo_brackets(case, check_xonsh_ast):
-    check_xonsh_ast({}, f"![echo {case}]")
+def test_echo_brackets(case, check_pygwin_ast):
+    check_pygwin_ast({}, f"![echo {case}]")
 
 
-def test_bad_quotes(check_xonsh_ast):
+def test_bad_quotes(check_pygwin_ast):
     with pytest.raises(SyntaxError):
-        check_xonsh_ast({}, '![echo """hello]', False)
+        check_pygwin_ast({}, '![echo """hello]', False)
 
 
-def test_redirect(check_xonsh_ast):
-    assert check_xonsh_ast({}, "$[cat < input.txt]", False)
-    assert check_xonsh_ast({}, "$[< input.txt cat]", False)
+def test_redirect(check_pygwin_ast):
+    assert check_pygwin_ast({}, "$[cat < input.txt]", False)
+    assert check_pygwin_ast({}, "$[< input.txt cat]", False)
 
 
 @pytest.mark.parametrize(
@@ -3163,8 +3163,8 @@ def test_redirect(check_xonsh_ast):
         "![(if True:\n   ls\nelse:\n   echo not true)]",
     ],
 )
-def test_use_subshell(case, check_xonsh_ast):
-    check_xonsh_ast({}, case, False, debug_level=0)
+def test_use_subshell(case, check_pygwin_ast):
+    check_pygwin_ast({}, case, False, debug_level=0)
 
 
 @pytest.mark.parametrize(
@@ -3177,29 +3177,29 @@ def test_use_subshell(case, check_xonsh_ast):
         "![< /path/to/input.txt > /path/to/output.txt]",
     ],
 )
-def test_redirect_abspath(case, check_xonsh_ast):
-    assert check_xonsh_ast({}, case, False)
+def test_redirect_abspath(case, check_pygwin_ast):
+    assert check_pygwin_ast({}, case, False)
 
 
 @pytest.mark.parametrize("case", ["", "o", "out", "1"])
-def test_redirect_output(case, check_xonsh_ast):
-    assert check_xonsh_ast({}, f'$[echo "test" {case}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[< input.txt echo "test" {case}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[echo "test" {case}> test.txt < input.txt]', False)
+def test_redirect_output(case, check_pygwin_ast):
+    assert check_pygwin_ast({}, f'$[echo "test" {case}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[< input.txt echo "test" {case}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[echo "test" {case}> test.txt < input.txt]', False)
 
 
 @pytest.mark.parametrize("case", ["e", "err", "2"])
-def test_redirect_error(case, check_xonsh_ast):
-    assert check_xonsh_ast({}, f'$[echo "test" {case}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[< input.txt echo "test" {case}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[echo "test" {case}> test.txt < input.txt]', False)
+def test_redirect_error(case, check_pygwin_ast):
+    assert check_pygwin_ast({}, f'$[echo "test" {case}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[< input.txt echo "test" {case}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[echo "test" {case}> test.txt < input.txt]', False)
 
 
 @pytest.mark.parametrize("case", ["a", "all", "&"])
-def test_redirect_all(case, check_xonsh_ast):
-    assert check_xonsh_ast({}, f'$[echo "test" {case}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[< input.txt echo "test" {case}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[echo "test" {case}> test.txt < input.txt]', False)
+def test_redirect_all(case, check_pygwin_ast):
+    assert check_pygwin_ast({}, f'$[echo "test" {case}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[< input.txt echo "test" {case}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[echo "test" {case}> test.txt < input.txt]', False)
 
 
 @pytest.mark.parametrize(
@@ -3219,10 +3219,10 @@ def test_redirect_all(case, check_xonsh_ast):
     ],
 )
 @pytest.mark.parametrize("o", ["", "o", "out", "1"])
-def test_redirect_error_to_output(r, o, check_xonsh_ast):
-    assert check_xonsh_ast({}, f'$[echo "test" {r} {o}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[< input.txt echo "test" {r} {o}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[echo "test" {r} {o}> test.txt < input.txt]', False)
+def test_redirect_error_to_output(r, o, check_pygwin_ast):
+    assert check_pygwin_ast({}, f'$[echo "test" {r} {o}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[< input.txt echo "test" {r} {o}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[echo "test" {r} {o}> test.txt < input.txt]', False)
 
 
 @pytest.mark.parametrize(
@@ -3242,25 +3242,25 @@ def test_redirect_error_to_output(r, o, check_xonsh_ast):
     ],
 )
 @pytest.mark.parametrize("e", ["e", "err", "2"])
-def test_redirect_output_to_error(r, e, check_xonsh_ast):
-    assert check_xonsh_ast({}, f'$[echo "test" {r} {e}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[< input.txt echo "test" {r} {e}> test.txt]', False)
-    assert check_xonsh_ast({}, f'$[echo "test" {r} {e}> test.txt < input.txt]', False)
+def test_redirect_output_to_error(r, e, check_pygwin_ast):
+    assert check_pygwin_ast({}, f'$[echo "test" {r} {e}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[< input.txt echo "test" {r} {e}> test.txt]', False)
+    assert check_pygwin_ast({}, f'$[echo "test" {r} {e}> test.txt < input.txt]', False)
 
 
 @pytest.mark.parametrize("r", ["a>p", "all>p"])
-def test_redirect_all_to_pipe_parse(r, check_xonsh_ast):
-    assert check_xonsh_ast({}, f'$[echo "test" {r} | cat]', False)
+def test_redirect_all_to_pipe_parse(r, check_pygwin_ast):
+    assert check_pygwin_ast({}, f'$[echo "test" {r} | cat]', False)
 
 
 @pytest.mark.parametrize("r", ["e>p", "err>p", "2>p"])
-def test_redirect_err_to_pipe_parse(r, check_xonsh_ast):
-    assert check_xonsh_ast({}, f'$[echo "test" {r} | cat]', False)
-    assert check_xonsh_ast({}, f'$[echo "test" o> out.txt {r} | cat]', False)
+def test_redirect_err_to_pipe_parse(r, check_pygwin_ast):
+    assert check_pygwin_ast({}, f'$[echo "test" {r} | cat]', False)
+    assert check_pygwin_ast({}, f'$[echo "test" o> out.txt {r} | cat]', False)
 
 
-def test_macro_call_empty(check_xonsh_ast):
-    assert check_xonsh_ast({}, "f!()", False)
+def test_macro_call_empty(check_pygwin_ast):
+    assert check_pygwin_ast({}, "f!()", False)
 
 
 MACRO_ARGS = [
@@ -3292,14 +3292,14 @@ MACRO_ARGS = [
     "$(ls -l)",
     "${x + y}",
     "$[ls -l]",
-    "@$(which xonsh)",
+    "@$(which pygwin)",
 ]
 
 
 @pytest.mark.parametrize("s", MACRO_ARGS)
-def test_macro_call_one_arg(check_xonsh_ast, s):
+def test_macro_call_one_arg(check_pygwin_ast, s):
     f = f"f!({s})"
-    tree = check_xonsh_ast({}, f, False, return_obs=True)
+    tree = check_pygwin_ast({}, f, False, return_obs=True)
     assert isinstance(tree, AST)
     args = tree.body.args[1].elts
     assert len(args) == 1
@@ -3307,9 +3307,9 @@ def test_macro_call_one_arg(check_xonsh_ast, s):
 
 
 @pytest.mark.parametrize("s,t", itertools.product(MACRO_ARGS[::2], MACRO_ARGS[1::2]))
-def test_macro_call_two_args(check_xonsh_ast, s, t):
+def test_macro_call_two_args(check_pygwin_ast, s, t):
     f = f"f!({s}, {t})"
-    tree = check_xonsh_ast({}, f, False, return_obs=True)
+    tree = check_pygwin_ast({}, f, False, return_obs=True)
     assert isinstance(tree, AST)
     args = tree.body.args[1].elts
     assert len(args) == 2
@@ -3320,9 +3320,9 @@ def test_macro_call_two_args(check_xonsh_ast, s, t):
 @pytest.mark.parametrize(
     "s,t,u", itertools.product(MACRO_ARGS[::3], MACRO_ARGS[1::3], MACRO_ARGS[2::3])
 )
-def test_macro_call_three_args(check_xonsh_ast, s, t, u):
+def test_macro_call_three_args(check_pygwin_ast, s, t, u):
     f = f"f!({s}, {t}, {u})"
-    tree = check_xonsh_ast({}, f, False, return_obs=True)
+    tree = check_pygwin_ast({}, f, False, return_obs=True)
     assert isinstance(tree, AST)
     args = tree.body.args[1].elts
     assert len(args) == 3
@@ -3332,9 +3332,9 @@ def test_macro_call_three_args(check_xonsh_ast, s, t, u):
 
 
 @pytest.mark.parametrize("s", MACRO_ARGS)
-def test_macro_call_one_trailing(check_xonsh_ast, s):
+def test_macro_call_one_trailing(check_pygwin_ast, s):
     f = f"f!({s},)"
-    tree = check_xonsh_ast({}, f, False, return_obs=True)
+    tree = check_pygwin_ast({}, f, False, return_obs=True)
     assert isinstance(tree, AST)
     args = tree.body.args[1].elts
     assert len(args) == 1
@@ -3342,9 +3342,9 @@ def test_macro_call_one_trailing(check_xonsh_ast, s):
 
 
 @pytest.mark.parametrize("s", MACRO_ARGS)
-def test_macro_call_one_trailing_space(check_xonsh_ast, s):
+def test_macro_call_one_trailing_space(check_pygwin_ast, s):
     f = f"f!( {s}, )"
-    tree = check_xonsh_ast({}, f, False, return_obs=True)
+    tree = check_pygwin_ast({}, f, False, return_obs=True)
     assert isinstance(tree, AST)
     args = tree.body.args[1].elts
     assert len(args) == 1
@@ -3356,8 +3356,8 @@ SUBPROC_MACRO_OC = [("!(", ")"), ("$(", ")"), ("![", "]"), ("$[", "]")]
 
 @pytest.mark.parametrize("opener, closer", SUBPROC_MACRO_OC)
 @pytest.mark.parametrize("body", ["echo!", "echo !", "echo ! "])
-def test_empty_subprocbang(opener, closer, body, check_xonsh_ast):
-    tree = check_xonsh_ast({}, opener + body + closer, False, return_obs=True)
+def test_empty_subprocbang(opener, closer, body, check_pygwin_ast):
+    tree = check_pygwin_ast({}, opener + body + closer, False, return_obs=True)
     assert isinstance(tree, AST)
     cmd = tree.body.args[0].elts
     assert len(cmd) == 2
@@ -3366,8 +3366,8 @@ def test_empty_subprocbang(opener, closer, body, check_xonsh_ast):
 
 @pytest.mark.parametrize("opener, closer", SUBPROC_MACRO_OC)
 @pytest.mark.parametrize("body", ["echo!x", "echo !x", "echo !x", "echo ! x"])
-def test_single_subprocbang(opener, closer, body, check_xonsh_ast):
-    tree = check_xonsh_ast({}, opener + body + closer, False, return_obs=True)
+def test_single_subprocbang(opener, closer, body, check_pygwin_ast):
+    tree = check_pygwin_ast({}, opener + body + closer, False, return_obs=True)
     assert isinstance(tree, AST)
     cmd = tree.body.args[0].elts
     assert len(cmd) == 2
@@ -3378,8 +3378,8 @@ def test_single_subprocbang(opener, closer, body, check_xonsh_ast):
 @pytest.mark.parametrize(
     "body", ["echo -n!x", "echo -n!x", "echo -n !x", "echo -n ! x"]
 )
-def test_arg_single_subprocbang(opener, closer, body, check_xonsh_ast):
-    tree = check_xonsh_ast({}, opener + body + closer, False, return_obs=True)
+def test_arg_single_subprocbang(opener, closer, body, check_pygwin_ast):
+    tree = check_pygwin_ast({}, opener + body + closer, False, return_obs=True)
     assert isinstance(tree, AST)
     cmd = tree.body.args[0].elts
     assert len(cmd) == 3
@@ -3392,9 +3392,9 @@ def test_arg_single_subprocbang(opener, closer, body, check_xonsh_ast):
     "body", ["echo -n!x", "echo -n!x", "echo -n !x", "echo -n ! x"]
 )
 def test_arg_single_subprocbang_nested(
-    opener, closer, ipener, iloser, body, check_xonsh_ast
+    opener, closer, ipener, iloser, body, check_pygwin_ast
 ):
-    tree = check_xonsh_ast({}, opener + body + closer, False, return_obs=True)
+    tree = check_pygwin_ast({}, opener + body + closer, False, return_obs=True)
     assert isinstance(tree, AST)
     cmd = tree.body.args[0].elts
     assert len(cmd) == 3
@@ -3424,8 +3424,8 @@ def test_arg_single_subprocbang_nested(
         'timeit!"!)"',
     ],
 )
-def test_many_subprocbang(opener, closer, body, check_xonsh_ast):
-    tree = check_xonsh_ast({}, opener + body + closer, False, return_obs=True)
+def test_many_subprocbang(opener, closer, body, check_pygwin_ast):
+    tree = check_pygwin_ast({}, opener + body + closer, False, return_obs=True)
     assert isinstance(tree, AST)
     cmd = tree.body.args[0].elts
     assert len(cmd) == 2
@@ -3453,9 +3453,9 @@ WITH_BANG_RAWSUITES = [
 
 
 @pytest.mark.parametrize("body", WITH_BANG_RAWSUITES)
-def test_withbang_single_suite(body, check_xonsh_ast):
+def test_withbang_single_suite(body, check_pygwin_ast):
     code = "with! x:\n{}".format(textwrap.indent(body, "    "))
-    tree = check_xonsh_ast({}, code, False, return_obs=True, mode="exec")
+    tree = check_pygwin_ast({}, code, False, return_obs=True, mode="exec")
     assert isinstance(tree, AST)
     wither = tree.body[0]
     assert isinstance(wither, With)
@@ -3468,9 +3468,9 @@ def test_withbang_single_suite(body, check_xonsh_ast):
 
 
 @pytest.mark.parametrize("body", WITH_BANG_RAWSUITES)
-def test_withbang_as_single_suite(body, check_xonsh_ast):
+def test_withbang_as_single_suite(body, check_pygwin_ast):
     code = "with! x as y:\n{}".format(textwrap.indent(body, "    "))
-    tree = check_xonsh_ast({}, code, False, return_obs=True, mode="exec")
+    tree = check_pygwin_ast({}, code, False, return_obs=True, mode="exec")
     assert isinstance(tree, AST)
     wither = tree.body[0]
     assert isinstance(wither, With)
@@ -3484,9 +3484,9 @@ def test_withbang_as_single_suite(body, check_xonsh_ast):
 
 
 @pytest.mark.parametrize("body", WITH_BANG_RAWSUITES)
-def test_withbang_single_suite_trailing(body, check_xonsh_ast):
+def test_withbang_single_suite_trailing(body, check_pygwin_ast):
     code = "with! x:\n{}\nprint(x)\n".format(textwrap.indent(body, "    "))
-    tree = check_xonsh_ast(
+    tree = check_pygwin_ast(
         {},
         code,
         False,
@@ -3514,9 +3514,9 @@ WITH_BANG_RAWSIMPLE = [
 
 
 @pytest.mark.parametrize("body", WITH_BANG_RAWSIMPLE)
-def test_withbang_single_simple(body, check_xonsh_ast):
+def test_withbang_single_simple(body, check_pygwin_ast):
     code = f"with! x: {body}\n"
-    tree = check_xonsh_ast({}, code, False, return_obs=True, mode="exec")
+    tree = check_pygwin_ast({}, code, False, return_obs=True, mode="exec")
     assert isinstance(tree, AST)
     wither = tree.body[0]
     assert isinstance(wither, With)
@@ -3529,9 +3529,9 @@ def test_withbang_single_simple(body, check_xonsh_ast):
 
 
 @pytest.mark.parametrize("body", WITH_BANG_RAWSIMPLE)
-def test_withbang_single_simple_opt(body, check_xonsh_ast):
+def test_withbang_single_simple_opt(body, check_pygwin_ast):
     code = f"with! x as y: {body}\n"
-    tree = check_xonsh_ast({}, code, False, return_obs=True, mode="exec")
+    tree = check_pygwin_ast({}, code, False, return_obs=True, mode="exec")
     assert isinstance(tree, AST)
     wither = tree.body[0]
     assert isinstance(wither, With)
@@ -3545,10 +3545,10 @@ def test_withbang_single_simple_opt(body, check_xonsh_ast):
 
 
 @pytest.mark.parametrize("body", WITH_BANG_RAWSUITES)
-def test_withbang_as_many_suite(body, check_xonsh_ast):
+def test_withbang_as_many_suite(body, check_pygwin_ast):
     code = "with! x as a, y as b, z as c:\n{}"
     code = code.format(textwrap.indent(body, "    "))
-    tree = check_xonsh_ast({}, code, False, return_obs=True, mode="exec")
+    tree = check_pygwin_ast({}, code, False, return_obs=True, mode="exec")
     assert isinstance(tree, AST)
     wither = tree.body[0]
     assert isinstance(wither, With)
@@ -3562,14 +3562,14 @@ def test_withbang_as_many_suite(body, check_xonsh_ast):
         assert s == body
 
 
-def test_subproc_raw_str_literal(check_xonsh_ast):
-    tree = check_xonsh_ast({}, "!(echo '$foo')", run=False, return_obs=True)
+def test_subproc_raw_str_literal(check_pygwin_ast):
+    tree = check_pygwin_ast({}, "!(echo '$foo')", run=False, return_obs=True)
     assert isinstance(tree, AST)
     subproc = tree.body
     assert isinstance(subproc.args[0].elts[1], Call)
     assert subproc.args[0].elts[1].func.attr == "expand_path"
 
-    tree = check_xonsh_ast({}, "!(echo r'$foo')", run=False, return_obs=True)
+    tree = check_pygwin_ast({}, "!(echo r'$foo')", run=False, return_obs=True)
     assert isinstance(tree, AST)
     subproc = tree.body
     assert is_const_str(subproc.args[0].elts[1])
@@ -3813,7 +3813,7 @@ def test_get_repo_url(parser):
 
 
 # match statement
-# (tests asserting that pure python match statements produce the same ast with the xonsh parser as they do with the python parser)
+# (tests asserting that pure python match statements produce the same ast with the pygwin parser as they do with the python parser)
 
 
 def test_match_and_case_are_not_keywords(check_stmts):
@@ -4081,14 +4081,14 @@ match (...[...][...]):
     )
 
 
-def test_at_returns_xonsh(parser):
+def test_at_returns_pygwin(parser):
     expr = parser.parse("@")
     assert isinstance(expr.body, ast.Attribute)
     assert expr.body.attr == "interface"
 
 
 @pytest.mark.parametrize("exp", ["env", "imp"])
-def test_atdot_returns_xonsh_attr(parser, exp):
+def test_atdot_returns_pygwin_attr(parser, exp):
     expr = parser.parse(f"@.{exp}")
     assert isinstance(expr.body, ast.Attribute)
     assert expr.body.attr == exp
@@ -4131,13 +4131,13 @@ def test_yacc_loader_failure_does_not_hang():
     """If yacc.yacc() fails, parse() should raise instead of hanging."""
     from unittest.mock import patch
 
-    from xonsh.parsers.base import YaccLoader
+    from pygwin.parsers.base import YaccLoader
 
     class FakeParser:
         parser = None
 
     fp = FakeParser()
-    with patch("xonsh.parsers.base.yacc") as mock_yacc:
+    with patch("pygwin.parsers.base.yacc") as mock_yacc:
         mock_yacc.yacc.side_effect = RuntimeError("grammar broken")
         loader = YaccLoader(fp, {})
         loader.ready.wait(timeout=2)

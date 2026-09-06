@@ -4,8 +4,8 @@ import os
 
 import pytest  # noqa F401
 
-from xonsh import dirstack
-from xonsh.tools import chdir
+from pygwin import dirstack
+from pygwin.tools import chdir
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PARENT = os.path.dirname(HERE)
@@ -51,8 +51,8 @@ def test_cdpath_collision(xession):
 def test_cdpath_expansion(xession):
     xession.env.update(dict(HERE=HERE, CDPATH=("~", "$HERE")))
     test_dirs = (
-        os.path.join(HERE, "xonsh-test-cdpath-here"),
-        os.path.expanduser("~/xonsh-test-cdpath-home"),
+        os.path.join(HERE, "pygwin-test-cdpath-here"),
+        os.path.expanduser("~/pygwin-test-cdpath-home"),
     )
     try:
         for d in test_dirs:

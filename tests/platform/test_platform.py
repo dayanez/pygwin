@@ -4,7 +4,7 @@ from unittest.mock import mock_open
 
 import pytest
 
-import xonsh.platform_info as xp
+import pygwin.platform_info as xp
 
 
 def test_githash_value_error(monkeypatch):
@@ -22,8 +22,8 @@ def test_pathsplit_empty_path():
 
 
 def test_path_default_non_empty_on_supported_platforms():
-    """``PATH_DEFAULT`` must not be empty on any platform xonsh ships
-    binaries to find. An empty default leaves :class:`xonsh.environ.Env`
+    """``PATH_DEFAULT`` must not be empty on any platform pygwin ships
+    binaries to find. An empty default leaves :class:`pygwin.environ.Env`
     with no PATH when ``UPDATE_OS_ENVIRON`` is off (test sessions, embedded
     use), so ``commands_cache`` finds nothing and every ``subprocess.Popen``
     invocation built from ``XSH.env.detype()`` raises ``FileNotFoundError``.
@@ -88,7 +88,7 @@ def test_path_bshell_last_resort(monkeypatch):
 
 def test_path_default_freebsd_covers_system_and_ports():
     """FreeBSD's PATH must include both the base-system bin/sbin and the
-    ports/pkg ``/usr/local`` prefix. Without ``/usr/local/{s,}bin`` xonsh
+    ports/pkg ``/usr/local`` prefix. Without ``/usr/local/{s,}bin`` pygwin
     can't see anything installed via pkg (git, bash, etc.), which broke
     every subprocess-based test in the suite when running on FreeBSD."""
     if not xp.ON_FREEBSD:

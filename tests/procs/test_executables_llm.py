@@ -1,4 +1,4 @@
-"""LLM-generated tests for :mod:`xonsh.procs.executables`.
+"""LLM-generated tests for :mod:`pygwin.procs.executables`.
 
 Command-name resolution parity with other shells: a name containing a path
 separator is resolved against the file system (relative to the current
@@ -7,13 +7,13 @@ directory or absolute) and is never looked up in ``$PATH`` (gh-6532).
 
 import os
 
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.procs.executables import (
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.procs.executables import (
     is_explicit_path,
     locate_executable,
     locate_file,
 )
-from xonsh.tools import chdir
+from pygwin.tools import chdir
 
 
 def test_is_explicit_path():

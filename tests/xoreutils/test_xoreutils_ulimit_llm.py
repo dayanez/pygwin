@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.xoreutils.ulimit``.
+"""Smoke tests for ``pygwin.xoreutils.ulimit``.
 
 The module imports CPython's POSIX-only ``resource`` library at import
 time, so the entire file is skipped on Windows at collection time via the
@@ -10,7 +10,7 @@ import sys
 
 import pytest
 
-from xonsh.platform_info import ON_WINDOWS
+from pygwin.platform_info import ON_WINDOWS
 
 pytestmark = pytest.mark.skipif(
     ON_WINDOWS, reason="ulimit (and the underlying `resource` module) is POSIX-only"
@@ -19,7 +19,7 @@ pytestmark = pytest.mark.skipif(
 # Defer the import until after the platform skip so collection on Windows
 # never tries to resolve `import resource`.
 if not ON_WINDOWS:
-    from xonsh.xoreutils import ulimit
+    from pygwin.xoreutils import ulimit
 
 
 # --- ulimit -----------------------------------------------------------------

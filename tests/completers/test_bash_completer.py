@@ -3,14 +3,14 @@ import shutil
 
 import pytest
 
-from xonsh.completers.bash import complete_from_bash
-from xonsh.completers.tools import RichCompletion
-from xonsh.parsers.completion_context import (
+from pygwin.completers.bash import complete_from_bash
+from pygwin.completers.tools import RichCompletion
+from pygwin.parsers.completion_context import (
     CommandArg,
     CommandContext,
     CompletionContext,
 )
-from xonsh.pytest.tools import (
+from pygwin.pytest.tools import (
     skip_if_on_android,
     skip_if_on_bsd,
     skip_if_on_darwin,

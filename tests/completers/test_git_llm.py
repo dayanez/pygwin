@@ -3,7 +3,7 @@
 import pytest
 
 import xompletions.git as xgit
-from xonsh.pytest.tools import completions_from_result, skip_if_not_has
+from pygwin.pytest.tools import completions_from_result, skip_if_not_has
 
 _LIST_CMDS_ARGS = ("--list-cmds=main,others,alias",)
 _CONFIG_ARGS = ("config", "-z", "--get-regexp", r"^alias\.")
@@ -47,12 +47,12 @@ def git_calls(monkeypatch):
 
 def _complete(completion_context_parse, line):
     ctx = completion_context_parse(line, len(line)).command
-    return xgit.xonsh_complete(ctx)
+    return xgit.pygwin_complete(ctx)
 
 
 def test_command_position_is_skipped(git_calls, completion_context_parse):
     ctx = completion_context_parse("git", 3).command
-    assert xgit.xonsh_complete(ctx) is None
+    assert xgit.pygwin_complete(ctx) is None
     assert git_calls == []
 
 

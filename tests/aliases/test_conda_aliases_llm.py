@@ -1,8 +1,8 @@
 """Tests for conda activate/deactivate alias detection on Windows.
 
-See xonsh/xonsh#3676 — `conda init xonsh` is broken on Windows, so the
+See pygwin/pygwin#3676 — `conda init pygwin` is broken on Windows, so the
 `activate`/`deactivate` aliases are the practical fallback. They were
-previously gated on ``ON_ANACONDA`` only, which requires xonsh itself to
+previously gated on ``ON_ANACONDA`` only, which requires pygwin itself to
 be installed inside the conda env. This file covers the extended detection
 that also fires when ``conda`` is reachable on ``$PATH``.
 """
@@ -11,7 +11,7 @@ import shutil
 
 import pytest
 
-from xonsh.aliases import make_default_aliases
+from pygwin.aliases import make_default_aliases
 
 
 def _activate_aliases(aliases):
@@ -20,9 +20,9 @@ def _activate_aliases(aliases):
 
 @pytest.fixture
 def force_windows(monkeypatch, xession):
-    monkeypatch.setattr("xonsh.aliases.ON_WINDOWS", True)
-    monkeypatch.setattr("xonsh.aliases.ON_ANACONDA", False)
-    monkeypatch.setattr("xonsh.aliases._find_cmd_exe", lambda: "cmd.exe")
+    monkeypatch.setattr("pygwin.aliases.ON_WINDOWS", True)
+    monkeypatch.setattr("pygwin.aliases.ON_ANACONDA", False)
+    monkeypatch.setattr("pygwin.aliases._find_cmd_exe", lambda: "cmd.exe")
     return monkeypatch
 
 
@@ -44,7 +44,7 @@ def test_conda_on_path_sets_activate_alias(force_windows, xession):
 
 
 def test_on_anaconda_sets_activate_alias(force_windows, xession):
-    force_windows.setattr("xonsh.aliases.ON_ANACONDA", True)
+    force_windows.setattr("pygwin.aliases.ON_ANACONDA", True)
     force_windows.setattr(shutil, "which", lambda name, **kw: None)
     aliases = make_default_aliases()
     activate, deactivate = _activate_aliases(aliases)

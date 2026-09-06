@@ -1,4 +1,4 @@
-"""Tests for ``xonsh.xoreutils.xcontext``."""
+"""Tests for ``pygwin.xoreutils.xcontext``."""
 
 import io
 import json
@@ -10,30 +10,30 @@ from unittest import mock
 
 import pytest
 
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.xoreutils import xcontext
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.xoreutils import xcontext
 
 # ---------------------------------------------------------------------------
-# _resolve_one — Windows PATHEXT fallback via locate_relative_path
+# _resolve_one , Windows PATHEXT fallback via locate_relative_path
 # ---------------------------------------------------------------------------
 
 
 def test_resolve_one_bare_script_resolves_to_exe_on_windows(tmp_path, xession):
-    """Windows-only: ``C:\\...\\Scripts\\xonsh`` must resolve to
-    ``xonsh.exe`` on the ``resolved`` side; the input is preserved on
+    """Windows-only: ``C:\\...\\Scripts\\pygwin`` must resolve to
+    ``pygwin.exe`` on the ``resolved`` side; the input is preserved on
     ``original`` so the colored renderer can show the unresolved form
     that the user actually typed.
     """
     if not ON_WINDOWS:
-        pytest.skip("Windows-only — relies on PATHEXT executable check")
+        pytest.skip("Windows-only , relies on PATHEXT executable check")
     scripts = tmp_path / "Scripts"
     scripts.mkdir()
-    real = scripts / "xonsh.exe"
+    real = scripts / "pygwin.exe"
     real.write_bytes(b"")
     os.chmod(str(real), 0o755)
     xession.env["PATHEXT"] = [".EXE", ".BAT", ".CMD", ".COM"]
 
-    bare = str(scripts / "xonsh")
+    bare = str(scripts / "pygwin")
     assert not os.path.exists(bare)
 
     original, resolved, bad = xcontext._resolve_one(bare, resolve=True)
@@ -49,15 +49,15 @@ def test_resolve_one_bare_script_no_resolve_still_probes(tmp_path, xession):
     ``resolved``; the bare input stays on ``original``.
     """
     if not ON_WINDOWS:
-        pytest.skip("Windows-only — relies on PATHEXT executable check")
+        pytest.skip("Windows-only , relies on PATHEXT executable check")
     scripts = tmp_path / "Scripts"
     scripts.mkdir()
-    real = scripts / "xonsh.exe"
+    real = scripts / "pygwin.exe"
     real.write_bytes(b"")
     os.chmod(str(real), 0o755)
     xession.env["PATHEXT"] = [".EXE"]
 
-    bare = str(scripts / "xonsh")
+    bare = str(scripts / "pygwin")
     original, resolved, bad = xcontext._resolve_one(bare, resolve=False)
     assert original == bare
     assert os.path.samefile(resolved, str(real))
@@ -67,9 +67,9 @@ def test_resolve_one_bare_script_no_resolve_still_probes(tmp_path, xession):
 def test_resolve_one_existing_file_untouched(tmp_path, xession):
     """If the value already exists on disk, we keep it as-is on both
     sides (this is what preserves the ``__main__.py`` entry-point case
-    used by ``python -m xonsh``).
+    used by ``python -m pygwin``).
     """
-    entry = tmp_path / "xonsh"
+    entry = tmp_path / "pygwin"
     entry.mkdir()
     main_py = entry / "__main__.py"
     main_py.write_text("")
@@ -92,14 +92,14 @@ def test_resolve_one_missing_path_still_bad(tmp_path, xession):
 
 
 # ---------------------------------------------------------------------------
-# _get_version — error handling for unexecutable $PATH entries
+# _get_version , error handling for unexecutable $PATH entries
 # ---------------------------------------------------------------------------
 
 
 def test_get_version_spawn_error_returns_not_ok(xession):
     """An ``OSError`` from :func:`subprocess.run` (e.g. the Windows
     Store ``python.exe`` App Execution Alias raising WinError 1920)
-    must be swallowed and signalled via ``ok=False`` — no traceback
+    must be swallowed and signalled via ``ok=False`` , no traceback
     leaks to stderr.
     """
     with mock.patch.object(
@@ -142,7 +142,7 @@ def test_get_version_happy_path(xession):
 
 def test_get_version_strips_pip_from_suffix(xession):
     """``pip --version`` prints ``pip 24.0 from /path/pip (python 3.13)``
-    — the `` from `` suffix is stripped so only ``pip 24.0`` remains.
+    , the `` from `` suffix is stripped so only ``pip 24.0`` remains.
     """
     fake_completed = subprocess.CompletedProcess(
         args=["pip", "--version"],
@@ -157,7 +157,7 @@ def test_get_version_strips_pip_from_suffix(xession):
 
 
 def test_get_version_accepts_list_binary(xession):
-    """Binary can be a list (e.g. ``xpip = [python, -m, pip]``) — the
+    """Binary can be a list (e.g. ``xpip = [python, -m, pip]``) , the
     ``--version`` arg is appended to the list.
     """
     captured = {}
@@ -192,7 +192,7 @@ def test_get_version_falls_back_to_stderr(xession):
 
 
 # ---------------------------------------------------------------------------
-# xcontext_main — [Current environment] section visibility
+# xcontext_main , [Current environment] section visibility
 # ---------------------------------------------------------------------------
 
 
@@ -214,7 +214,7 @@ def _run_xcontext_main(xession):
         mock.patch.object(
             xcontext, "_resolve_path", side_effect=lambda v, r: (v, v, False)
         ),
-        mock.patch("xonsh.main.get_current_xonsh", return_value="/fake/xonsh"),
+        mock.patch("pygwin.main.get_current_pygwin", return_value="/fake/pygwin"),
         mock.patch.object(
             xcontext,
             "print_color",
@@ -234,7 +234,7 @@ def test_current_environment_hidden_when_empty(xession):
     xession.env.pop("VIRTUAL_ENV", None)
     out = _run_xcontext_main(xession)
     assert "[Current environment]" not in out
-    # And no trailing blank line before a missing header — the last
+    # And no trailing blank line before a missing header , the last
     # section must be ``[Current commands environment]``.
     assert out.rstrip().endswith("/fake/bin") or "/fake/bin" in out.splitlines()[-1]
 
@@ -260,7 +260,7 @@ def test_current_environment_shown_when_conda_set(xession):
 
 
 # ---------------------------------------------------------------------------
-# xcontext_main — secondary ``name resolved:`` row
+# xcontext_main , secondary ``name resolved:`` row
 # ---------------------------------------------------------------------------
 
 
@@ -303,7 +303,7 @@ def _run_xcontext_main_with_resolve(xession, resolve_map):
         mock.patch.object(xcontext.subprocess, "run", return_value=fake_completed),
         mock.patch.object(xcontext, "locate_executable", return_value="/fake/bin"),
         mock.patch.object(xcontext, "_resolve_path", side_effect=fake_resolve),
-        mock.patch("xonsh.main.get_current_xonsh", return_value="/fake/xonsh"),
+        mock.patch("pygwin.main.get_current_pygwin", return_value="/fake/pygwin"),
         mock.patch.object(
             xcontext,
             "print_color",
@@ -316,33 +316,33 @@ def _run_xcontext_main_with_resolve(xession, resolve_map):
 
 def test_text_no_resolved_row_when_identical(xession):
     """When the resolved path is identical to the input, no second
-    ``name resolved:`` row appears — it would just duplicate the line.
+    ``name resolved:`` row appears , it would just duplicate the line.
     """
     xession.env.pop("CONDA_DEFAULT_ENV", None)
     xession.env.pop("VIRTUAL_ENV", None)
     out = _run_xcontext_main_with_resolve(xession, resolve_map={})
-    # No row in the output starts with "xxonsh resolved" / etc.
-    assert "xxonsh resolved" not in out
+    # No row in the output starts with "xpygwin resolved" / etc.
+    assert "xpygwin resolved" not in out
     assert "xpython resolved" not in out
     assert "xpip resolved" not in out
-    assert "xonsh resolved" not in out
+    assert "pygwin resolved" not in out
     assert "python resolved" not in out
     assert "pip resolved" not in out
 
 
-def test_text_resolved_row_emitted_when_xxonsh_differs(xession):
-    """When the resolved xxonsh path differs from the input, a
-    secondary ``xxonsh resolved:`` row appears with the resolved path.
+def test_text_resolved_row_emitted_when_xpygwin_differs(xession):
+    """When the resolved xpygwin path differs from the input, a
+    secondary ``xpygwin resolved:`` row appears with the resolved path.
     """
     xession.env.pop("CONDA_DEFAULT_ENV", None)
     xession.env.pop("VIRTUAL_ENV", None)
     out = _run_xcontext_main_with_resolve(
-        xession, resolve_map={"/fake/xonsh": "/real/xonsh"}
+        xession, resolve_map={"/fake/pygwin": "/real/pygwin"}
     )
     # Original row carries the input path; resolved row carries the
     # symlink target.
-    assert "xxonsh: /fake/xonsh" in out
-    assert "xxonsh resolved: /real/xonsh" in out
+    assert "xpygwin: /fake/pygwin" in out
+    assert "xpygwin resolved: /real/pygwin" in out
     # The other families weren't remapped, so their resolved rows are
     # suppressed.
     assert "xpython resolved" not in out
@@ -367,7 +367,7 @@ def test_text_resolved_row_emitted_for_xpip_list(xession):
 
 def test_text_resolved_row_repeats_version(xession):
     """The ``# Python X.Y.Z`` annotation is shown on BOTH the input row
-    and the resolved row — the version describes the binary, not the
+    and the resolved row , the version describes the binary, not the
     spelling of the path.
     """
     xession.env.pop("CONDA_DEFAULT_ENV", None)
@@ -380,7 +380,7 @@ def test_text_resolved_row_repeats_version(xession):
     version_lines = [ln for ln in out.splitlines() if "Python 3.13.3" in ln]
     # xpython input + xpython resolved + commands.python input + commands.python resolved
     # commands.python wasn't remapped (resolve_map keyed by sys.executable
-    # only matches the session getter), so we expect at least 2 — the
+    # only matches the session getter), so we expect at least 2 , the
     # session pair.
     assert len(version_lines) >= 2
     # Both session lines (xpython: ... # Python 3.13.3) and the
@@ -409,7 +409,7 @@ def test_text_no_resolved_row_when_path_missing(xession):
         mock.patch.object(
             xcontext, "_resolve_path", side_effect=lambda v, r: (v, v, False)
         ),
-        mock.patch("xonsh.main.get_current_xonsh", return_value="/fake/xonsh"),
+        mock.patch("pygwin.main.get_current_pygwin", return_value="/fake/pygwin"),
         mock.patch.object(
             xcontext,
             "print_color",
@@ -424,11 +424,11 @@ def test_text_no_resolved_row_when_path_missing(xession):
 
 def test_resolve_path_list_head_uses_pathext_probe(tmp_path, xession):
     """List-valued aliases (``xpip = [python, -m, pip]``) have only
-    their head element probed — trailing args are passed through
+    their head element probed , trailing args are passed through
     unchanged on both the original and the resolved side.
     """
     if not ON_WINDOWS:
-        pytest.skip("Windows-only — relies on PATHEXT executable check")
+        pytest.skip("Windows-only , relies on PATHEXT executable check")
     scripts = tmp_path / "Scripts"
     scripts.mkdir()
     real = scripts / "python.exe"
@@ -445,7 +445,7 @@ def test_resolve_path_list_head_uses_pathext_probe(tmp_path, xession):
 
 
 # ---------------------------------------------------------------------------
-# xcontext_main — --json output mode
+# xcontext_main , --json output mode
 # ---------------------------------------------------------------------------
 
 
@@ -453,13 +453,13 @@ def _run_xcontext_json(xession, locate=None):
     """Run ``xcontext_main(as_json=True)`` and return the parsed JSON.
 
     ``locate`` overrides the per-name return value of ``locate_executable``;
-    pass a dict like ``{"xonsh": "/x", "uv": None}`` to simulate names
+    pass a dict like ``{"pygwin": "/x", "uv": None}`` to simulate names
     that are missing from ``$PATH``. Unspecified names default to
     ``"/fake/" + name``.
     """
     buf = io.StringIO()
     locate_map = {
-        cmd: f"/fake/{cmd}" for cmd in ("xonsh", "python", "pip", "pytest", "uv")
+        cmd: f"/fake/{cmd}" for cmd in ("pygwin", "python", "pip", "pytest", "uv")
     }
     if locate:
         locate_map.update(locate)
@@ -471,7 +471,7 @@ def _run_xcontext_json(xession, locate=None):
         mock.patch.object(
             xcontext, "_resolve_path", side_effect=lambda v, r: (v, v, False)
         ),
-        mock.patch("xonsh.main.get_current_xonsh", return_value="/fake/xonsh"),
+        mock.patch("pygwin.main.get_current_pygwin", return_value="/fake/pygwin"),
     ):
         rc = xcontext.xcontext_main(as_json=True, _stdout=buf)
     assert rc == 0
@@ -485,9 +485,9 @@ def test_json_output_has_expected_top_level_keys(xession):
     assert set(report) == {"session", "commands", "env"}
 
 
-def test_json_session_carries_xpython_xxonsh_xpip(xession):
+def test_json_session_carries_xpython_xpygwin_xpip(xession):
     """``session`` carries each entry under its base key; ``xpip`` joins
-    its list with spaces — same flat string the colored output shows
+    its list with spaces , same flat string the colored output shows
     for the ``xpip:`` row. With the stubbed ``_resolve_path``, original
     equals resolved, so no ``_resolved`` siblings appear.
     """
@@ -495,7 +495,7 @@ def test_json_session_carries_xpython_xxonsh_xpip(xession):
     xession.env.pop("VIRTUAL_ENV", None)
     report, _ = _run_xcontext_json(xession)
     assert report["session"] == {
-        "xxonsh": "/fake/xonsh",
+        "xpygwin": "/fake/pygwin",
         "xpython": mock.ANY,  # sys.executable, untouched by stubbed _resolve_path
         "xpip": "/fake/python -m pip",
     }
@@ -503,16 +503,16 @@ def test_json_session_carries_xpython_xxonsh_xpip(xession):
 
 
 def test_json_commands_includes_all_probed_names(xession):
-    """``commands`` always lists every probed name (xonsh/python/pip/
+    """``commands`` always lists every probed name (pygwin/python/pip/
     pytest/uv) so consumers don't have to special-case missing base
-    keys. ``_resolved`` siblings are absent when the value matches —
+    keys. ``_resolved`` siblings are absent when the value matches ,
     see :func:`test_json_resolved_keys_carry_distinct_values` for the
     differing case.
     """
     xession.env.pop("CONDA_DEFAULT_ENV", None)
     xession.env.pop("VIRTUAL_ENV", None)
     report, _ = _run_xcontext_json(xession)
-    bases = {"xonsh", "python", "pip", "pytest", "uv"}
+    bases = {"pygwin", "python", "pip", "pytest", "uv"}
     assert set(report["commands"]) == bases
     for cmd in bases:
         assert report["commands"][cmd] == f"/fake/{cmd}"
@@ -521,19 +521,19 @@ def test_json_commands_includes_all_probed_names(xession):
 def test_json_commands_null_when_not_on_path(xession):
     """A name absent from ``$PATH`` shows up as JSON ``null`` for its
     base key. The ``_resolved`` sibling is omitted (no resolution to
-    add) — there's no key at all, not a ``null`` placeholder.
+    add) , there's no key at all, not a ``null`` placeholder.
     """
     xession.env.pop("CONDA_DEFAULT_ENV", None)
     xession.env.pop("VIRTUAL_ENV", None)
     report, _ = _run_xcontext_json(xession, locate={"pytest": None, "uv": None})
     assert report["commands"]["pytest"] is None
     assert report["commands"]["uv"] is None
-    assert report["commands"]["xonsh"] == "/fake/xonsh"
-    # No ``_resolved`` siblings — stubbed ``_resolve_path`` returns
+    assert report["commands"]["pygwin"] == "/fake/pygwin"
+    # No ``_resolved`` siblings , stubbed ``_resolve_path`` returns
     # ``original == resolved`` for every value, including the ``None``s.
     assert "pytest_resolved" not in report["commands"]
     assert "uv_resolved" not in report["commands"]
-    assert "xonsh_resolved" not in report["commands"]
+    assert "pygwin_resolved" not in report["commands"]
 
 
 def test_json_env_empty_when_no_vars_set(xession):
@@ -580,7 +580,7 @@ def test_json_output_is_pretty_printed(xession):
 
 
 def test_json_skips_print_color_calls(xession):
-    """JSON mode must not emit any ANSI escape sequences — the colored
+    """JSON mode must not emit any ANSI escape sequences , the colored
     ``print_color`` path must be bypassed entirely so the output is safe
     to pipe to ``jq``.
     """
@@ -602,14 +602,14 @@ def test_json_resolved_keys_carry_distinct_values(xession):
     buf = io.StringIO()
     xession.aliases["xpip"] = ["/fake/python", "-m", "pip"]
     locate_map = {
-        "xonsh": "/fake/xonsh",
+        "pygwin": "/fake/pygwin",
         "python": "/fake/python",
         "pip": "/fake/pip",
         "pytest": "/fake/pytest",
         "uv": "/fake/uv",
     }
     rewrite = {
-        "/fake/xonsh": "/real/xonsh",
+        "/fake/pygwin": "/real/pygwin",
         "/fake/python": "/real/python",
         ("/fake/python", "-m", "pip"): ["/real/python", "-m", "pip"],
     }
@@ -623,23 +623,23 @@ def test_json_resolved_keys_carry_distinct_values(xession):
             xcontext, "locate_executable", side_effect=lambda c: locate_map.get(c)
         ),
         mock.patch.object(xcontext, "_resolve_path", side_effect=fake_resolve),
-        mock.patch("xonsh.main.get_current_xonsh", return_value="/fake/xonsh"),
+        mock.patch("pygwin.main.get_current_pygwin", return_value="/fake/pygwin"),
     ):
         rc = xcontext.xcontext_main(as_json=True, _stdout=buf)
     assert rc == 0
     report = json.loads(buf.getvalue())
-    # session: input vs resolved diverge for xxonsh and xpip; xpython
+    # session: input vs resolved diverge for xpygwin and xpip; xpython
     # (sys.executable) is untouched by the rewrite map → no
     # xpython_resolved key.
-    assert report["session"]["xxonsh"] == "/fake/xonsh"
-    assert report["session"]["xxonsh_resolved"] == "/real/xonsh"
+    assert report["session"]["xpygwin"] == "/fake/pygwin"
+    assert report["session"]["xpygwin_resolved"] == "/real/pygwin"
     assert report["session"]["xpip"] == "/fake/python -m pip"
     assert report["session"]["xpip_resolved"] == "/real/python -m pip"
     assert "xpython_resolved" not in report["session"]
-    # commands: xonsh and python diverge; pip/pytest/uv aren't in the
+    # commands: pygwin and python diverge; pip/pytest/uv aren't in the
     # rewrite map → no ``_resolved`` siblings.
-    assert report["commands"]["xonsh"] == "/fake/xonsh"
-    assert report["commands"]["xonsh_resolved"] == "/real/xonsh"
+    assert report["commands"]["pygwin"] == "/fake/pygwin"
+    assert report["commands"]["pygwin_resolved"] == "/real/pygwin"
     assert report["commands"]["python"] == "/fake/python"
     assert report["commands"]["python_resolved"] == "/real/python"
     assert report["commands"]["pip"] == "/fake/pip"
@@ -650,7 +650,7 @@ def test_json_resolved_keys_carry_distinct_values(xession):
 
 def test_json_no_resolve_flag_skips_resolved_keys(xession):
     """``xcontext -n --json`` (no_resolve=True) suppresses every
-    ``_resolved`` sibling because the resolver leaves paths verbatim —
+    ``_resolved`` sibling because the resolver leaves paths verbatim ,
     matches the colored output's behavior under ``--no-resolve``.
     """
     xession.env.pop("CONDA_DEFAULT_ENV", None)
@@ -658,19 +658,19 @@ def test_json_no_resolve_flag_skips_resolved_keys(xession):
     xession.aliases["xpip"] = ["/fake/python", "-m", "pip"]
     buf = io.StringIO()
     locate_map = {
-        cmd: f"/fake/{cmd}" for cmd in ("xonsh", "python", "pip", "pytest", "uv")
+        cmd: f"/fake/{cmd}" for cmd in ("pygwin", "python", "pip", "pytest", "uv")
     }
     with (
         mock.patch.object(
             xcontext, "locate_executable", side_effect=lambda c: locate_map.get(c)
         ),
-        # Pass the value through unchanged on both sides — the real
+        # Pass the value through unchanged on both sides , the real
         # ``_resolve_path`` does the same in ``-n`` mode when nothing
         # needs the PATHEXT fallback.
         mock.patch.object(
             xcontext, "_resolve_path", side_effect=lambda v, r: (v, v, False)
         ),
-        mock.patch("xonsh.main.get_current_xonsh", return_value="/fake/xonsh"),
+        mock.patch("pygwin.main.get_current_pygwin", return_value="/fake/pygwin"),
     ):
         rc = xcontext.xcontext_main(no_resolve=True, as_json=True, _stdout=buf)
     assert rc == 0
@@ -680,19 +680,19 @@ def test_json_no_resolve_flag_skips_resolved_keys(xession):
 
 
 # ---------------------------------------------------------------------------
-# Resolved dataclass — display rendering
+# Resolved dataclass , display rendering
 # ---------------------------------------------------------------------------
 
 
 def test_resolved_display_string_path():
     """A plain string path is returned as-is."""
-    r = xcontext.Resolved(path="/usr/bin/xonsh")
-    assert r.display == "/usr/bin/xonsh"
+    r = xcontext.Resolved(path="/usr/bin/pygwin")
+    assert r.display == "/usr/bin/pygwin"
 
 
 def test_resolved_display_list_path_joined_with_spaces():
     """A list path (xpip alias) is space-joined for the colored row and
-    the JSON ``session.xpip`` field — same shape both consumers expect.
+    the JSON ``session.xpip`` field , same shape both consumers expect.
     """
     r = xcontext.Resolved(path=["/usr/bin/python", "-m", "pip"])
     assert r.display == "/usr/bin/python -m pip"
@@ -706,20 +706,20 @@ def test_resolved_display_none_path():
 
 
 def test_resolved_display_empty_string():
-    """Falsy ``path`` (empty string) also renders as ``None`` — same
+    """Falsy ``path`` (empty string) also renders as ``None`` , same
     "missing" signal as ``path=None``."""
     assert xcontext.Resolved(path="").display is None
 
 
 def test_resolved_display_list_with_non_string_passthrough():
-    """A list whose elements aren't all strings can't be space-joined —
+    """A list whose elements aren't all strings can't be space-joined ,
     fall back to ``str(path)`` rather than raising."""
     value = [object(), "-m", "pip"]
     assert xcontext.Resolved(path=value).display == str(value)
 
 
 def test_resolved_defaults_are_safe():
-    """Default ``Resolved()`` is a "nothing found" placeholder — bad is
+    """Default ``Resolved()`` is a "nothing found" placeholder , bad is
     False, version is empty, path and resolved are None. Lets callers
     construct from optional fields without juggling sentinels.
     """
@@ -732,7 +732,7 @@ def test_resolved_defaults_are_safe():
 
 def test_resolved_resolved_display_string():
     """``resolved_display`` renders the ``resolved`` field the same way
-    ``display`` renders ``path`` — a plain string passes through.
+    ``display`` renders ``path`` , a plain string passes through.
     """
     r = xcontext.Resolved(path="/bin/python", resolved="/usr/bin/python3.13")
     assert r.resolved_display == "/usr/bin/python3.13"
@@ -766,7 +766,7 @@ def test_resolved_differs_false_when_equal():
 
 
 def test_resolved_differs_true_when_distinct():
-    """A symlink resolution produces distinct input/resolved values —
+    """A symlink resolution produces distinct input/resolved values ,
     the colored renderer emits the secondary ``name resolved:`` row.
     """
     r = xcontext.Resolved(path="/bin/python", resolved="/usr/bin/python3.13")
@@ -775,7 +775,7 @@ def test_resolved_differs_true_when_distinct():
 
 def test_resolved_differs_false_when_resolved_none():
     """``resolved=None`` (the "not found / placeholder" shape) must not
-    drive the secondary row — there's nothing to render.
+    drive the secondary row , there's nothing to render.
     """
     assert xcontext.Resolved(path="/x").differs is False
     assert xcontext.Resolved().differs is False
@@ -798,12 +798,12 @@ def test_resolved_differs_for_list_compares_elementwise():
 
 
 # ---------------------------------------------------------------------------
-# XContext — session getters
+# XContext , session getters
 # ---------------------------------------------------------------------------
 
 
-def test_xcontext_get_session_xxonsh_returns_resolved(xession):
-    """``get_session_xxonsh`` returns the resolved running interpreter
+def test_xcontext_get_session_xpygwin_returns_resolved(xession):
+    """``get_session_xpygwin`` returns the resolved running interpreter
     wrapped in a :class:`Resolved`. Stub ``_resolve_path`` so the test
     is independent of what's actually on disk.
     """
@@ -811,15 +811,15 @@ def test_xcontext_get_session_xxonsh_returns_resolved(xession):
         mock.patch.object(
             xcontext, "_resolve_path", side_effect=lambda v, r: (v, v, False)
         ),
-        mock.patch("xonsh.main.get_current_xonsh", return_value="/fake/xonsh"),
+        mock.patch("pygwin.main.get_current_pygwin", return_value="/fake/pygwin"),
     ):
-        r = xcontext.XContext().get_session_xxonsh()
+        r = xcontext.XContext().get_session_xpygwin()
     assert isinstance(r, xcontext.Resolved)
-    assert r.path == "/fake/xonsh"
+    assert r.path == "/fake/pygwin"
     assert r.bad is False
 
 
-def test_xcontext_get_session_xxonsh_passes_resolve_flag(xession):
+def test_xcontext_get_session_xpygwin_passes_resolve_flag(xession):
     """``XContext(resolve=False)`` must propagate that to ``_resolve_path``
     so ``--no-resolve`` actually skips symlink chasing.
     """
@@ -831,28 +831,28 @@ def test_xcontext_get_session_xxonsh_passes_resolve_flag(xession):
 
     with (
         mock.patch.object(xcontext, "_resolve_path", side_effect=fake),
-        mock.patch("xonsh.main.get_current_xonsh", return_value="/fake/xonsh"),
+        mock.patch("pygwin.main.get_current_pygwin", return_value="/fake/pygwin"),
     ):
-        xcontext.XContext(resolve=False).get_session_xxonsh()
+        xcontext.XContext(resolve=False).get_session_xpygwin()
     assert seen == [False]
 
 
-def test_xcontext_get_session_xxonsh_caches_when_enabled(xession):
-    """With ``cache=True`` two calls to ``get_session_xxonsh`` must hit
+def test_xcontext_get_session_xpygwin_caches_when_enabled(xession):
+    """With ``cache=True`` two calls to ``get_session_xpygwin`` must hit
     the per-instance cache and only resolve once. Without the cache,
     every property read in ``xcontext_main`` would re-import
-    ``xonsh.main`` (heavy) and re-resolve the path.
+    ``pygwin.main`` (heavy) and re-resolve the path.
     """
-    calls = mock.MagicMock(return_value="/fake/xonsh")
+    calls = mock.MagicMock(return_value="/fake/pygwin")
     with (
         mock.patch.object(
             xcontext, "_resolve_path", side_effect=lambda v, r: (v, v, False)
         ),
-        mock.patch("xonsh.main.get_current_xonsh", side_effect=calls),
+        mock.patch("pygwin.main.get_current_pygwin", side_effect=calls),
     ):
         xc = xcontext.XContext(cache=True)
-        first = xc.get_session_xxonsh()
-        second = xc.get_session_xxonsh()
+        first = xc.get_session_xpygwin()
+        second = xc.get_session_xpygwin()
     assert first is second  # same Resolved instance, not a fresh one
     assert calls.call_count == 1
 
@@ -862,16 +862,16 @@ def test_xcontext_default_does_not_cache(xession):
     (e.g. an xontrib that stashes the instance) sees fresh ``$PATH`` /
     alias state on every read instead of a stale snapshot.
     """
-    calls = mock.MagicMock(return_value="/fake/xonsh")
+    calls = mock.MagicMock(return_value="/fake/pygwin")
     with (
         mock.patch.object(
             xcontext, "_resolve_path", side_effect=lambda v, r: (v, v, False)
         ),
-        mock.patch("xonsh.main.get_current_xonsh", side_effect=calls),
+        mock.patch("pygwin.main.get_current_pygwin", side_effect=calls),
     ):
         xc = xcontext.XContext()
-        first = xc.get_session_xxonsh()
-        second = xc.get_session_xxonsh()
+        first = xc.get_session_xpygwin()
+        second = xc.get_session_xpygwin()
     # Each call re-runs the underlying probe → distinct Resolved
     # objects (equal-valued, but freshly built).
     assert first is not second
@@ -922,7 +922,7 @@ def test_xcontext_get_session_xpython_marks_bad_on_spawn_error(xession):
 
 def test_xcontext_get_session_xpython_caches_subprocess_when_enabled(xession):
     """With ``cache=True`` the version probe is only allowed to run once
-    per instance — every extra spawn would slow down ``xcontext`` and
+    per instance , every extra spawn would slow down ``xcontext`` and
     (worse) could produce inconsistent output between rows of the same
     report.
     """
@@ -964,7 +964,7 @@ def test_xcontext_default_reruns_subprocess(xession):
 def test_xcontext_get_session_xpip_returns_alias(xession):
     """``get_session_xpip`` reads ``XSH.aliases['xpip']`` (typically a
     ``[python, -m, pip]`` list) and the :attr:`Resolved.display` joins
-    it with spaces — the same shape the JSON ``session.xpip`` field
+    it with spaces , the same shape the JSON ``session.xpip`` field
     serializes.
     """
     xession.aliases["xpip"] = ["/fake/python", "-m", "pip"]
@@ -980,7 +980,7 @@ def test_xcontext_get_session_xpip_returns_alias(xession):
 
 def test_xcontext_get_session_xpip_missing_alias(xession):
     """If ``xpip`` isn't aliased, the getter returns a "not found"
-    Resolved (path is None, display is None) — the colored renderer
+    Resolved (path is None, display is None) , the colored renderer
     falls back to the literal string ``not found``.
     """
     xession.aliases.pop("xpip", None)
@@ -994,21 +994,21 @@ def test_xcontext_get_session_xpip_missing_alias(xession):
 
 
 # ---------------------------------------------------------------------------
-# XContext — commands getters
+# XContext , commands getters
 # ---------------------------------------------------------------------------
 
 
-def test_xcontext_get_commands_xonsh_uses_locate_executable(xession):
-    """The ``xonsh`` row in the commands section is whatever
-    :func:`locate_executable` returns for ``xonsh``."""
+def test_xcontext_get_commands_pygwin_uses_locate_executable(xession):
+    """The ``pygwin`` row in the commands section is whatever
+    :func:`locate_executable` returns for ``pygwin``."""
     with (
-        mock.patch.object(xcontext, "locate_executable", return_value="/path/xonsh"),
+        mock.patch.object(xcontext, "locate_executable", return_value="/path/pygwin"),
         mock.patch.object(
             xcontext, "_resolve_path", side_effect=lambda v, r: (v, v, False)
         ),
     ):
-        r = xcontext.XContext().get_commands_xonsh()
-    assert r.path == "/path/xonsh"
+        r = xcontext.XContext().get_commands_pygwin()
+    assert r.path == "/path/pygwin"
     assert r.bad is False
 
 
@@ -1036,7 +1036,7 @@ def test_xcontext_get_commands_python_records_version(xession):
 
 
 def test_xcontext_get_commands_python_skips_probe_when_missing(xession):
-    """If python isn't on ``$PATH``, no version probe is attempted —
+    """If python isn't on ``$PATH``, no version probe is attempted ,
     spawning ``None --version`` would raise."""
     with (
         mock.patch.object(xcontext, "locate_executable", return_value=None),
@@ -1068,7 +1068,7 @@ def test_xcontext_get_commands_python_marks_bad_on_spawn_error(xession):
 
 
 def test_xcontext_get_commands_pip_pytest_uv(xession):
-    """The remaining commands rows are plain PATH lookups — no version
+    """The remaining commands rows are plain PATH lookups , no version
     probe, just a Resolved wrapping whatever ``locate_executable`` finds.
     Parameterized via dict to keep the assertions tight.
     """
@@ -1088,7 +1088,7 @@ def test_xcontext_get_commands_pip_pytest_uv(xession):
 
 
 def test_xcontext_get_commands_missing_returns_none(xession):
-    """A name not on ``$PATH`` produces ``Resolved(path=None)`` — the
+    """A name not on ``$PATH`` produces ``Resolved(path=None)`` , the
     JSON output relies on this to emit ``null`` for missing entries.
     """
     with (
@@ -1102,11 +1102,11 @@ def test_xcontext_get_commands_missing_returns_none(xession):
 
 
 def test_xcontext_get_commands_caches_when_enabled(xession):
-    """With ``cache=True`` each commands getter is cached — repeated
+    """With ``cache=True`` each commands getter is cached , repeated
     reads in ``xcontext_main`` (color check + row print) only hit
     ``locate_executable`` once.
     """
-    locate = mock.MagicMock(return_value="/path/xonsh")
+    locate = mock.MagicMock(return_value="/path/pygwin")
     with (
         mock.patch.object(xcontext, "locate_executable", side_effect=locate),
         mock.patch.object(
@@ -1114,14 +1114,14 @@ def test_xcontext_get_commands_caches_when_enabled(xession):
         ),
     ):
         xc = xcontext.XContext(cache=True)
-        first = xc.get_commands_xonsh()
-        second = xc.get_commands_xonsh()
+        first = xc.get_commands_pygwin()
+        second = xc.get_commands_pygwin()
     assert first is second
     assert locate.call_count == 1
 
 
 # ---------------------------------------------------------------------------
-# XContext — env getters
+# XContext , env getters
 # ---------------------------------------------------------------------------
 
 

@@ -1,4 +1,4 @@
-"""Tests the xonsh history."""
+"""Tests the pygwin history."""
 
 # pylint: disable=protected-access
 import gc
@@ -11,9 +11,9 @@ import warnings
 
 import pytest
 
-from xonsh.history.main import history_main
-from xonsh.history.sqlite import SqliteHistory, _xh_sqlite_get_conn
-from xonsh.platform_info import ON_WINDOWS
+from pygwin.history.main import history_main
+from pygwin.history.sqlite import SqliteHistory, _xh_sqlite_get_conn
+from pygwin.platform_info import ON_WINDOWS
 
 hist_file_count = itertools.count(0)
 
@@ -26,7 +26,7 @@ skipwin311 = pytest.mark.skipif(
 @pytest.fixture
 def hist(tmpdir):
     h = SqliteHistory(
-        filename=tmpdir / f"xonsh-HISTORY-TEST{next(hist_file_count)}.sqlite",
+        filename=tmpdir / f"pygwin-HISTORY-TEST{next(hist_file_count)}.sqlite",
         sessionid=str(tmpdir / "SESSIONID"),
         gc=False,
     )
@@ -246,9 +246,9 @@ def test_erasedups_command(hist, xession):
 @skipwin311
 def test_clear_does_not_destroy_other_sessions(tmpdir, xession):
     """Test that history clear in one session does not lose commands from another.
-    This is the bug described in xonsh/xonsh#5919.
+    This is the bug described in pygwin/pygwin#5919.
     """
-    db_file = tmpdir / "xonsh-HISTORY-TEST-CLEAR.sqlite"
+    db_file = tmpdir / "pygwin-HISTORY-TEST-CLEAR.sqlite"
     xession.env["HISTCONTROL"] = set()
 
     # Session A: type foobar, close session
@@ -286,7 +286,7 @@ def test_clear_does_not_destroy_other_sessions(tmpdir, xession):
 )
 def test_history_getitem(index, exp, hist, xession):
     xession.env["HISTCONTROL"] = set()
-    xession.env["XONSH_STORE_STDOUT"] = True
+    xession.env["PYGWIN_STORE_STDOUT"] = True
     attrs = ("inp", "out", "rtn", "ts")
 
     for ts, cmd in enumerate(CMDS):  # populate the shell history
@@ -307,7 +307,7 @@ def test_history_getitem(index, exp, hist, xession):
 @skipwin311
 def test_hist_clear_cmd(hist, xession, capsys, tmpdir):
     """Verify that the CLI history clear command works."""
-    xession.env.update({"XONSH_DATA_DIR": str(tmpdir)})
+    xession.env.update({"PYGWIN_DATA_DIR": str(tmpdir)})
     xession.history = hist
     xession.env["HISTCONTROL"] = set()
 
@@ -327,7 +327,7 @@ def test_hist_clear_cmd(hist, xession, capsys, tmpdir):
 @skipwin311
 def test_hist_off_cmd(hist, xession, capsys, tmpdir):
     """Verify that the CLI history off command works."""
-    xession.env.update({"XONSH_DATA_DIR": str(tmpdir)})
+    xession.env.update({"PYGWIN_DATA_DIR": str(tmpdir)})
     xession.history = hist
     xession.env["HISTCONTROL"] = set()
 
@@ -352,7 +352,7 @@ def test_hist_off_cmd(hist, xession, capsys, tmpdir):
 @skipwin311
 def test_hist_on_cmd(hist, xession, capsys, tmpdir):
     """Verify that the CLI history on command works."""
-    xession.env.update({"XONSH_DATA_DIR": str(tmpdir)})
+    xession.env.update({"PYGWIN_DATA_DIR": str(tmpdir)})
     xession.history = hist
     xession.env["HISTCONTROL"] = set()
 
@@ -395,7 +395,7 @@ def test_hist_store_cwd(hist, xession):
 def test_hist_pull(src_sessionid, tmpdir, ptk_shell, monkeypatch):
     """Test that `pull` method correctly loads history entries
     added to the database by other sessions."""
-    db_file = tmpdir / "xonsh-HISTORY-TEST-PULL.sqlite"
+    db_file = tmpdir / "pygwin-HISTORY-TEST-PULL.sqlite"
     before = time.time()
 
     # simulate commands being run in other sessions before this session starts
@@ -411,7 +411,7 @@ def test_hist_pull(src_sessionid, tmpdir, ptk_shell, monkeypatch):
     hist_b.append({"inp": "cmd hist_b after", "rtn": 0, "ts": [after + 1, after + 1]})
 
     # pull only works with PTK shell
-    monkeypatch.setattr("xonsh.built_ins.XSH.shell.shell", ptk_shell[2])
+    monkeypatch.setattr("pygwin.built_ins.XSH.shell.shell", ptk_shell[2])
     hist_main.pull(src_sessionid=src_sessionid)
     hist_strings = ptk_shell[2].prompter.history.get_strings()
 
@@ -423,18 +423,18 @@ def test_hist_pull(src_sessionid, tmpdir, ptk_shell, monkeypatch):
         assert hist_strings == ["cmd hist_a after"]
 
 
-def test_hist_pull_mixed(ptk_shell, tmpdir, xonsh_session, monkeypatch):
+def test_hist_pull_mixed(ptk_shell, tmpdir, pygwin_session, monkeypatch):
     """Test that mixing general pull with session-specific pull
     does not result in missed or duplicate items.
     """
-    monkeypatch.setattr(xonsh_session.shell, "shell", ptk_shell[2])
+    monkeypatch.setattr(pygwin_session.shell, "shell", ptk_shell[2])
 
     # make sure that all of our fake commands have real, sequential timestamps
     def cmd(inp):
         start, end = time.time(), time.time()
         return {"inp": inp, "rtn": 0, "ts": [start, end]}
 
-    db_file = tmpdir / "xonsh-HISTORY-TEST-PULL-MIXED.sqlite"
+    db_file = tmpdir / "pygwin-HISTORY-TEST-PULL-MIXED.sqlite"
     hist_a = SqliteHistory(filename=db_file, gc=False)
     hist_b = SqliteHistory(filename=db_file, gc=False)
     hist_main = SqliteHistory(filename=db_file, gc=False)
@@ -471,7 +471,7 @@ def test_no_unclosed_sqlite_connection_warning(tmpdir, xession):
     of that wrapper.
     """
     xession.env["HISTCONTROL"] = set()
-    db_file = tmpdir / "xonsh-HISTORY-RES.sqlite"
+    db_file = tmpdir / "pygwin-HISTORY-RES.sqlite"
 
     unraisable = []
     orig_hook = sys.unraisablehook

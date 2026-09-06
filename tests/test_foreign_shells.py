@@ -5,13 +5,13 @@ import subprocess
 
 import pytest  # noqa F401
 
-from xonsh.foreign_shells import foreign_shell_data, parse_aliases, parse_env
-from xonsh.pytest.tools import skip_if_on_unix, skip_if_on_windows
+from pygwin.foreign_shells import foreign_shell_data, parse_aliases, parse_env
+from pygwin.pytest.tools import skip_if_on_unix, skip_if_on_windows
 
 
 def test_parse_env():
     exp = {"X": "YES", "Y": "NO"}
-    s = "some garbage\n__XONSH_ENV_BEG__\nY=NO\nX=YES\n__XONSH_ENV_END__\nmore filth"
+    s = "some garbage\n__PYGWIN_ENV_BEG__\nY=NO\nX=YES\n__PYGWIN_ENV_END__\nmore filth"
     obs = parse_env(s)
     assert exp == obs
 
@@ -20,11 +20,11 @@ def test_parse_env_newline():
     exp = {"X": "YES", "Y": "NO", "PROMPT": "why\nme "}
     s = (
         "some garbage\n"
-        "__XONSH_ENV_BEG__\n"
+        "__PYGWIN_ENV_BEG__\n"
         "Y=NO\n"
         "PROMPT=why\nme \n"
         "X=YES\n"
-        "__XONSH_ENV_END__\n"
+        "__PYGWIN_ENV_END__\n"
         "more filth"
     )
     obs = parse_env(s)
@@ -35,11 +35,11 @@ def test_parse_env_equals():
     exp = {"X": "YES", "Y": "NO", "LS_COLORS": "*.tar=5"}
     s = (
         "some garbage\n"
-        "__XONSH_ENV_BEG__\n"
+        "__PYGWIN_ENV_BEG__\n"
         "Y=NO\n"
         "LS_COLORS=*.tar=5\n"
         "X=YES\n"
-        "__XONSH_ENV_END__\n"
+        "__PYGWIN_ENV_END__\n"
         "more filth"
     )
     obs = parse_env(s)
@@ -55,11 +55,11 @@ def test_parse_env_null_separated():
     }
     s = (
         "some garbage\n"
-        "__XONSH_ENV_BEG__\n"
+        "__PYGWIN_ENV_BEG__\n"
         "SIMPLE=value\0"
         "BASH_FUNC_which%%=() {  ( alias;\n eval ${which_declare} ) | /usr/bin/which\n}\0"
         "PATH=/usr/bin:/bin\0"
-        "__XONSH_ENV_END__\n"
+        "__PYGWIN_ENV_END__\n"
         "more filth"
     )
     obs = parse_env(s)
@@ -75,13 +75,13 @@ def test_parse_env_multiline_fallback():
     }
     s = (
         "some garbage\n"
-        "__XONSH_ENV_BEG__\n"
+        "__PYGWIN_ENV_BEG__\n"
         "SIMPLE=value\n"
         "BASH_FUNC_which%%=() {  ( alias;\n"
         " eval ${which_declare} ) | /usr/bin/which\n"
         "}\n"
         "PATH=/usr/bin:/bin\n"
-        "__XONSH_ENV_END__\n"
+        "__PYGWIN_ENV_END__\n"
         "more filth"
     )
     obs = parse_env(s)
@@ -91,7 +91,7 @@ def test_parse_env_multiline_fallback():
 def test_parse_env_empty_value():
     """Empty env var value is preserved."""
     exp = {"EMPTY": "", "X": "1"}
-    s = "__XONSH_ENV_BEG__\nEMPTY=\nX=1\n__XONSH_ENV_END__"
+    s = "__PYGWIN_ENV_BEG__\nEMPTY=\nX=1\n__PYGWIN_ENV_END__"
     obs = parse_env(s)
     assert exp == obs
 
@@ -99,7 +99,7 @@ def test_parse_env_empty_value():
 def test_parse_env_null_empty_value():
     """Empty env var value is preserved with env -0."""
     exp = {"EMPTY": "", "X": "1"}
-    s = "__XONSH_ENV_BEG__\nEMPTY=\0X=1\0__XONSH_ENV_END__"
+    s = "__PYGWIN_ENV_BEG__\nEMPTY=\0X=1\0__PYGWIN_ENV_END__"
     obs = parse_env(s)
     assert exp == obs
 
@@ -112,11 +112,11 @@ def test_parse_aliases():
     }
     s = (
         "some garbage\n"
-        "__XONSH_ALIAS_BEG__\n"
+        "__PYGWIN_ALIAS_BEG__\n"
         "alias x='yes -1'\n"
         "alias y='echo    no'\n"
         "alias z='echo True && \\\n echo Next || \\\n echo False'\n"  # noqa: E261,W605
-        "__XONSH_ALIAS_END__\n"
+        "__PYGWIN_ALIAS_END__\n"
         "more filth"
     )
     obs = parse_aliases(s, "bash")
@@ -166,7 +166,7 @@ def test_foreign_cmd_data():
 @skip_if_on_windows
 def test_foreign_shell_alias_args_are_escaped(xession):
     """Arguments to foreign shell aliases must be escaped to prevent injection."""
-    from xonsh.foreign_shells import ForeignShellFunctionAlias
+    from pygwin.foreign_shells import ForeignShellFunctionAlias
 
     alias = ForeignShellFunctionAlias(
         funcname="myfunc", shell="bash", sourcer="source", files=()

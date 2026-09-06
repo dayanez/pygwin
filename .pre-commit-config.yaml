@@ -15,7 +15,7 @@ repos:
         args: [., --fix, --exit-non-zero-on-fix]
         pass_filenames: false
       - id: ruff-format
-        args: ["xonsh", "xontrib", "tests", "xompletions"]
+        args: ["pygwin", "xontrib", "tests", "xompletions"]
         pass_filenames: false
 
   - repo: https://github.com/pre-commit/mirrors-mypy

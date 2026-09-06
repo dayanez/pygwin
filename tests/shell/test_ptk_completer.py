@@ -6,10 +6,10 @@ from prompt_toolkit.completion import Completion as PTKCompletion
 from prompt_toolkit.document import Document
 from prompt_toolkit.formatted_text import FormattedText
 
-from xonsh.aliases import Aliases
-from xonsh.completer import Completer
-from xonsh.completers.tools import RichCompletion
-from xonsh.shells.ptk_shell.completer import PromptToolkitCompleter, _highlight_match
+from pygwin.aliases import Aliases
+from pygwin.completer import Completer
+from pygwin.completers.tools import RichCompletion
+from pygwin.shells.ptk_shell.completer import PromptToolkitCompleter, _highlight_match
 
 
 @pytest.mark.parametrize(
@@ -27,10 +27,10 @@ from xonsh.shells.ptk_shell.completer import PromptToolkitCompleter, _highlight_
     ],
 )
 def test_rich_completion(completion, lprefix, ptk_completion, monkeypatch, xession):
-    xonsh_completer_mock = MagicMock()
-    xonsh_completer_mock.complete.return_value = {completion}, lprefix
+    pygwin_completer_mock = MagicMock()
+    pygwin_completer_mock.complete.return_value = {completion}, lprefix
 
-    ptk_completer = PromptToolkitCompleter(xonsh_completer_mock, None, None)
+    ptk_completer = PromptToolkitCompleter(pygwin_completer_mock, None, None)
     ptk_completer.reserve_space = lambda: None
     ptk_completer.suggestion_completion = lambda _, __: None
 
@@ -66,12 +66,12 @@ def test_rich_completion(completion, lprefix, ptk_completion, monkeypatch, xessi
 def test_auto_suggest_completion(completions, document_text, ptk_completion, xession):
     lprefix = len(document_text)
 
-    xonsh_completer_mock = MagicMock()
-    xonsh_completer_mock.complete.return_value = completions, lprefix
+    pygwin_completer_mock = MagicMock()
+    pygwin_completer_mock.complete.return_value = completions, lprefix
 
     xession.env["AUTO_SUGGEST_IN_COMPLETIONS"] = True
 
-    ptk_completer = PromptToolkitCompleter(xonsh_completer_mock, None, None)
+    ptk_completer = PromptToolkitCompleter(pygwin_completer_mock, None, None)
     ptk_completer.reserve_space = lambda: None
     ptk_completer.suggestion_completion = lambda _, __: ptk_completion
 
@@ -210,17 +210,17 @@ EXPANSION_CASES = (
 
 @pytest.mark.parametrize("code, index, expected_args", EXPANSION_CASES)
 def test_alias_expansion(code, index, expected_args, monkeypatch, xession):
-    xonsh_completer_mock = MagicMock(spec=Completer)
-    xonsh_completer_mock.complete.return_value = set(), 0
+    pygwin_completer_mock = MagicMock(spec=Completer)
+    pygwin_completer_mock.complete.return_value = set(), 0
 
-    ptk_completer = PromptToolkitCompleter(xonsh_completer_mock, None, None)
+    ptk_completer = PromptToolkitCompleter(pygwin_completer_mock, None, None)
     ptk_completer.reserve_space = lambda: None
     ptk_completer.suggestion_completion = lambda _, __: None
 
     monkeypatch.setattr(xession.commands_cache, "aliases", Aliases(gb=["git branch"]))
 
     list(ptk_completer.get_completions(Document(code, index), MagicMock()))
-    mock_call = xonsh_completer_mock.complete.call_args
+    mock_call = pygwin_completer_mock.complete.call_args
     args, kwargs = mock_call
     expected_args["self"] = None
     expected_args["ctx"] = None
@@ -233,11 +233,11 @@ def test_alias_expansion(code, index, expected_args, monkeypatch, xession):
 def test_auto_suggest_completion_with_spaces(xession):
     """Test that auto-suggestion includes spaces (full line) instead of truncating at first space."""
     xession.env["AUTO_SUGGEST_IN_COMPLETIONS"] = True
-    xonsh_completer_mock = MagicMock()
-    xonsh_completer_mock.complete.return_value = set(), 0
+    pygwin_completer_mock = MagicMock()
+    pygwin_completer_mock.complete.return_value = set(), 0
     shell_mock = MagicMock()
     shell_mock.prompter.app = MagicMock()
-    ptk_completer = PromptToolkitCompleter(xonsh_completer_mock, None, shell_mock)
+    ptk_completer = PromptToolkitCompleter(pygwin_completer_mock, None, shell_mock)
     ptk_completer.reserve_space = lambda: None
     suggestion_mock = MagicMock()
     suggestion_mock.text = "ho hello world"
@@ -286,10 +286,10 @@ def test_auto_suggest_completion_with_spaces(xession):
 def test_completion_display(
     current_line, completions, lprefix, displays, monkeypatch, xession
 ):
-    xonsh_completer_mock = MagicMock()
-    xonsh_completer_mock.complete.return_value = completions, lprefix
+    pygwin_completer_mock = MagicMock()
+    pygwin_completer_mock.complete.return_value = completions, lprefix
 
-    ptk_completer = PromptToolkitCompleter(xonsh_completer_mock, None, None)
+    ptk_completer = PromptToolkitCompleter(pygwin_completer_mock, None, None)
     ptk_completer.reserve_space = lambda: None
     ptk_completer.suggestion_completion = lambda _, __: None
 
@@ -398,13 +398,13 @@ def test_highlight_match_case_insensitive_at_display_start():
 
 def test_completion_substring_highlight(monkeypatch, xession):
     """Integration test: substring completions get underline styling."""
-    xonsh_completer_mock = MagicMock()
-    xonsh_completer_mock.complete.return_value = (
+    pygwin_completer_mock = MagicMock()
+    pygwin_completer_mock.complete.return_value = (
         ["prefix_match", "has_bar_suffix"],
         3,
     )
 
-    ptk_completer = PromptToolkitCompleter(xonsh_completer_mock, None, None)
+    ptk_completer = PromptToolkitCompleter(pygwin_completer_mock, None, None)
     ptk_completer.reserve_space = lambda: None
     ptk_completer.suggestion_completion = lambda _, __: None
 

@@ -4,48 +4,48 @@
 Tutorial
 *******************
 
-xonsh is a shell language and command prompt. Unlike other shells, xonsh is
+pygwin is a shell language and command prompt. Unlike other shells, pygwin is
 based on Python, with additional syntax added that makes calling subprocess
 commands, manipulating the environment, and dealing with the file system
-easy.  The xonsh command prompt gives users interactive access to the xonsh
+easy.  The pygwin command prompt gives users interactive access to the pygwin
 language.
 
-While all Python code is also xonsh, not all POSIX shell code can be used in xonsh.
-That would defeat the purpose, and Python is better anyway! Still, xonsh is
+While all Python code is also pygwin, not all POSIX shell code can be used in pygwin.
+That would defeat the purpose, and Python is better anyway! Still, pygwin is
 compatible with shell commands in the ways that matter, such as for running commands,
 reading the environment, and utilizing tab completion.
 
-The purpose of this tutorial is to teach you xonsh. There are many excellent
+The purpose of this tutorial is to teach you pygwin. There are many excellent
 guides out there for learning Python, and this will not join their ranks.
 Similarly, you'd probably get the most out of this tutorial if you have already
 used a command prompt or interactive interpreter.
 
 Let's dive in!
 
-Starting xonsh
+Starting pygwin
 ========================
-Assuming you have successfully installed xonsh,
-you can start up the xonsh interpreter via the ``xonsh`` command. Suppose
+Assuming you have successfully installed pygwin,
+you can start up the pygwin interpreter via the ``pygwin`` command. Suppose
 you are in a lesser terminal:
 
 .. code-block:: console
 
-    $ xonsh
+    $ pygwin
     snail@home ~ @ █
 
-Now we are in a xonsh shell. Our username happens to be ``snail``, our
+Now we are in a pygwin shell. Our username happens to be ``snail``, our
 hostname happens to be ``home``, and we are in our home directory (``~``).
 Alternatively, you can setup your terminal emulator (xterm, gnome-terminal,
-etc) to run xonsh automatically when it starts up. This is recommended.
+etc) to run pygwin automatically when it starts up. This is recommended.
 
 Basics
 =======================
-The xonsh language is based on Python, and the xonsh shell uses Python to
+The pygwin language is based on Python, and the pygwin shell uses Python to
 interpret any input it receives. This makes simple things simple and
 we are able to install and import modules, operate with values and objects,
 and use other built-in Python functionality:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ 1 + 1
 
@@ -55,17 +55,17 @@ and use other built-in Python functionality:
 
     @ print(1 if True else 2)
 
-    @ for i, x in enumerate('xonsh'):
+    @ for i, x in enumerate('pygwin'):
           # For easier indentation, Shift+Tab will enter 4 spaces.
           print(i, x)
 
     @ def f():
-          return "xonsh"
+          return "pygwin"
       f()
 
 On the other hand, you can execute commands:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo hello
     @ cd $HOME
@@ -74,7 +74,7 @@ On the other hand, you can execute commands:
 
 Finally, you can use everything together:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ name = 'snail'
       echo @(name) > /tmp/@(name)
@@ -85,7 +85,7 @@ Finally, you can use everything together:
 
 But let's go through everything step by step.
 
-Xonsh Session Interface
+Pygwin Session Interface
 =======================
 
 Each session has a special global object ``@`` (we call this symbol the conch) that provides instant functionality.
@@ -93,10 +93,10 @@ It gives you access to different parts of the current session.
 For example, you can use ``@.env`` to change environment variables, or ``@.imp`` to import libraries.
 You will learn more about this in the following sections.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ help(@)
-    Help on XonshSessionInterface in module xonsh.built_ins object: ...
+    Help on PygwinSessionInterface in module pygwin.built_ins object: ...
     @ @.imp.json.loads('{"conch":"snail"}')
     {"conch":"snail"}
     @ @.env.get('HOME')
@@ -107,7 +107,7 @@ Environment Variables
 Environment variables are written as ``$`` followed by a name.  For example,
 ``$HOME``, ``$PWD``, and ``$PATH``.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $HOME
     '/home/snail'
@@ -115,7 +115,7 @@ Environment variables are written as ``$`` followed by a name.  For example,
 You can set (and export) environment variables like you would set any other
 variable in Python.  The same is true for deleting them too.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $GOAL = 'Master the shell'
     @ print($GOAL)
@@ -137,7 +137,7 @@ Very nice.
 
 .. note::
 
-   To update ``os.environ`` when the xonsh environment changes set
+   To update ``os.environ`` when the pygwin environment changes set
    :ref:`$UPDATE_OS_ENVIRON <update_os_environ>` to ``True``.
 
 
@@ -148,17 +148,17 @@ All environment variables live in the built-in ``@.env`` mapping.
 You can access this mapping directly, but in most situations, you shouldn’t need to.
 
 If you want for example to check if an environment variable is present in your current
-session (say, in your awesome new ``xonsh`` script) you can use the membership operator:
+session (say, in your awesome new ``pygwin`` script) you can use the membership operator:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ 'HOME' in @.env
    # True
 
 To get information about a specific environment variable you can use the
-:func:`~xonsh.environ.Env.help` method or just ``?`` at the end.
+:func:`~pygwin.environ.Env.help` method or just ``?`` at the end.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ $AUTO_CD?
    Name: $AUTO_CD
@@ -166,10 +166,10 @@ To get information about a specific environment variable you can use the
    Default: False
    @ @.env.help('AUTO_CD')
 
-One helpful method is :func:`~xonsh.environ.Env.swap`.
+One helpful method is :func:`~pygwin.environ.Env.swap`.
 It can be used to temporarily set an environment variable:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ with @.env.swap(SOMEVAR='foo'):
           echo $SOMEVAR
@@ -181,9 +181,9 @@ It can be used to temporarily set an environment variable:
 
 You can also change the value using preset on the command line:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $HELLO='snail' xonsh -c 'echo Hello $HELLO'
+    @ $HELLO='snail' pygwin -c 'echo Hello $HELLO'
     Hello snail
 
 Environment Lookup with ``${<expr>}``
@@ -198,7 +198,7 @@ We can place any valid Python expression inside of the curly braces in
 ``${<expr>}``. This result of this expression will then be used to look up a
 value in the environment. Here are a couple of examples in action:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ x = 'USER'
     @ ${x}
@@ -206,17 +206,17 @@ value in the environment. Here are a couple of examples in action:
     @ ${'HO' + 'ME'}
     '/home/snail'
 
-Not bad, xonsh, not bad.
+Not bad, pygwin, not bad.
 
 Environment Types
 -----------------
 
-Environment variables in xonsh are not limited to strings -- they can hold
+Environment variables in pygwin are not limited to strings -- they can hold
 any Python type: strings, numbers, lists, and arbitrary objects.  When a
-variable is used as a subprocess argument, xonsh converts it to a string
+variable is used as a subprocess argument, pygwin converts it to a string
 automatically:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $MY_STR = 'hello'
     @ $MY_NUM = 42
@@ -224,10 +224,10 @@ automatically:
     @ showcmd echo $MY_STR $MY_NUM $MY_LIST
     ['echo', 'hello', '42', '[1, 2, 3]']
 
-``$PATH`` is an :class:`~xonsh.environ.EnvPath` object -- a special list that makes it easy
+``$PATH`` is an :class:`~pygwin.environ.EnvPath` object -- a special list that makes it easy
 to add and remove directories:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $PATH
     ['/usr/local/bin', '/usr/bin', '/bin']
@@ -258,12 +258,12 @@ clear from the syntax alone what mode is desired. This ambiguity stems from
 most command line utilities looking a lot like Python operators.
 
 Take the case of ``ls -l``.  This is valid Python code, though it could
-have also been written as ``ls - l`` or ``ls-l``.  So how does xonsh know
+have also been written as ``ls - l`` or ``ls-l``.  So how does pygwin know
 that ``ls -l`` is meant to be run in subprocess-mode?
 
 For any given line that only contains an expression statement (expr-stmt,
 see the Python AST docs for more information), if all the names cannot
-be found as current variables xonsh will try to parse the line as a
+be found as current variables pygwin will try to parse the line as a
 subprocess command instead.  In the above, if ``ls`` and ``l`` are not
 variables, then subprocess mode will be attempted. If parsing in subprocess
 mode fails, then the line is left in Python-mode.
@@ -273,21 +273,21 @@ with ``ls -l``. Then we'll make new variable names ``ls`` and ``l`` and then
 subtract them. Finally, we will delete ``ls`` and ``l`` and be able to list
 the directories again.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls -l  # subproc-mode, because ls doesn't exist
-    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh
+    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin
 
     @ ls = 44  # set ls and l variables to force python-mode
     @ l = 2
     @ ls -l
     42
     @ $[ls -l]  # you can still use explicit mode in scripts
-    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh
+    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin
 
     @ del ls  # deleting ls will return us to subproc-mode
     @ ls -l
-    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh
+    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin
 
 The determination between Python- and subprocess-modes is always done in the
 safest possible way. If anything goes wrong, it will favor Python-mode.
@@ -296,7 +296,7 @@ You do not need to worry about partially executed commands - that is
 impossible.
 
 .. note:: If you would like to explicitly run a subprocess command, you can always
-          use the formal xonsh subprocess syntax that we will see in the following
+          use the formal pygwin subprocess syntax that we will see in the following
           sections. For example: ``$[ls -l]``.
 
 
@@ -305,19 +305,19 @@ Subprocess
 
 Running Commands
 ----------------
-As a shell, xonsh is meant to make running commands easy and fun.
+As a shell, pygwin is meant to make running commands easy and fun.
 Running subprocess commands should work like in any other shell.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo "Yoo hoo"
     Yoo hoo
-    @ cd xonsh
+    @ cd pygwin
     @ ls
-    build  docs     README.rst  setup.py  xonsh           __pycache__
-    dist   LICENSE  scripts     tests     xonsh.egg-info
+    build  docs     README.rst  setup.py  pygwin           __pycache__
+    dist   LICENSE  scripts     tests     pygwin.egg-info
     @ dir scripts
-    xonsh  xonsh.bat
+    pygwin  pygwin.bat
     @ git status
     On branch main
     @ exit
@@ -334,11 +334,11 @@ Strings and Quoting in Subprocess Mode
 --------------------------------------
 
 Single or double quotes can be used to remove the special meaning
-of certain characters or words to xonsh. If a subprocess command
-contains characters that collide with xonsh syntax then quotes
-must be used to force xonsh to not interpret them.
+of certain characters or words to pygwin. If a subprocess command
+contains characters that collide with pygwin syntax then quotes
+must be used to force pygwin to not interpret them.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo ${
     SyntaxError
@@ -346,24 +346,24 @@ must be used to force xonsh to not interpret them.
     ${
 
 The contents of the string are passed directly to the subprocess command as a
-single argument.  So whenever you are in doubt, or if there is a xonsh syntax
+single argument.  So whenever you are in doubt, or if there is a pygwin syntax
 error because of a filename, just wrap the offending portion in a string.
 
 A common use case for this is files with spaces in their names:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ touch "sp ace"
     @ ls -l
     total 0
     -rw-rw-r-- 1 snail snail 0 Mar  8 17:50 sp ace
-    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh
+    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin
 
 By default, the name of an environment variable inside a string will be
 replaced by the contents of that variable (in subprocess mode only).  For
 example:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ print("my home is $HOME")
     my home is $HOME
@@ -373,7 +373,7 @@ example:
 You can avoid this expansion within a particular command by forcing the strings
 to be evaluated in Python mode using the ``@()`` syntax:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo "my home is $HOME"
     my home is /home/snail
@@ -387,7 +387,7 @@ to be evaluated in Python mode using the ``@()`` syntax:
     ``$EXPAND_ENV_VARS`` to ``False``.
 
 
-Xonsh supports Python string prefixes in subprocess arguments:
+Pygwin supports Python string prefixes in subprocess arguments:
 
 - ``r""`` — raw, no escapes (``r'\n'`` stays as ``\n``)
 - ``f""`` — formatted, with ``{expr}`` substitution
@@ -395,7 +395,7 @@ Xonsh supports Python string prefixes in subprocess arguments:
 
 These can be combined (``fr""``, ``pf""``, ``pr""``). For example:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo r'no\escape'
     no\escape
@@ -414,22 +414,22 @@ affects environment variable substitution, brace formatting, and escapes.
 
 Captured Subprocess with ``$()`` and ``!()``
 --------------------------------------------
-The ``$(<expr>)`` operator in xonsh executes a subprocess command and
+The ``$(<expr>)`` operator in pygwin executes a subprocess command and
 *captures* some information about that command.
 
 The ``$()`` syntax captures and returns the standard output stream of the
 command as a Python string. For example,
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $(ls -l)
-    'total 0\n-rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh\n'
+    'total 0\n-rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin\n'
 
 
 .. note::
 
     By default the output is represented as one single block of output with new
-    line characters. You can set ``$XONSH_SUBPROC_OUTPUT_FORMAT`` to ``list_lines``
+    line characters. You can set ``$PYGWIN_SUBPROC_OUTPUT_FORMAT`` to ``list_lines``
     to have a list of distinct lines in the commands like ``du -h $(ls)``.
 
 
@@ -439,7 +439,7 @@ about the result of the given command, including the return code, the process
 id, the standard output and standard error streams, and information about how
 input and output were redirected.  For example:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ !(ls nonexistent_directory)
     CommandPipeline(
@@ -458,7 +458,7 @@ The captured object ``!()`` operator allows for non-blocking execution.
 You can call a long-running command, intersperse other commands and
 read the captured output later:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ p = !(echo snail)
     @ p.output
@@ -467,10 +467,10 @@ read the captured output later:
     @ p.output
     'snail'
 
-You can force ``xonsh`` to block and wait for the command to complete by asking for the return code,
+You can force ``pygwin`` to block and wait for the command to complete by asking for the return code,
 printing the object or reading the ``out`` attribute:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ p = !(echo snail)
     @ p.out
@@ -505,7 +505,7 @@ kinds of interactions with subprocess commands, for example:
 If you iterate over the ``CommandPipeline`` object, it will yield lines of its
 output.  Using this, you can quickly and cleanly process output from commands.
 Additionally, these objects expose a method ``itercheck``, which behaves the same
-as the built-in iterator but raises ``XonshCalledProcessError`` if the process
+as the built-in iterator but raises ``PygwinCalledProcessError`` if the process
 had a nonzero return code.
 
 .. code-block:: python
@@ -530,7 +530,7 @@ had a nonzero return code.
         try:
             for match in !(grep -RPl @(regexp) @(str(path))).itercheck():
                 matches.append(match)
-        except XonshCalledProcessError as error:
+        except PygwinCalledProcessError as error:
             for line in error.stderr.split('\n'):
                 if not line.strip():
                     continue
@@ -543,12 +543,12 @@ The ``$()`` and ``!()`` operators are expressions themselves. This means that
 we can assign the results to a variable or perform any other manipulations we
 want.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ x = $(ls -l)
     @ print(x.upper())
     TOTAL 0
-    -RW-RW-R-- 1 SNAIL SNAIL 0 MAR  8 15:46 XONSH
+    -RW-RW-R-- 1 SNAIL SNAIL 0 MAR  8 15:46 PYGWIN
     @ y = !(ls -l)
     @ print(y.returncode)
     0
@@ -562,7 +562,7 @@ While in subprocess-mode or inside of a captured subprocess, we can always
 still query the environment with ``$NAME`` variables or the ``${}`` syntax,
 or inject Python values with the ``@()`` operator:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $(echo $HOME)
     '/home/snail'
@@ -571,15 +571,15 @@ Threading
 ---------
 
 If you want to work more closely with captured commands, you need to know about threading.
-Xonsh has a threading prediction mechanism that allows it to understand which commands can capture everything.
+Pygwin has a threading prediction mechanism that allows it to understand which commands can capture everything.
 For example, the ``echo`` command has no interaction with the user and is capturable.
 However, some tools have mixed behavior and can be run for either interactive or non-interactive tasks.
 The best example of this is ``ssh``, which allows for remote terminal sessions and executing commands.
 
-To handle different types of tasks, xonsh has the ``@thread`` and ``@unthread`` built-in decorator aliases.
+To handle different types of tasks, pygwin has the ``@thread`` and ``@unthread`` built-in decorator aliases.
 If you need to capture the output from an interactive tool that has a capturable mode use ``@thread`` to run:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ !(@thread ssh host -T 'echo remote')
     CommandPipeline(output="remote")
@@ -589,17 +589,17 @@ Uncaptured Subprocess with ``$[]`` and ``![]``
 ----------------------------------------------
 Uncaptured subprocesses are denoted with the ``$[]`` and ``![]`` operators. They are
 the same as ``$()`` captured subprocesses in almost every way. The only
-difference is that the subprocess's stdout passes directly through xonsh and
+difference is that the subprocess's stdout passes directly through pygwin and
 to the screen.  The return value of ``$[]`` is always ``None``.
 
 In the following, we can see that the results of ``$[]`` are automatically
 printed, and that the return value is not a string.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ x = $[ls -l]
     total 0
-    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh
+    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin
     @ x is None
     True
 
@@ -608,11 +608,11 @@ containing information about the result of executing the given command.
 However, its standard output and standard error streams are directed to the
 terminal, and the resulting object is not displayed.  For example
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ x = ![ls -l] and ![echo "hi"]
     total 0
-    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh
+    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin
     hi
 
 
@@ -628,12 +628,12 @@ is a function, it is treated as an alias (see the section on `Aliases`_ below),
 even if it was not explicitly added to the ``aliases`` mapping.  Otherwise, the
 result is automatically converted to a string. For example,
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ x = 'xonsh'
+    @ x = 'pygwin'
     @ y = 'party'
     @ echo @(x + ' ' + y)
-    xonsh party
+    pygwin party
     @ echo @(2+2)
     4
     @ echo @([42, 'yo'])  # `echo` with two arguments.
@@ -643,23 +643,23 @@ result is automatically converted to a string. For example,
     @ @(['echo', 'hello', 'world'])  # List of arguments.
     hello world
     @ @('echo hello world')  # Single argument.
-    xonsh: subprocess mode: command not found: echo hello world
+    pygwin: subprocess mode: command not found: echo hello world
 
 This syntax can be used inside of a captured or uncaptured subprocess, and can
 be used to generate any of the tokens in the subprocess command list.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ out = $(echo @(x + ' ' + y))
     @ out
-    'xonsh party'
+    'pygwin party'
     @ @("ech" + "o") "hey"
     hey
 
 Thus, ``@()`` allows us to create complex commands in Python-mode and then
 feed them to a subprocess as needed.  For example:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     for i in range(20):
         $[touch @('file%02d' % i)]
@@ -667,7 +667,7 @@ feed them to a subprocess as needed.  For example:
 The ``@()`` syntax may also be used inside of subprocess
 arguments, not just as a stand-alone argument. For example:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ x = 'hello'
     @ echo /path/to/@(x)
@@ -677,7 +677,7 @@ When used inside of a subprocess argument and ``<expr>`` evaluates to a
 non-string iterable, ``@()`` will expand to the outer product of all
 given values:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo /path/to/@(['hello', 'world'])
     /path/to/hello /path/to/world
@@ -691,12 +691,12 @@ Command Substitution with ``@$()``
 
 A common use of the ``@()`` and ``$()`` operators is allowing the output of a
 command to replace the command itself (command substitution):
-``@([i.strip() for i in $(cmd).split()])``.  Xonsh offers a
+``@([i.strip() for i in $(cmd).split()])``.  Pygwin offers a
 short-hand syntax for this operation: ``@$(cmd)``.
 
 Consider the following example:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ # this returns a string representing stdout
     @ $(which ls)
@@ -705,7 +705,7 @@ Consider the following example:
     @ # this attempts to run the command, but as one argument
     @ # (looks for 'ls --color=auto' with spaces)
     @ @($(which ls))
-    xonsh: subprocess mode: command not found: ls --color=auto
+    pygwin: subprocess mode: command not found: ls --color=auto
 
     @ # this actually executes the intended command
     @ @([i.strip() for i in $(which ls).split()])
@@ -723,11 +723,11 @@ subprocess operators that we have seen so far (``$()``, ``$[]``, ``${}``,
 ``@()``, ``@$()``).  An instance of ``ls -l`` that is on the wrong side of the
 border of the absurd is shown below:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $[@$(which @($(echo ls).strip())) @('-' + $(printf 'l'))]
     total 0
-    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh
+    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin
 
 With great power, and so forth...
 
@@ -737,28 +737,28 @@ With great power, and so forth...
           Python mode, it is not possible to nest other subprocess operators
           inside of them.
 
-To understand how xonsh executes the subprocess commands try
-to set :ref:`$XONSH_SUBPROC_TRACE <xonsh_subproc_trace>` to ``True``:
+To understand how pygwin executes the subprocess commands try
+to set :ref:`$PYGWIN_SUBPROC_TRACE <pygwin_subproc_trace>` to ``True``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_SUBPROC_TRACE = True
+    @ $PYGWIN_SUBPROC_TRACE = True
     @ $[@$(which @($(echo ls).strip())) @('-' + $(printf 'l'))]
     TRACE SUBPROC: (['echo', 'ls'],)
     TRACE SUBPROC: (['which', 'ls'],)
     TRACE SUBPROC: (['printf', 'l'],)
     TRACE SUBPROC: (['ls', '--color=auto', '-v', '-l'],)
     total 0
-    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 xonsh
+    -rw-rw-r-- 1 snail snail 0 Mar  8 15:46 pygwin
 
 
 Pipes
 ====================
 
-In subprocess-mode, xonsh allows you to use the ``|`` character to pipe
+In subprocess-mode, pygwin allows you to use the ``|`` character to pipe
 together commands as you would in other shells.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ env | uniq | sort | grep PATH
     DATAPATH=/usr/share/MCNPX/v260/Data/
@@ -783,7 +783,7 @@ its return code is zero (i.e. ``proc.returncode == 0``).  Like in Python,
 if the command evaluates to ``False``, subsequent commands will not be executed.
 For example, suppose we want to lists files that may or may not exist:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ touch exists
     @ ls exists and ls doesnt
@@ -793,12 +793,12 @@ For example, suppose we want to lists files that may or may not exist:
 However, if you list the file that doesn't exist first,
 you would have only seen the error:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls doesnt and ls exists
     /bin/ls: cannot access doesnt: No such file or directory
 
-Also, don't worry. Xonsh directly translates the ``&&`` operator into ``and``
+Also, don't worry. Pygwin directly translates the ``&&`` operator into ``and``
 for you. It is less Pythonic, of course, but it is your shell!
 
 Much like with ``and``, you can use the ``or`` operator to chain together
@@ -807,7 +807,7 @@ subsequent commands will be executed only if the
 if the return code is non-zero (i.e. a failure). Using the file example
 from above:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls exists or ls doesnt
     exists
@@ -816,34 +816,34 @@ This doesn't even try to list a non-existent file!
 However, if you list the file that doesn't exist first,
 you will see the error and then the file that does exist:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls doesnt or ls exists
     #/bin/ls: cannot access doesnt: No such file or directory
     exists
 
-Xonsh also directly translates the ``||`` operator into ``or``, too.
+Pygwin also directly translates the ``||`` operator into ``or``, too.
 
 Input/Output Redirection
 ====================================
 
-xonsh also allows you to redirect ``stdin``, ``stdout``, and/or ``stderr``.
+pygwin also allows you to redirect ``stdin``, ``stdout``, and/or ``stderr``.
 This allows you to control where the output of a command is sent, and where
-it receives its input from.  xonsh has its own syntax for these operations,
-but, for compatibility purposes, xonsh also support POSIX-like syntax.
+it receives its input from.  pygwin has its own syntax for these operations,
+but, for compatibility purposes, pygwin also support POSIX-like syntax.
 
 The basic operations are "write to" (``>``), "append to" (``>>``), and "read
 from" (``<``).  The details of these are perhaps best explained through
 examples.
 
 .. note:: The target of the redirection should be separated by a space,
-          otherwise xonsh will raise a SyntaxError.
+          otherwise pygwin will raise a SyntaxError.
 
 Redirecting ``stdout``. The operators ``>``, ``out>``, ``o>``, and ``1>`` (POSIX) all
 execute ``cmd`` and write its regular output (stdout) to a file, creating it if it does
 not exist:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cmd > output.txt
 
@@ -855,7 +855,7 @@ Redirecting ``stderr``. The operators ``err>``, ``e>``, and ``2>`` (POSIX)
 all execute ``cmd`` and write its error output (stderr) to a file, creating it if it does
 not exist:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cmd err> errors.txt
 
@@ -865,7 +865,7 @@ appended to ``errors.txt``, rather than replacing its contents.
 Combining streams. The operators ``all>``, ``a>``, and ``&>`` (POSIX) all
 send both regular output and error output to the same location:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cmd all> combined.txt
 
@@ -873,7 +873,7 @@ Merging stderr into stdout. The operators ``err>out``, ``err>o``, ``e>out``, ``e
 ``2>&1`` (POSIX) all explicitly merge stderr into stdout so that error
 messages are reported to the same location as regular output:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cmd err>out
     @ cmd err>out | cmd2
@@ -882,7 +882,7 @@ messages are reported to the same location as regular output:
 Merging stdout into stderr. Similarly, the operators ``out>err``, ``out>e``, ``o>err``,
 ``o>e``, and ``1>&2`` (POSIX) all send stdout to stderr:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cmd out>err
 
@@ -892,7 +892,7 @@ usual, unless an explicit ``o> file`` diverts stdout elsewhere — which makes `
 useful for the pattern of sending stdout to a file while stderr flows into the pipe.
 These operators require a following pipe.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cmd a>p | cmd2                     # stdout + stderr into the pipe
     @ cmd e>p | grep warning             # same — pipe carries both streams
@@ -901,14 +901,14 @@ These operators require a following pipe.
 Redirecting ``stdin`` is also possible to have a command read its input from a file, rather
 than from ``stdin``.  The following examples demonstrate two ways to accomplish this:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cmd < input.txt
     @ < input.txt cmd
 
 Combining I/O redirects is also possible.  Below is one example of a complicated redirect.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cmd1 e>o < input.txt | cmd2 > output.txt e>> errors.txt
 
@@ -933,9 +933,9 @@ for the second most recent job.
 Background Jobs
 ---------------
 
-Typically, when you start a program running in xonsh, xonsh itself will pause
+Typically, when you start a program running in pygwin, pygwin itself will pause
 and wait for that program to terminate.  Sometimes, though, you may want to
-continue giving commands to xonsh while that program is running.  In subprocess
+continue giving commands to pygwin while that program is running.  In subprocess
 mode, you can start a process "in the background" (i.e., in a way that allows
 continued use of the shell) by adding an ampersand (``&``) to the end of your
 command.  Background jobs are very useful when running programs with graphical
@@ -943,7 +943,7 @@ user interfaces.
 
 The following shows an example with ``emacs``.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ emacs &
     @
@@ -959,8 +959,8 @@ Foreground Jobs
 ---------------
 
 If you start a program in the foreground (with no ampersand), you can suspend
-that program's execution and return to the xonsh prompt by pressing Control-Z.
-This will give control of the terminal back to xonsh, and will keep the program
+that program's execution and return to the pygwin prompt by pressing Control-Z.
+This will give control of the terminal back to pygwin, and will keep the program
 paused in the background.
 
 .. note:: Suspending processes via Control-Z is not yet supported when
@@ -968,7 +968,7 @@ paused in the background.
 
 To unpause the program and bring it back to the foreground, you can use the
 ``fg`` command.  To unpause the program have it continue in the background
-(giving you continued access to the xonsh prompt), you can use the ``bg``
+(giving you continued access to the pygwin prompt), you can use the ``bg``
 command.
 
 
@@ -979,23 +979,23 @@ Normal Globbing
 ---------------
 Filename globbing with the ``*`` character is also allowed in subprocess-mode.
 This simply uses Python's glob module under-the-covers.  See there for more
-details.  As an example, start with a lovely bunch of xonshs:
+details.  As an example, start with a lovely bunch of pygwins:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ touch xonsh conch konk quanxh
+    @ touch pygwin conch konk quanxh
     @ ls
-    conch  konk  quanxh  xonsh
+    conch  konk  quanxh  pygwin
     @ ls *h
-    conch  quanxh  xonsh
+    conch  quanxh  pygwin
     @ ls *o*
-    conch  konk  xonsh
+    conch  konk  pygwin
 
 In subprocess mode, normal globbing happens without any special syntax.
 However, there is backtick syntax that is available inside Python mode as well as subprocess mode.
 This can be done using ``g````:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ touch a aa aaa aba abba aab aabb abcba
     @ ls a*b*
@@ -1021,7 +1021,7 @@ to the subprocess command.
 Let's see a demonstration with some simple filenames:
 
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ touch a aa aaa aba abba aab aabb abcba
     @ ls `a(a+|b+)a`
@@ -1046,7 +1046,7 @@ Using the ``f`` modifier with either regex or normal globbing makes
 the glob pattern behave like a formatted string literal. This can be used to
 substitute variables and other expressions into the glob pattern:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ touch a aa aaa aba abba aab aabb abcba
     @ mypattern = 'ab'
@@ -1063,7 +1063,7 @@ The ``m`` modifier enables match globbing — a regex glob that returns capture
 groups instead of full paths. This is useful for extracting parts of matched
 paths directly:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ for parent, name in m`tests/(.*)/(test_.*\.py)`:
           print(parent, name)
@@ -1074,19 +1074,19 @@ paths directly:
 
 With a single capture group, a flat list of strings is returned:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ m`xonsh/(.*\.py)`.sorted().files()
+    @ m`pygwin/(.*\.py)`.sorted().files()
     ['__init__.py', '__main__.py', 'aliases.py']
 
-See :doc:`globbing` for the full ``m`` glob reference and ``XonshList`` methods.
+See :doc:`globbing` for the full ``m`` glob reference and ``PygwinList`` methods.
 
 
 Custom Path Searches
 --------------------
 
 In addition, if normal globbing and regular expression globbing are not enough,
-xonsh allows you to specify your own search functions.
+pygwin allows you to specify your own search functions.
 
 A search function is defined as a function of a single argument (a string) that
 returns a list of possible matches to that string.  Search functions can then
@@ -1094,7 +1094,7 @@ be used with backticks with the following syntax: ``@<name>`test```
 
 The following example shows the form of these functions:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ def foo(s):
           return [i for i in os.listdir('.') if i.startswith(s)]
@@ -1108,7 +1108,7 @@ Path Output
 Using the ``p`` modifier with either regex or glob backticks changes the
 return type from a list of strings to a list of :class:`pathlib.Path` objects:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ p`.*`
     [Path('foo'), Path('bar')]
@@ -1123,7 +1123,7 @@ Path objects can be instantiated directly using *p-string* syntax. Path objects
 can be converted back to plain strings with `str()`, and this conversion is
 handled implicitly in subprocess mode.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ mypath = p'/foo/bar'
     @ mypath
@@ -1147,18 +1147,18 @@ handled implicitly in subprocess mode.
 
 Path object allows do some tricks with paths. Globbing certain path, checking and getting info:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ mypath = p'/etc'
-    @ sorted(mypath.glob('**/*xonshrc*'))
-    [Path('/etc/xonsh/xonshrc'), Path('/etc/xonsh/rc.d/xonshrc.xsh')]
+    @ sorted(mypath.glob('**/*pygwinrc*'))
+    [Path('/etc/pygwin/pygwinrc'), Path('/etc/pygwin/rc.d/pygwinrc.xsh')]
     @ [mypath.exists(), mypath.is_dir(), mypath.is_file(), mypath.parent, mypath.owner()]
     [True, True, False, Path('/'), 'root']
 
 
 Aliases
 =======
-Another important xonsh built-in is the ``aliases`` mapping.  This is
+Another important pygwin built-in is the ``aliases`` mapping.  This is
 like a dictionary that affects how subprocess commands are run.  If you are
 familiar with the POSIX shells ``alias`` built-in, this is similar.  Alias command
 matching only occurs for the first element of a subprocess command.
@@ -1170,11 +1170,11 @@ The keys of ``aliases`` are strings that act as commands in subprocess-mode.
 The values are:
 
 - A list of strings where the first element is the command and the remaining elements are its arguments.
-- A simple string that is automatically converted into a list using xonsh’s ``Lexer.split()`` method.
-- A string representing a xonsh command that will be converted into an ``ExecAlias`` (details next).
+- A simple string that is automatically converted into a list using pygwin’s ``Lexer.split()`` method.
+- A string representing a pygwin command that will be converted into an ``ExecAlias`` (details next).
 - A callable that will be used as a callable alias (details next).
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases['ls']
     ['ls', '--color=auto', '-v']
@@ -1194,7 +1194,7 @@ being executed.
 
 Removing an alias is as easy as deleting the key from the alias dictionary:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ del aliases['banana']
 
@@ -1204,7 +1204,7 @@ Alias to Modify Command
 The best way to modify command on the fly is to use alias that returns modified command.
 One of the most interesting application is expanding an alias:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       @aliases.return_command
@@ -1222,7 +1222,7 @@ One of the most interesting application is expanding an alias:
 
 Or implement logic to run the right command:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       @aliases.return_command
@@ -1250,7 +1250,7 @@ A callable alias is a function (or callable object) with a specific signature th
 
 Using directly with Python evaluation via ``@()``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ def mybox():
          print('apple')
@@ -1261,7 +1261,7 @@ Using directly with Python evaluation via ``@()``:
 
 Register callable as an alias:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register('mybox')
       def _mybox():
@@ -1278,12 +1278,12 @@ Register callable as an alias:
 ExecAlias
 ---------
 
-If the string is representing a block of xonsh code, the alias will be registered
+If the string is representing a block of pygwin code, the alias will be registered
 as an ``ExecAlias``, which is a callable alias under the hood. This block of code will then be
 executed whenever the alias is run. The arguments are available in the list ``$args``
 or by the index in ``$arg<n>`` environment variables.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases |= {
         'answer': 'echo @(21+21)',
@@ -1293,7 +1293,7 @@ or by the index in ``$arg<n>`` environment variables.
 
 You need to add ``@($args)`` manually if you need arguments in ExecAlias:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases |= {
         'noargs': 'echo @("all args will be ignored")',
@@ -1306,7 +1306,7 @@ You need to add ``@($args)`` manually if you need arguments in ExecAlias:
 
 These three definitions are equal:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       def _answer():
@@ -1322,7 +1322,7 @@ Anonymous Aliases
 As mentioned above, it is also possible to treat functions outside this mapping
 as aliases, by wrapping them in ``@()``.  For example:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @(_banana)
     'My spoon is tooo big!'
@@ -1350,7 +1350,7 @@ decorator:
 Uncapturable Aliases
 -----------------------
 Also, callable aliases by default will be executed such that their output is
-captured (like most commands in xonsh that don't enter alternate mode).
+captured (like most commands in pygwin that don't enter alternate mode).
 However, some aliases may want to run alternate-mode commands themselves.
 Thus the callable alias can't be captured without dire consequences (tm).
 To prevent this, you can declare a callable alias uncapturable. This is mostly
@@ -1373,12 +1373,12 @@ command.
 Click Integration
 -----------------
 If the `click <https://click.palletsprojects.com/>`_ package is installed,
-you can register a click command as a xonsh alias with
+you can register a click command as a pygwin alias with
 ``@aliases.register_click_command``. The ``aliases.click`` attribute exposes
 the ``click`` module itself, so ``@aliases.click.option(...)`` works without
 a separate ``import click``. Both are loaded lazily on first access.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register_click_command
       @aliases.click.option('--name', help='The person to greet.')
@@ -1395,15 +1395,15 @@ a separate ``import click``. Both are loaded lazily on first access.
 
 The call forms mirror ``@aliases.register`` — bare, ``()``, or with an
 explicit name. Inside the click callback, ``ctx`` is a ``click.Context``
-subclass carrying the usual xonsh alias parameters as attributes
+subclass carrying the usual pygwin alias parameters as attributes
 (``ctx.alias_args``, ``ctx.stdin``, ``ctx.stdout``, ``ctx.env``, and so on).
 See :doc:`callable_aliases` for the full reference.
 
 Command Decorators (Decorator Aliases)
 --------------------------------------
-In xonsh you can decorate the command to transform output into desired object:
+In pygwin you can decorate the command to transform output into desired object:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $(@lines ls /)
     ['/bin', '/etc', '/home']
@@ -1431,7 +1431,7 @@ convert subprocess command output into Python object with your own logic:
 
 .. code-block:: python
 
-    from xonsh.procs.specs import SpecAttrDecoratorAlias
+    from pygwin.procs.specs import SpecAttrDecoratorAlias
 
     aliases['@and'] = SpecAttrDecoratorAlias(
                         {"output_format": lambda lines: ' and '.join([l.strip() for l in lines])},
@@ -1440,7 +1440,7 @@ convert subprocess command output into Python object with your own logic:
 
 Now you can run:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $(@and ls /)
     '/bin and /etc and /home'
@@ -1448,15 +1448,15 @@ Now you can run:
 
 -------------
 
-Aliasing is a powerful way that xonsh allows you to seamlessly interact to
+Aliasing is a powerful way that pygwin allows you to seamlessly interact to
 with Python and subprocess. See :doc:`callable_aliases` for the full callable
 aliases reference including stream capturing, ``env`` overlay, and return
 values.
 
 .. warning:: If ``FOREIGN_ALIASES_OVERRIDE`` environment variable is False
              (the default), then foreign shell aliases that try to override
-             xonsh aliases will be ignored. The setting of this environment variable
-             must happen outside if xonsh, i.e. in the process that starts xonsh.
+             pygwin aliases will be ignored. The setting of this environment variable
+             must happen outside if pygwin, i.e. in the process that starts pygwin.
 
 
 
@@ -1469,12 +1469,12 @@ The up and down keys search history matching from the start of the line.
 
 Tab completion is present as well. By default, in Python-mode you are able to
 complete based on the variable names in the current builtins, globals, and
-locals, as well as xonsh languages keywords & operator, files & directories,
+locals, as well as pygwin languages keywords & operator, files & directories,
 and environment variable names. In subprocess-mode, you additionally complete
 on the names of executable files on your ``$PATH``, alias keys, and various
 additional completers.
 
-xonsh also provides a means of modifying the behavior of the tab completer.  More
+pygwin also provides a means of modifying the behavior of the tab completer.  More
 detail is available on the `Tab Completion page <completers.html>`_.
 
 .. _customprompt:
@@ -1487,13 +1487,13 @@ is probably the most common reason for altering an environment variable.
 
 .. note:: Note that the ``$PROMPT`` variable will never be inherited from a
           parent process (regardless of whether that parent is a foreign shell
-          or an instance of xonsh).
+          or an instance of pygwin).
 
 The ``$PROMPT`` variable can be a string, or it can be a function (of no
 arguments) that returns a string.  The result can contain keyword arguments,
 which will be replaced automatically:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $PROMPT = '{user}@{hostname}:{cwd} @ '
     snail@home:~ @ # it works!
@@ -1508,17 +1508,17 @@ and virtual environment settings.
 Colors
 ------
 
-Xonsh supports colored output in prompts and print functions. Use color
+Pygwin supports colored output in prompts and print functions. Use color
 keywords like ``{GREEN}`` or ``{BOLD_BLUE}`` and ``{RESET}`` to clear:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ print_color('{RED}Error:{RESET} something went wrong')
     @ printx('Success!', 'BOLD_GREEN')
 
 Colors work in prompts too:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $PROMPT = '{CYAN}{cwd}{RESET} @ '
 
@@ -1527,24 +1527,24 @@ and modifiers (bold, italic, underline, etc.).
 
 Executing Commands and Scripts
 ==============================
-When started with the ``-c`` flag and a command, xonsh will execute that command
+When started with the ``-c`` flag and a command, pygwin will execute that command
 and exit, instead of entering the command loop.
 
 .. note::
-    When executing commands this way your :doc:`xonsh RC <xonshrc>` files are not applied.
+    When executing commands this way your :doc:`pygwin RC <pygwinrc>` files are not applied.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ xonsh -c "echo @(7+3)"
+    @ pygwin -c "echo @(7+3)"
     10
 
 Longer scripts can be run either by specifying a filename containing the script,
-or by feeding them to xonsh via stdin.  For example, consider the following
+or by feeding them to pygwin via stdin.  For example, consider the following
 script, stored in ``test.xsh``:
 
 .. code-block:: python
 
-    #!/usr/bin/env xonsh
+    #!/usr/bin/env pygwin
 
     ls
 
@@ -1555,48 +1555,48 @@ script, stored in ``test.xsh``:
 
     print('adding files')
     # This is a comment
-    for i, x in enumerate("xonsh"):
+    for i, x in enumerate("pygwin"):
         echo @(x) > @("file{0}.txt".format(i))
 
     print($(ls).replace('\n', ' '))
 
 
-This script could be run by piping its contents to xonsh:
+This script could be run by piping its contents to pygwin:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ cat test.xsh | xonsh
+    @ cat test.xsh | pygwin
     file0.txt  file1.txt  file2.txt  file3.txt  file4.txt  test_script.sh
     removing files
     test_script.sh
     adding files
     file0.txt file1.txt file2.txt file3.txt file4.txt test_script.sh
 
-or by invoking xonsh with its filename as an argument:
+or by invoking pygwin with its filename as an argument:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ xonsh test.xsh
+    @ pygwin test.xsh
     file0.txt  file1.txt  file2.txt  file3.txt  file4.txt  test_script.sh
     removing files
     test_script.sh
     adding files
     file0.txt file1.txt file2.txt file3.txt file4.txt test_script.sh
 
-xonsh scripts can also accept command line arguments and parameters.
+pygwin scripts can also accept command line arguments and parameters.
 These arguments are made available to the script in two different ways:
 
 #. In either mode, as individual variables ``$ARG<n>`` (e.g., ``$ARG1``)
 #. In Python mode only, as a list ``$ARGS``
 
 For example, consider a slight variation of the example script from above that
-operates on a given argument, rather than on the string ``'xonsh'`` (notice how
+operates on a given argument, rather than on the string ``'pygwin'`` (notice how
 ``$ARGS`` and ``$ARG1`` are used):
 
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    #!/usr/bin/env xonsh
+    #!/usr/bin/env pygwin
 
     print($ARGS)
 
@@ -1616,9 +1616,9 @@ operates on a given argument, rather than on the string ``'xonsh'`` (notice how
     print()
 
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ xonsh test2.xsh snails
+    @ pygwin test2.xsh snails
     ['test_script.sh', 'snails']
     file0.txt  file1.txt  file2.txt  file3.txt  file4.txt  file5.txt  test_script.sh
     removing files
@@ -1636,7 +1636,7 @@ Python's ``python -m trace``.
 Error Handling
 ==============
 
-Xonsh treats shell commands as first-class code.  When a command fails,
+Pygwin treats shell commands as first-class code.  When a command fails,
 you usually want your script to **stop** instead of silently marching
 past the failure — the way a Python exception would — but you also want
 the flexibility of ``&&``/``||`` short-circuit logic that the shell is
@@ -1651,7 +1651,7 @@ explicitly rescued by ``||`` are not fatal.
 
 A couple of examples:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo hi | grep x                  # pipe chain — grep didn't match → raise
     @ ls nofile && echo never           # && chain — ls failed → raise, echo skipped
@@ -1665,7 +1665,7 @@ is the full-capture operator ``!(...)``: it returns a
 you.  This is the idiomatic way to inspect a command's result without
 triggering an exception:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ if !(ls nofile):
           print("found")
@@ -1677,9 +1677,9 @@ See :ref:`error_handling` for the full rules, including
 variables that tune this behavior, and how the interactive prompt
 displays (or hides) the resulting exception.
 
-Importing Xonsh (``*.xsh``)
+Importing Pygwin (``*.xsh``)
 ==============================
-You can import xonsh source files with the ``*.xsh`` file extension using
+You can import pygwin source files with the ``*.xsh`` file extension using
 the normal Python syntax:
 
 .. code-block:: python
@@ -1688,23 +1688,23 @@ the normal Python syntax:
 
 Compile, Evaluate, & Execute
 ================================
-Xonsh provides built-in hooks to compile, evaluate,
-and execute strings of xonsh code.  To prevent this functionality from having
+Pygwin provides built-in hooks to compile, evaluate,
+and execute strings of pygwin code.  To prevent this functionality from having
 serious name collisions with the Python built-in ``compile()``, ``eval()``,
-and ``exec()`` functions, the xonsh equivalents all append an 'x'.  So for
-xonsh code you want to use the ``compilex()``, ``evalx()``, and ``execx()``
+and ``exec()`` functions, the pygwin equivalents all append an 'x'.  So for
+pygwin code you want to use the ``compilex()``, ``evalx()``, and ``execx()``
 functions. If you don't know what these do, you probably don't need them.
 
 
 Help & Superhelp with ``?`` & ``??``
 =====================================================
-Xonsh allows you to inspect objects with question marks.
+Pygwin allows you to inspect objects with question marks.
 A single question mark (``?``) is used to display the normal level of help.
 Double question marks (``??``) are used to display a higher level of help,
 called superhelp. Superhelp usually includes source code if the object was
 written in pure Python.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ int?
     Convert a number or string to an integer, or return 0 if no arguments
@@ -1725,7 +1725,7 @@ the name is a **binary** on ``$PATH`` or an **alias**:
 For a binary, ``?`` prints just the resolved path; ``??`` additionally
 runs ``man``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ whoami?
     Resolved whoami: '/usr/bin/whoami'
@@ -1739,7 +1739,7 @@ runs ``man``:
 When the name does not resolve to any binary, ``??`` no longer falls
 through to ``man`` — the failed resolution is printed on its own line:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ nosuch?
     Resolved nosuch: None
@@ -1749,20 +1749,20 @@ docstring, threadable/capturable flags (when set), the source file
 location and — the new bit — **the function source code** for
 callable aliases, fetched via ``inspect.getsource``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls?
     Alias: ['ls', '-G']
 
     @ xonfig?
-    Alias: <xonsh.xonfig.XonfigAlias>
-    Descr: Manage xonsh configuration.
+    Alias: <pygwin.xonfig.XonfigAlias>
+    Descr: Manage pygwin configuration.
 
 Define a callable alias and ask for the super-help form:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ # ~/.xonshrc
+    @ # ~/.pygwinrc
       @aliases.register
       def _greet(args):
           """Print a friendly greeting."""
@@ -1775,7 +1775,7 @@ Define a callable alias and ask for the super-help form:
     @ greet??
     Alias: FuncAlias({'name': 'greet', 'func': '_greet', 'return_what': 'result'})
     Descr: Print a friendly greeting.
-    Source: /home/snail/.xonshrc:1
+    Source: /home/snail/.pygwinrc:1
     Code:
     @aliases.register
     def _greet(args):
@@ -1785,7 +1785,7 @@ Define a callable alias and ask for the super-help form:
 List-style aliases expand recursively through other aliases, and you
 can see where the leading token resolves on disk:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases['lst']  = ['ls', '-la']
     @ aliases['lst2'] = ['lst', '/tmp']
@@ -1801,14 +1801,14 @@ while ``Source:`` still shows where the function was declared.
 
 That's All, Folks
 ======================
-To leave xonsh, hit ``Ctrl-D``, type ``EOF``, type ``quit``, or type ``exit``.
+To leave pygwin, hit ``Ctrl-D``, type ``EOF``, type ``quit``, or type ``exit``.
 On Windows, you can also type ``Ctrl-Z``.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ exit
 
-To exit from the xonsh script just call the ``exit(code)`` function.
+To exit from the pygwin script just call the ``exit(code)`` function.
 
 Now it is your turn.
 
@@ -1820,4 +1820,4 @@ See also
 * :doc:`subprocess` -- subprocess operators and capturing modes
 * :doc:`env` -- environment variable types and patterns
 * :doc:`aliases` -- built-in aliases and command decorators
-* :doc:`xonsh RC <xonshrc>` -- configuration snippets and tips
+* :doc:`pygwin RC <pygwinrc>` -- configuration snippets and tips

@@ -1,12 +1,12 @@
-"""Testing xonsh import hooks"""
+"""Testing pygwin import hooks"""
 
 import os
 from importlib import import_module
 
 import pytest
 
-from xonsh import imphooks
-from xonsh.pytest.tools import ON_WINDOWS
+from pygwin import imphooks
+from pygwin.pytest.tools import ON_WINDOWS
 
 
 @pytest.fixture(autouse=True)

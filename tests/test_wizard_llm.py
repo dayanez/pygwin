@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.wizard``.
+"""Smoke tests for ``pygwin.wizard``.
 
 The wizard machinery is a tree of ``Node`` subclasses plus a couple of
 ``Visitor``s that walk the tree. These tests cover:
@@ -13,7 +13,7 @@ import re
 
 import pytest
 
-from xonsh.wizard import (
+from pygwin.wizard import (
     FileInserter,
     Input,
     LoadJSON,
@@ -78,7 +78,7 @@ def test_yesno_responses_are_bool_keyed():
 
 def test_truefalse_uses_to_bool_converter():
     tf = TrueFalse()
-    # the converter is xonsh.tools.to_bool
+    # the converter is pygwin.tools.to_bool
     assert callable(tf.converter)
     assert tf.converter("yes") is True
     assert tf.converter("no") is False

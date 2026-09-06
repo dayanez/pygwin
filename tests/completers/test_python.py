@@ -1,19 +1,19 @@
 import pytest
 
-from xonsh.completers.imports import complete_import
-from xonsh.completers.python import (
+from pygwin.completers.imports import complete_import
+from pygwin.completers.python import (
+    complete_pygwin_imp,
     complete_python,
-    complete_xonsh_imp,
     python_signature_complete,
 )
-from xonsh.parsers.completion_context import CompletionContext, PythonContext
-from xonsh.pytest.tools import skip_if_pre_3_8
+from pygwin.parsers.completion_context import CompletionContext, PythonContext
+from pygwin.pytest.tools import skip_if_pre_3_8
 
 
 @pytest.fixture(autouse=True)
-def xonsh_execer_autouse(xession, xonsh_execer, monkeypatch):
+def pygwin_execer_autouse(xession, pygwin_execer, monkeypatch):
     monkeypatch.setitem(xession.env, "COMPLETIONS_BRACKETS", True)
-    return xonsh_execer
+    return pygwin_execer
 
 
 def foo(x, y, z):
@@ -121,19 +121,19 @@ def test_complete_import(command, exp, completer_obj):
     "code, exp_in",
     [
         # Basic module completion
-        ("__xonsh__.imp.sy", "__xonsh__.imp.sys"),
-        ("__xonsh__.imp.o", "__xonsh__.imp.os"),
-        ("__xonsh__.imp.js", "__xonsh__.imp.json"),
+        ("__pygwin__.imp.sy", "__pygwin__.imp.sys"),
+        ("__pygwin__.imp.o", "__pygwin__.imp.os"),
+        ("__pygwin__.imp.js", "__pygwin__.imp.json"),
         # Nested module completion
-        ("__xonsh__.imp.os.pa", "__xonsh__.imp.os.path"),
+        ("__pygwin__.imp.os.pa", "__pygwin__.imp.os.path"),
         # Edge cases
-        ("__xonsh__.imp.", "__xonsh__.imp.sys"),  # Should show all modules
-        ("__xonsh__.imp.nonexistent", None),  # No matches
+        ("__pygwin__.imp.", "__pygwin__.imp.sys"),  # Should show all modules
+        ("__pygwin__.imp.nonexistent", None),  # No matches
     ],
 )
-def test_complete_xonsh_imp(code, exp_in):
-    """Test completion for __xonsh__.imp.<module> syntax."""
-    res = complete_xonsh_imp(
+def test_complete_pygwin_imp(code, exp_in):
+    """Test completion for __pygwin__.imp.<module> syntax."""
+    res = complete_pygwin_imp(
         CompletionContext(python=PythonContext(code, len(code), ctx={}))
     )
 
@@ -147,23 +147,23 @@ def test_complete_xonsh_imp(code, exp_in):
         assert exp_in in comps, f"Expected {exp_in} to be in {comps}"
 
 
-def test_complete_xonsh_imp_no_context():
-    """Test that complete_xonsh_imp returns None when not in Python context."""
-    res = complete_xonsh_imp(CompletionContext(python=None))
+def test_complete_pygwin_imp_no_context():
+    """Test that complete_pygwin_imp returns None when not in Python context."""
+    res = complete_pygwin_imp(CompletionContext(python=None))
     assert res is None
 
 
-def test_complete_xonsh_imp_not_matching():
-    """Test that complete_xonsh_imp returns None for non-matching patterns."""
-    # Not a __xonsh__.imp pattern
-    res = complete_xonsh_imp(
+def test_complete_pygwin_imp_not_matching():
+    """Test that complete_pygwin_imp returns None for non-matching patterns."""
+    # Not a __pygwin__.imp pattern
+    res = complete_pygwin_imp(
         CompletionContext(python=PythonContext("import sy", 9, ctx={}))
     )
     assert res is None
 
     # Different attribute path
-    res = complete_xonsh_imp(
-        CompletionContext(python=PythonContext("__xonsh__.env", 13, ctx={}))
+    res = complete_pygwin_imp(
+        CompletionContext(python=PythonContext("__pygwin__.env", 13, ctx={}))
     )
     assert res is None
 
@@ -215,10 +215,10 @@ def test_complete_python_simple_function():
 
 
 class TestAtSignCompletion:
-    """Test @ prefix completion: bare @. (xonsh object), @name. and @name (decorator)."""
+    """Test @ prefix completion: bare @. (pygwin object), @name. and @name (decorator)."""
 
-    def test_at_dot_completes_xonsh_object(self):
-        """@.<TAB> completes attributes of the xonsh session interface (@)."""
+    def test_at_dot_completes_pygwin_object(self):
+        """@.<TAB> completes attributes of the pygwin session interface (@)."""
         res = complete_python(CompletionContext(python=PythonContext("@.", 2, ctx={})))
         assert res is not None
         comps, _ = res
@@ -275,7 +275,7 @@ class TestAtSignCompletion:
 
     def test_at_dot_history_completes_methods(self, xession, monkeypatch):
         """@.history.<TAB> completes attributes of the session history."""
-        from xonsh.pytest.tools import DummyHistory
+        from pygwin.pytest.tools import DummyHistory
 
         monkeypatch.setattr(xession.interface, "history", DummyHistory())
         res = complete_python(
@@ -305,8 +305,8 @@ class TestAtSignCompletion:
 
 def test_complete_python_empty_prefix_hides_noise():
     """Bare Tab on a completely empty prefix must not surface
-    xonsh-syntax tokens (``!(``, ``@(``, ``$(``, …), Python operators
-    and keywords from ``XONSH_TOKENS``, or underscore-prefixed builtins
+    pygwin-syntax tokens (``!(``, ``@(``, ``$(``, …), Python operators
+    and keywords from ``PYGWIN_TOKENS``, or underscore-prefixed builtins
     (dunders, private names). Without filtering every entry would match
     and bury actually useful completions.
     """
@@ -315,10 +315,10 @@ def test_complete_python_empty_prefix_hides_noise():
     comps, _ = res
     comps_str = {str(c) for c in comps}
 
-    # xonsh-specific syntax — explicitly named in the user request.
+    # pygwin-specific syntax — explicitly named in the user request.
     for tok in ("!(", "@(", "$(", "${", "$[", "![", "@$(", "@", "?", "??"):
         assert tok not in comps_str, f"{tok!r} leaked into bare-Tab menu"
-    # Operators / keywords from XONSH_TOKENS — also noise on bare Tab.
+    # Operators / keywords from PYGWIN_TOKENS — also noise on bare Tab.
     for tok in ("+", "==", "if", "for", "lambda"):
         assert tok not in comps_str, f"{tok!r} leaked into bare-Tab menu"
     # No underscore-prefixed names (dunders or private).

@@ -1,51 +1,51 @@
 Run Control File
 =========================
-Xonsh allows you to customize your shell behavior with run control files, called "xonshrc" files.
-These files are written either in the Xonsh language or in Python and are executed
+Pygwin allows you to customize your shell behavior with run control files, called "pygwinrc" files.
+These files are written either in the Pygwin language or in Python and are executed
 exactly once at startup.
 
-Xonsh RC Basics
+Pygwin RC Basics
 ---------------
 
 The control file usually contains:
 
-* Assignment statements setting `environment variables <envvars.html>`_. This includes standard OS environment variables that affect other programs and many that Xonsh uses for itself.
+* Assignment statements setting `environment variables <envvars.html>`_. This includes standard OS environment variables that affect other programs and many that Pygwin uses for itself.
 * ``xontrib`` commands to load selected add-ins (`xontribs <xontrib.html#loading-xontribs>`_).
-* Xonsh function definitions.
+* Pygwin function definitions.
 * `Alias definitions <aliases.html>`_, many of which invoke the above functions with specified arguments.
 
-First of all, you need to know about the home directory ``~/.xonshrc`` control file. This file is commonly used to put configurations for the user interactive prompt and it is executed automatically only for interactive Xonsh sessions.
+First of all, you need to know about the home directory ``~/.pygwinrc`` control file. This file is commonly used to put configurations for the user interactive prompt and it is executed automatically only for interactive Pygwin sessions.
 
-There are also a few places where Xonsh looks for run control files. These files will be executed automatically in both interactive and non-interactive modes, and you need to use the `$XONSH_INTERACTIVE <envvars.html#xonsh-interactive>`_ and `$XONSH_LOGIN <envvars.html#xonsh-login>`_ environment variables to determine what code you want to execute in each mode. Here is the list of run control files and directories:
+There are also a few places where Pygwin looks for run control files. These files will be executed automatically in both interactive and non-interactive modes, and you need to use the `$PYGWIN_INTERACTIVE <envvars.html#pygwin-interactive>`_ and `$PYGWIN_LOGIN <envvars.html#pygwin-login>`_ environment variables to determine what code you want to execute in each mode. Here is the list of run control files and directories:
 
-* Cross-desktop group (XDG) compliant ``~/.config/xonsh/rc.xsh`` control file.
-* The system-wide control file ``/etc/xonsh/xonshrc`` for Linux and macOS and in ``%ALLUSERSPROFILE%\xonsh\xonshrc`` on Windows. It controls options that are applied to all users of Xonsh on a given system.
-* The home-based directory ``~/.config/xonsh/rc.d/`` and system ``/etc/xonsh/rc.d/`` can contain ``.xsh`` or ``.py`` files. They will be executed at startup in order. This allows for drop-in configuration where your configuration can be split across scripts and common and local configurations more easily separated.
+* Cross-desktop group (XDG) compliant ``~/.config/pygwin/rc.xsh`` control file.
+* The system-wide control file ``/etc/pygwin/pygwinrc`` for Linux and macOS and in ``%ALLUSERSPROFILE%\pygwin\pygwinrc`` on Windows. It controls options that are applied to all users of Pygwin on a given system.
+* The home-based directory ``~/.config/pygwin/rc.d/`` and system ``/etc/pygwin/rc.d/`` can contain ``.xsh`` or ``.py`` files. They will be executed at startup in order. This allows for drop-in configuration where your configuration can be split across scripts and common and local configurations more easily separated.
 
 In addition:
 
-* Use ``xonsh --no-rc`` to prevent using control files.
-* Use ``xonsh --rc snail.xsh`` to run only a certain control file.
-* Use ``xonsh -i script.xsh`` to run xonsh in interactive mode with loading all possible control files.
-* Use ``xonsh --rc rc1.xsh rc2.xsh -- script.xsh`` to run scripts with multiple control files.
+* Use ``pygwin --no-rc`` to prevent using control files.
+* Use ``pygwin --rc snail.xsh`` to run only a certain control file.
+* Use ``pygwin -i script.xsh`` to run pygwin in interactive mode with loading all possible control files.
+* Use ``pygwin --rc rc1.xsh rc2.xsh -- script.xsh`` to run scripts with multiple control files.
 * You can create autoloadable `xontrib <xontrib.html#loading-xontribs>`_ as alternative to run control file and reuse it as python package.
 
 The options set per user override settings in the system-wide control file.
 
-xonsh RC also lets you account for the operating system, so you can ship a single
+pygwin RC also lets you account for the operating system, so you can ship a single
 file across systems and gate snippets by platform and execution mode —
-see :ref:`Cross-platform xonsh RC <cross_platform_xonshrc>`.
+see :ref:`Cross-platform pygwin RC <cross_platform_pygwinrc>`.
 
-Xonsh provides 2 wizards to create your own "xonshrc".  ``xonfig web`` provides basic settings, and ``xonfig wizard``
+Pygwin provides 2 wizards to create your own "pygwinrc".  ``xonfig web`` provides basic settings, and ``xonfig wizard``
 steps you through all the available options.
 
 xonfig web
 -----------
 
 This helps you choose a color theme, customized prompt and add-in packages ("xontribs").  It
-initializes your personal run control file (usually at ``~/.xonshrc``).  To invoke it (from a xonsh prompt):
+initializes your personal run control file (usually at ``~/.pygwinrc``).  To invoke it (from a pygwin prompt):
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
   @ xonfig web
   Web config started at 'http://localhost:8421'. Hit Ctrl+C to stop.
@@ -55,16 +55,16 @@ This will open your default browser on a page served from a local server.  You c
 
 The page has:
 
-:Colors: shows the  color themes built into Xonsh.
+:Colors: shows the  color themes built into Pygwin.
   Simply click on a sample to select it.  Although color names are standardized across various terminal applications,
   their actual appearance is not and do vary widely.  Seeing is believing!
 :Prompts: shows various sample prompts.  It is recommended to select one but to then edit
-  the ``xonshrc`` file to further refine your prompt.
+  the ``pygwinrc`` file to further refine your prompt.
 :Xontribs: are community-contributed add-ins often used to enhance command completion and line editing,
-  but can affect any aspect of Xonsh behavior.
+  but can affect any aspect of Pygwin behavior.
   Choose one or more to suit your needs but note that they will require installation of additional
-  packages.  You can extend Xonsh by `writing your own xontrib <xontrib.html>`_, and are invited/urged to do so!
-:Save: Click to write the configuration choices to your ``~/.xonshrc``. This will add a few tagged lines to your run control file, but will not
+  packages.  You can extend Pygwin by `writing your own xontrib <xontrib.html>`_, and are invited/urged to do so!
+:Save: Click to write the configuration choices to your ``~/.pygwinrc``. This will add a few tagged lines to your run control file, but will not
   overwrite it completely, so you can run `xonfig web` at any time.
 
 xonfig wizard
@@ -72,22 +72,22 @@ xonfig wizard
 
 This imports settings and tools you have defined in your existing (POSIX) shell.
 It also walks you through setting all known environment variables and xontribs
-in a question-and-answer format. Run it from a xonsh prompt:
+in a question-and-answer format. Run it from a pygwin prompt:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ xonfig wizard
 
 
-Real world sample xonshrc
+Real world sample pygwinrc
 -------------------------
 
 The following is a real-world example of such a file.
 
-:download:`Download xonshrc <xonshrc.xsh>`
+:download:`Download pygwinrc <pygwinrc.xsh>`
 
-.. literalinclude:: xonshrc.xsh
-    :language: xonsh
+.. literalinclude:: pygwinrc.xsh
+    :language: pygwin
 
 See also `xontrib-rc-awesome <https://github.com/anki-code/xontrib-rc-awesome>`_.
 
@@ -95,23 +95,23 @@ Real world sample rc.py
 -------------------------
 
 The following is a real-world example of such a file.
-This can be set by ``env XONSHRC=rc.py xonsh`` or ``xonsh --rc=rc.py``
+This can be set by ``env PYGWINRC=rc.py pygwin`` or ``pygwin --rc=rc.py``
 
-:download:`Download rc.py <xonshrc.py>`
+:download:`Download rc.py <pygwinrc.py>`
 
-.. literalinclude:: xonshrc.py
-    :language: xonsh
+.. literalinclude:: pygwinrc.py
+    :language: pygwin
 
 
-Snippets for xonshrc
+Snippets for pygwinrc
 --------------------
 
-The following are useful snippets and code that tweaks and adjust xonsh in various ways.
+The following are useful snippets and code that tweaks and adjust pygwin in various ways.
 If you have any useful tricks, feel free to share them.
 
 Adjust how git branch label behaves
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Xonsh adds a colored branch name to the prompt when working with git or hg repositories.
+Pygwin adds a colored branch name to the prompt when working with git or hg repositories.
 This behavior can be controlled with the ``$PROMPT`` environment variable. See how to `customize the prompt`_ .
 The branch name changes color if the work dir is dirty or not. This is controlled by the ``{branch_color}`` formatter string.
 
@@ -120,7 +120,7 @@ The following snippet reimplements the formatter also to include untracked files
 
 .. code-block:: python
 
-    from xonsh.prompt.vc import git_dirty_working_directory
+    from pygwin.prompt.vc import git_dirty_working_directory
     $VC_GIT_INCLUDE_UNTRACKED = True
     $PROMPT_FIELDS['branch_color'] = lambda: ('{BOLD_INTENSE_RED}'
                                                    if git_dirty_working_directory()
@@ -132,15 +132,15 @@ The following snippet reimplements the formatter also to include untracked files
 
 Get better colors from the ``ls`` command
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The colors of the ``ls`` command may be hard to read in a dark terminal. If so, this is an excellent addition to the xonshrc file.
+The colors of the ``ls`` command may be hard to read in a dark terminal. If so, this is an excellent addition to the pygwinrc file.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     $LS_COLORS='rs=0:di=01;36:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:'
 
 Make JSON data directly pastable
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-With the following snippet, xonsh will understand JSON data such as ``{ "name": "Tyler", "active": false, "age": null }``.
+With the following snippet, pygwin will understand JSON data such as ``{ "name": "Tyler", "active": false, "age": null }``.
 Note that this injects names into Python's ``builtins`` module, which is
 rather hacky and might break other functionality. Use at your own risk.
 
@@ -172,7 +172,7 @@ For a compact shell prompts, some people prefer a very condensed time format. Bu
 See also
 --------
 
-* :ref:`Cross-platform xonsh RC <cross_platform_xonshrc>` -- writing one cross-platform RC
+* :ref:`Cross-platform pygwin RC <cross_platform_pygwinrc>` -- writing one cross-platform RC
 * :doc:`env` -- environment variable types, patterns, and ``swap``
 * :doc:`aliases` -- defining aliases
 * :doc:`prompt` -- prompt customization

@@ -2,11 +2,11 @@ import os
 import shutil
 import tempfile
 
-from xonsh.api.os import indir, rmtree
+from pygwin.api.os import indir, rmtree
 
 import pytest
 from pathlib import Path
-from xonsh.pytest.tools import ON_WINDOWS
+from pygwin.pytest.tools import ON_WINDOWS
 
 def resolve_path(p):
     """Path can be a symlink (e.g. on macOS) so we need to resolve it first."""

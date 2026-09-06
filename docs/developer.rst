@@ -5,10 +5,10 @@ Developer's Guide
 
 .. image:: _static/knight-vs-snail.jpg
 
-Welcome to the xonsh developer's guide! This is a place for developers to
+Welcome to the pygwin developer's guide! This is a place for developers to
 place information that does not belong in the user's guide or the library
 reference but is useful or necessary for the next people that come along to
-develop xonsh.
+develop pygwin.
 
 .. note:: All code changes must go through the pull request review procedure.
 
@@ -19,15 +19,15 @@ Making Your First Change
 Terminal-based workflow
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The simplified terminal-based workflow to contribute to xonsh:
+The simplified terminal-based workflow to contribute to pygwin:
 
 .. code-block:: bash
 
     mkdir -p ~/git && cd ~/git
     # For example your name is `snail` and you forked https://github.com/xonsh/xonsh on Github
-    git clone git@github.com:snail/xonsh.git
+    git clone git@github.com:snail/pygwin.git
     # You can setup IDE (see next section) to extremely speed up the work and test.
-    cd xonsh
+    cd pygwin
 
     # Set git user name. Without `--global` it will work in local repository.
     git config user.name "Snail"
@@ -42,15 +42,15 @@ The simplified terminal-based workflow to contribute to xonsh:
     pip install '.[dev]' '.[doc]'
 
     # Make changes: add new environment variable.
-    vim xonsh/environ.py
-    git add xonsh/environ.py
+    vim pygwin/environ.py
+    git add pygwin/environ.py
 
     # Create test.
     vim tests/environ.py
     python -m pytest
 
     # Live test.
-    python -m xonsh --no-rc
+    python -m pygwin --no-rc
 
     # Push
     git commit -m "My new environment variable!"
@@ -70,7 +70,7 @@ You can also use IDE like PyCharm:
 2. Go to ``File -> Project from Version Control -> URL`` https://github.com/xonsh/xonsh
 3. Go to the terminal and update pip and install full dependencies:
 
-   .. code-block:: xonsh
+   .. code-block:: pygwin
 
        # Run from PyCharm terminal with appropriate environment.
        python -m pip install -U pip  # you need pip >= 24
@@ -80,25 +80,25 @@ You can also use IDE like PyCharm:
 
    .. code-block:: text
 
-       Create project based on xonsh code directory.
+       Create project based on pygwin code directory.
        Click "Run" - "Run..." - "Edit Configurations"
        Click "+" and choose "Python". Set:
-           Name: "xonsh --no-rc".
-           Run: choose "module" and write "xonsh".
+           Name: "pygwin --no-rc".
+           Run: choose "module" and write "pygwin".
            Script parameters: "--no-rc -DFROM=PYCHARM" (here "FROM" will help to identify process using `ps ax | grep PYCHARM`).
            Working directory: "/tmp"  # to avoid corrupting the source code during experiments
-           Environment variables: add ";XONSH_SHOW_TRACEBACK=1"
+           Environment variables: add ";PYGWIN_SHOW_TRACEBACK=1"
            Modify options: click "Emulate terminal in output console".
        Save settings.
 
-       Open `xonsh/procs/specs.py` and `def run_subproc` function.
+       Open `pygwin/procs/specs.py` and `def run_subproc` function.
        Put breakpoint to `specs = cmds_to_specs` code. See also: https://www.jetbrains.com/help/pycharm/using-breakpoints.html
-       Click "Run" - "Debug..." - "xonsh". Now you can see xonsh prompt.
+       Click "Run" - "Debug..." - "pygwin". Now you can see pygwin prompt.
        Run `echo 1` and now you're in the debug mode on the breakpoint.
        Press F8 to step forward. Good luck!
 
 5. Create git branch and solve `good first issue <https://github.com/xonsh/xonsh/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+sort%3Areactions-%2B1-desc>`_ or `popular issue <https://github.com/xonsh/xonsh/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc>`_.
-6. Create pull request to xonsh.
+6. Create pull request to pygwin.
 
 
 Changelog
@@ -112,14 +112,14 @@ Changelog
 Style Guide
 ------------
 
-xonsh is a pure Python project, and so we use PEP8 (with some additions) to
+pygwin is a pure Python project, and so we use PEP8 (with some additions) to
 ensure consistency throughout the code base.
 
 Rules to Write By
 ^^^^^^^^^^^^^^^^^^
 
 It is important to refer to things and concepts by their most specific name.
-When writing xonsh code or documentation please use technical terms
+When writing pygwin code or documentation please use technical terms
 appropriately. The following rules help provide needed clarity.
 
 Interfaces
@@ -141,10 +141,10 @@ Expectations
 Python Style Guide
 ^^^^^^^^^^^^^^^^^^^
 
-xonsh follows `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ for all Python code. The following rules apply where
+pygwin follows `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ for all Python code. The following rules apply where
 `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ is open to interpretation.
 
-* Use absolute imports (``import xonsh.tools``) rather than explicit
+* Use absolute imports (``import pygwin.tools``) rather than explicit
   relative imports (``import .tools``). Implicit relative imports
   (``import tools``) are never allowed.
 * We use sphinx with the numpydoc extension to autogenerate API documentation. Follow
@@ -178,7 +178,7 @@ Prep your environment for running the tests:
 Running the Tests - Basic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Run all the tests using pytest. Use ``python -m pytest`` to prevent using xonsh code from ``site-packages`` if xonsh was installed in the same environment:
+Run all the tests using pytest. Use ``python -m pytest`` to prevent using pygwin code from ``site-packages`` if pygwin was installed in the same environment:
 
 .. code-block:: bash
 
@@ -238,7 +238,7 @@ has to be prefixed with ``test_``:
         assert is_true_or_false
 
 The conftest.py in tests directory defines fixtures for mocking various
-parts of xonsh for more test isolation. For a list of the various fixtures:
+parts of pygwin for more test isolation. For a list of the various fixtures:
 
 .. code-block:: bash
 
@@ -263,7 +263,7 @@ only once for the different test cases and you get less isolation.
 With that in mind, each test should have the least ``assert`` statements,
 preferably one.
 
-At the moment, xonsh doesn't support any pytest plugins.
+At the moment, pygwin doesn't support any pytest plugins.
 
 Happy Testing!
 
@@ -287,10 +287,10 @@ Auto-Documentation Hooks
 
 The docstrings that you have written will automatically be connected to the
 website, once the appropriate hooks have been setup. At this stage, all
-documentation lives within xonsh's top-level ``docs`` directory.
+documentation lives within pygwin's top-level ``docs`` directory.
 We uses the sphinx tool to manage and generate the documentation, which
 you can learn about from `the sphinx website <http://sphinx-doc.org/>`_.
-If you want to generate the documentation, first xonsh itself must be installed
+If you want to generate the documentation, first pygwin itself must be installed
 and then you may run the following command from the ``docs`` dir:
 
 .. code-block:: bash
@@ -324,7 +324,7 @@ Building the website/documentation requires the following dependencies:
 3. `numpydoc <https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard>`_
 4. `MyST Parser <https://myst-parser.readthedocs.io>`_
 
-Note that xonsh itself needs to be installed too.
+Note that pygwin itself needs to be installed too.
 
 If you have cloned the git repository, you can install all of the doc-related
 dependencies by running:
@@ -336,7 +336,7 @@ dependencies by running:
 Procedure for modifying the website
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The xonsh website source files are located in the ``docs`` directory.
+The pygwin website source files are located in the ``docs`` directory.
 A developer first makes necessary changes, then rebuilds the website locally
 by executing the command:
 
@@ -371,7 +371,7 @@ while docs for the current ``main`` branch are available at `https://xon.sh/dev 
 Branches and Releases
 ----------------------
 
-Mainline xonsh development occurs on the ``main`` branch. Other branches
+Mainline pygwin development occurs on the ``main`` branch. Other branches
 may be used for feature development (topical branches) or to represent
 past and upcoming releases.
 
@@ -383,8 +383,8 @@ created by unit testing by running:
 
 .. code-block:: bash
 
-    rm -f xonsh/parser_table.py xonsh/completion_parser_table.py
-    rm -f xonsh/*.pyc tests/*.pyc
+    rm -f pygwin/parser_table.py pygwin/completion_parser_table.py
+    rm -f pygwin/*.pyc tests/*.pyc
     rm -fr build
 
 Performing the Release
@@ -420,7 +420,7 @@ but they should not in any way violate the Github Action policies.
 
 
 
-Testing xonsh on Different Operating Systems
+Testing pygwin on Different Operating Systems
 ---------------------------------------------
 
 Nix
@@ -438,7 +438,7 @@ as running this in the project directory:
 
     # or build and then run
     nix build  # this builds the package and creates a `result` symlink
-    ./result/bin/xonsh
+    ./result/bin/pygwin
 
 This will build and run the current state of the repository with Nix. Optionally add
 ``-L`` to the Nix commands to see detailed output when building. If you have
@@ -449,8 +449,8 @@ If you prefer not to use flakes, it can also be done in a legacy way:
 
 .. code-block:: bash
 
-    nix-build nix/ -A xonsh
-    ./result/bin/xonsh
+    nix-build nix/ -A pygwin
+    ./result/bin/pygwin
 
 The default Python version used follows the default of ``nixpkgs-unstable`` (it is
 3.13 at the time of writing this). There are variants using different Python versions
@@ -459,25 +459,25 @@ declared in ``nix/default.nix``. For example, to use Python 3.14:
 .. code-block:: bash
 
     # build and run
-    nix run '.#xonsh-py314'
+    nix run '.#pygwin-py314'
 
     # build only
-    nix build '.#xonsh-py314'
+    nix build '.#pygwin-py314'
 
     # build with legacy nix
-    nix-build nix/ -A xonsh-py314
+    nix-build nix/ -A pygwin-py314
 
 
 Binary cache
 """"""""""""
 
-Building xonsh from the flake compiles it from source, which takes a while.
+Building pygwin from the flake compiles it from source, which takes a while.
 Every push to ``main`` is built by CI and the results are pushed to the
-`xonsh.cachix.org <https://app.cachix.org/cache/xonsh>`_ binary cache. To use it:
+`pygwin.cachix.org <https://app.cachix.org/cache/xonsh>`_ binary cache. To use it:
 
 .. code-block:: bash
 
-    nix run nixpkgs#cachix -- use xonsh
+    nix run nixpkgs#cachix -- use pygwin
 
 Or declare the substituter yourself, e.g. on NixOS:
 
@@ -485,7 +485,7 @@ Or declare the substituter yourself, e.g. on NixOS:
 
     nix.settings = {
       substituters = [ "https://xonsh.cachix.org" ];
-      trusted-public-keys = [ "xonsh.cachix.org-1:wwdHGMixIz1oZB0MtubjhZyCfWMWRLTQTT9zLO+DyMY=" ];
+      trusted-public-keys = [ "pygwin.cachix.org-1:wwdHGMixIz1oZB0MtubjhZyCfWMWRLTQTT9zLO+DyMY=" ];
     };
 
 The ``cachix`` branch always points at the newest commit of ``main`` that was
@@ -494,13 +494,13 @@ build:
 
 .. code-block:: bash
 
-    nix run github:xonsh/xonsh/cachix
+    nix run github:pygwin/pygwin/cachix
 
 
 Container
 ^^^^^^^^^
 
-It is often useful to try xonsh in a clean environment on a distribution
+It is often useful to try pygwin in a clean environment on a distribution
 other than your own — for example to reproduce a bug report or to
 validate a change against a pristine setup. The recipes below use
 rootless ``podman`` containers; ``docker`` would work just as well if
@@ -515,7 +515,7 @@ you just have to run this:
 
 .. code-block:: bash
 
-    python xonsh-in-docker.py
+    python pygwin-in-docker.py
 
 This will build and run the current state of the repository in an isolated
 container (it may take a while the first time you run it). You can override
@@ -524,7 +524,7 @@ the default Python and ``prompt_toolkit`` versions with ``--python`` and
 
 .. code-block:: bash
 
-    python xonsh-in-docker.py --python 3.13 --ptk 3.0.52
+    python pygwin-in-docker.py --python 3.13 --ptk 3.0.52
 
 Ensure your cwd is the root directory of the project (i.e., the one containing the
 .git directory).
@@ -535,8 +535,8 @@ Nix Container
 .. code-block:: bash
 
     podman run --rm -it nixos/nix
-    nix-channel --update && nix-shell -p xonsh
-    xonsh
+    nix-channel --update && nix-shell -p pygwin
+    pygwin
     xcontext
 
 Arch Linux Container
@@ -548,7 +548,7 @@ Arch Linux Container
     pacman -Syu git python-pip
     pacman -Syu man-db man-pages bash-completion
     git clone https://github.com/xonsh/xonsh
-    cd xonsh
+    cd pygwin
     pip install --break-system-packages '.[dev]' '.[test]' '.[doc]'
     python -m pytest
 

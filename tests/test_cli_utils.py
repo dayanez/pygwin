@@ -1,6 +1,6 @@
-"""Test module xonsh/cli_utils.py"""
+"""Test module pygwin/cli_utils.py"""
 
-from xonsh import cli_utils
+from pygwin import cli_utils
 
 
 def func_with_doc(param: str, multi: str, optional=False):
@@ -48,7 +48,7 @@ def test_get_doc_param():
 
 
 def test_generated_parser():
-    from xonsh.completers._aliases import CompleterAlias
+    from pygwin.completers._aliases import CompleterAlias
 
     alias = CompleterAlias()
 
@@ -65,14 +65,14 @@ def test_generated_parser():
 
 
 def test_parser_hooking():
-    from xonsh.history.main import HistoryAlias
+    from pygwin.history.main import HistoryAlias
 
     alias = HistoryAlias()
 
     parser, _ = cli_utils.ArgparseCompleter.get_parser(alias.parser, ["show"])
     assert parser._get_positional_actions()[0].choices == (
         "session",
-        "xonsh",
+        "pygwin",
         "all",
         "zsh",
         "bash",
@@ -80,7 +80,7 @@ def test_parser_hooking():
 
 
 def test_parser_default_func(mocker):
-    import xonsh.xontribs as xx
+    import pygwin.xontribs as xx
 
     alias = xx.XontribAlias()
 
@@ -92,20 +92,20 @@ def test_parser_default_func(mocker):
 
 
 def test_repr():
-    from xonsh.completers._aliases import CompleterAlias
+    from pygwin.completers._aliases import CompleterAlias
 
     def _fn():
         pass
 
     alias = cli_utils.ArgParserAlias(func=_fn, has_args=True, prog="myprog")
-    assert repr(alias) == "xonsh.cli_utils.ArgParserAlias('myprog')"
+    assert repr(alias) == "pygwin.cli_utils.ArgParserAlias('myprog')"
 
     bare = cli_utils.ArgParserAlias()
-    assert repr(bare) == "xonsh.cli_utils.ArgParserAlias()"
+    assert repr(bare) == "pygwin.cli_utils.ArgParserAlias()"
 
     # Subclass without `prog` in kwargs falls back to the bare class form
     # until its parser is built, then uses the parser's prog.
     completer = CompleterAlias()
-    assert repr(completer) == "xonsh.completers._aliases.CompleterAlias()"
+    assert repr(completer) == "pygwin.completers._aliases.CompleterAlias()"
     assert completer.parser is not None  # trigger lazy build
-    assert repr(completer) == "xonsh.completers._aliases.CompleterAlias('completer')"
+    assert repr(completer) == "pygwin.completers._aliases.CompleterAlias('completer')"

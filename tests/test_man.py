@@ -3,8 +3,8 @@ import subprocess
 
 import pytest  # noqa F401
 
-from xonsh.completers.man import complete_from_man
-from xonsh.pytest.tools import (
+from pygwin.completers.man import complete_from_man
+from pygwin.pytest.tools import (
     skip_if_no_man,
     skip_if_not_on_darwin,
     skip_if_on_windows,

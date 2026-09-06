@@ -1,13 +1,13 @@
-Bash to Xonsh Translation Guide
+Bash to Pygwin Translation Guide
 ================================
-This page provides xonsh equivalents for common patterns in Bash.
+This page provides pygwin equivalents for common patterns in Bash.
 
 .. list-table::
     :widths: 30 30 40
     :header-rows: 1
 
     * - Bash
-      - Xonsh
+      - Pygwin
       - Notes
     * - No special object for represent session.
       - ``@``
@@ -16,8 +16,8 @@ This page provides xonsh equivalents for common patterns in Bash.
       - ``script.xsh``
       - The recommended file extension is ``.xsh``.
     * - ``#!/bin/bash``
-      - ``#!/usr/bin/env xonsh``
-      - Use ``xonsh`` in the shebang.
+      - ``#!/usr/bin/env pygwin``
+      - Use ``pygwin`` in the shebang.
     * - ``echo --arg="val"``
 
         ``echo {}``
@@ -31,8 +31,8 @@ This page provides xonsh equivalents for common patterns in Bash.
         ``echo ";"``
 
       - Read `Subprocess Strings <https://xon.sh/strings.html>`_ tutorial
-        to understand how strings become arguments in xonsh.
-        There is no notion of an escaping character in xonsh like the backslash (``\``) in bash.
+        to understand how strings become arguments in pygwin.
+        There is no notion of an escaping character in pygwin like the backslash (``\``) in bash.
         Single or double quotes can be used to remove the special meaning of certain
         characters, words or brackets.
     * - ``$NAME`` or ``${NAME}``
@@ -55,7 +55,7 @@ This page provides xonsh equivalents for common patterns in Bash.
       - Escape an environment variable from expansion.
     * - ``${!VAR}``
       - ``${var or expr}``
-      - Look up an environment variable via another variable name. In xonsh,
+      - Look up an environment variable via another variable name. In pygwin,
         this may be any valid expression.
     * - ``ENV1=VAL1 command``
       - ``$ENV1=VAL1 command``
@@ -65,7 +65,7 @@ This page provides xonsh equivalents for common patterns in Bash.
         Use the second notation with an indented block to execute many commands in the same context.
     * - ``alias ll='ls -la'``
       - ``aliases['ll'] = 'ls -la'``
-      - Alias in xonsh could be a subprocess command as a string or list of arguments or any Python function.
+      - Alias in pygwin could be a subprocess command as a string or list of arguments or any Python function.
     * - ``$(cmd args)`` or ```cmd args```
       - ``@$(cmd args)``
       - Command substitution (allow the output of a command to replace the
@@ -73,7 +73,7 @@ This page provides xonsh equivalents for common patterns in Bash.
         command as another subprocess.
     * - ``v=`echo 1```
       - ``v=$(echo 1)``
-      - In bash, backticks mean to run a captured subprocess - it's ``$()`` in xonsh. Backticks in xonsh
+      - In bash, backticks mean to run a captured subprocess - it's ``$()`` in pygwin. Backticks in pygwin
         mean regex globbing (i.e. ``ls `/etc/pass.*```).
     * - ``echo -e "\033[0;31mRed text\033[0m"``
       - ``printx("{RED}Red text{RESET}")``
@@ -86,15 +86,15 @@ This page provides xonsh equivalents for common patterns in Bash.
       - ``p'/path/to/file'.exists()`` or ``pf'{file}'.exists()`` or ``if !(test -f $FILE):``
       - Path objects can be instantiated and checked directly using p-string syntax.
     * - ``set -e``
-      - ``$XONSH_SUBPROC_RAISE_ERROR = True`` *(default)*
+      - ``$PYGWIN_SUBPROC_RAISE_ERROR = True`` *(default)*
       - Cause a failure after a non-zero return code of the *final* command
         in a statement — this matches bash's ``set -e`` semantics where
         intermediate failures inside ``&&``/``||`` chains are allowed.
-        Xonsh will raise a ``subprocess.CalledProcessError``. Use
-        ``$XONSH_SUBPROC_CMD_RAISE_ERROR = True`` to additionally raise on
+        Pygwin will raise a ``subprocess.CalledProcessError``. Use
+        ``$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True`` to additionally raise on
         *every* failing individual command.
     * - ``set -x``
-      - ``trace on`` and ``$XONSH_SUBPROC_TRACE = True``
+      - ``trace on`` and ``$PYGWIN_SUBPROC_TRACE = True``
       - Turns on tracing of source code lines during execution.
     * - ``&&``
       - ``&&`` or ``and``
@@ -108,7 +108,7 @@ This page provides xonsh equivalents for common patterns in Bash.
     * - ``$?``
       - ``@.lastcmd.rtn``
       - Returns the exit code, or status, of the previous command.
-        To get the exit code of the command in xonsh script
+        To get the exit code of the command in pygwin script
         use ``!().rtn`` for not interactive processes.
     * - ``$<n>``
       - ``$ARG<n>``
@@ -123,32 +123,32 @@ This page provides xonsh equivalents for common patterns in Bash.
         `xontrib-argcomplete <https://github.com/anki-code/xontrib-argcomplete>`_ .
     * - ``complete``
       - ``completer list``
-      - As with many other shells, xonsh ships with the ability to complete partially-specified arguments
+      - As with many other shells, pygwin ships with the ability to complete partially-specified arguments
         upon hitting the “tab” key.
     * - ``IFS``
-      - ``$XONSH_SUBPROC_OUTPUT_FORMAT``
+      - ``$PYGWIN_SUBPROC_OUTPUT_FORMAT``
       - Changing the output representation and splitting. Also take a look into ``DecoratorAlias``
         to have an ability to return object e.g. ``j = $(@json echo '{}')``.
     * - OhMyBash or BashIt
       - `awesome-xontribs <https://github.com/xonsh/awesome-xontribs>`_
       - Xontributions, or ``xontribs``, are a set of tools and conventions for extending the functionality
-        of xonsh beyond what is provided by default.
+        of pygwin beyond what is provided by default.
     * - Display completions as list
       - ``$COMPLETIONS_DISPLAY = 'readline'``
       - Display completions will emulate the behavior of readline.
     * - ``podman run -it bash``
-      - ``podman run -it xonsh/xonsh:slim``
-      - Xonsh publishes a handful of containers, primarily targeting CI and automation use cases.
+      - ``podman run -it pygwin/pygwin:slim``
+      - Pygwin publishes a handful of containers, primarily targeting CI and automation use cases.
         All of them are published on `Docker Hub <https://hub.docker.com/u/xonsh>`_.
     * - ``exit 1``
       - ``exit 1`` or ``exit(1)``
       - Exiting from the current script.
 
-To understand how xonsh executes the subprocess commands try ``showcmd`` or set :ref:`$XONSH_SUBPROC_TRACE <xonsh_subproc_trace>` to ``True``:
+To understand how pygwin executes the subprocess commands try ``showcmd`` or set :ref:`$PYGWIN_SUBPROC_TRACE <pygwin_subproc_trace>` to ``True``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_SUBPROC_TRACE = True
+    @ $PYGWIN_SUBPROC_TRACE = True
     @ echo $(echo @('hello')) @('wor' + 'ld') | grep hello
     TRACE SUBPROC: (['echo', 'hello'],)
     TRACE SUBPROC: (['echo', 'hello\n', 'world'], '|', ['grep', 'hello'])

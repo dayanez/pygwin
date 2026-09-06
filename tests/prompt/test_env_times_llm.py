@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.prompt.env`` and ``xonsh.prompt.times``.
+"""Smoke tests for ``pygwin.prompt.env`` and ``pygwin.prompt.times``.
 
 Both modules feed the prompt-formatter system. Tests cover ``env_name``,
 ``find_env_name`` (incl. its pyvenv.cfg parser), ``_localtime``, and the
@@ -9,14 +9,14 @@ import time
 
 import pytest
 
-from xonsh.prompt.env import (
+from pygwin.prompt.env import (
     _determine_env_name,
     emit_osc7,
     env_name,
     find_env_name,
     vte_new_tab_cwd,
 )
-from xonsh.prompt.times import _localtime
+from pygwin.prompt.times import _localtime
 
 
 @pytest.fixture(autouse=True)
@@ -142,7 +142,7 @@ def test_vte_new_tab_cwd_calls_emit_osc7(monkeypatch):
     def fake():
         called["count"] += 1
 
-    monkeypatch.setattr("xonsh.prompt.env.emit_osc7", fake)
+    monkeypatch.setattr("pygwin.prompt.env.emit_osc7", fake)
     vte_new_tab_cwd()
     assert called["count"] == 1
 

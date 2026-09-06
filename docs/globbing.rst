@@ -1,7 +1,7 @@
 Globbing
 ========
 
-Xonsh supports four forms of filename globbing: normal (shell-style) globbing,
+Pygwin supports four forms of filename globbing: normal (shell-style) globbing,
 regular expression globbing, match globbing, and formatted glob literals. All
 can be used in both subprocess mode and Python mode.
 
@@ -13,7 +13,7 @@ Filename globbing with the ``*`` character is allowed in subprocess mode.
 This uses Python's ``glob`` module under the covers. As an example, start with
 a directory of files:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ mkdir -p test/a/b
     @ touch test/f.txt test/a/f.txt test/a/b/f.txt
@@ -24,7 +24,7 @@ In subprocess mode, normal globbing happens without any special syntax.
 However, there is backtick syntax that is available inside Python mode as well
 as subprocess mode. This can be done using ``g``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls test/*.txt
     test/f.txt
@@ -39,7 +39,7 @@ Recursive globbing with ``**`` matches zero or more intermediate directories.
 For example, ``test/**/f.txt`` matches ``test/f.txt``, ``test/a/f.txt``, and
 ``test/a/b/f.txt``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ print(g`test/**/f.txt`)
     ['test/a/b/f.txt', 'test/a/f.txt', 'test/f.txt']
@@ -55,7 +55,7 @@ subprocess wildcards.
 
 When ``$DOTGLOB`` is ``False`` (the default), dotfiles are filtered out:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ touch visible .hidden
     @ print(g`*`)
@@ -63,7 +63,7 @@ When ``$DOTGLOB`` is ``False`` (the default), dotfiles are filtered out:
 
 When ``$DOTGLOB`` is ``True``, dotfiles are included:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $DOTGLOB = True
     @ print(g`*`)
@@ -71,7 +71,7 @@ When ``$DOTGLOB`` is ``True``, dotfiles are included:
 
 The same applies to regex globs:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $DOTGLOB = True
     @ print(`\..*`)
@@ -92,7 +92,7 @@ to the subprocess command.
 This same kind of search is performed if the backticks are prefaced with ``r``.
 So the following expressions are equivalent: ````test```` and ``r`test```.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ touch a aa aaa aba abba aab aabb abcba
     @ ls `a(a+|b+)a`
@@ -111,7 +111,7 @@ tree early and avoids a full recursive walk.
 However, this means that regex features spanning across ``/`` will break because
 the segments are no longer valid regexes on their own:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ # Group split across / — each segment gets an unmatched parenthesis
     @ r`(.*/)*\w+\.py`
@@ -129,7 +129,7 @@ Using the ``f`` modifier with either regex or normal globbing makes
 the glob pattern behave like a formatted string literal. This can be used to
 substitute variables and other expressions into the glob pattern:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ touch a aa aaa aba abba aab aabb abcba
     @ mypattern = 'ab'
@@ -146,7 +146,7 @@ The ``m`` modifier enables **match globbing** — a regex glob that returns
 capture groups instead of full paths. This lets you destructure matched paths
 directly:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ for parent, file in m`.*/(.*)/(.*\.py)`:
           print(parent, file)
@@ -160,7 +160,7 @@ of the captured strings. Without groups, full paths are returned — same as
 
 This is useful for extracting path components without manual splitting:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ # Find all .png files and get (directory, filename) pairs
     @ pairs = m`images/(.*)/(.*\.png)`
@@ -187,7 +187,7 @@ By default, glob results are sorted alphabetically. The ``$GLOB_SORTED``
 environment variable controls this for normal globs. Setting it to ``False``
 returns results in arbitrary filesystem order:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $GLOB_SORTED = False
     @ g`*`
@@ -196,14 +196,14 @@ returns results in arbitrary filesystem order:
 Regex globs are always sorted regardless of this setting.
 
 
-XonshList
+PygwinList
 ---------
 
-All glob forms (``g``, ``r``, ``m``, ``p``) return a ``XonshList`` — an
+All glob forms (``g``, ``r``, ``m``, ``p``) return a ``PygwinList`` — an
 extended list with convenience methods for common shell operations. Every
-method returns a new ``XonshList``, so calls can be chained:
+method returns a new ``PygwinList``, so calls can be chained:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ g`**/*.py`.files().sorted()
     ['setup.py', 'src/main.py', 'tests/test_main.py']
@@ -249,7 +249,7 @@ Available methods:
 A more complete example — find all Python test files, convert to ``Path``
 objects, and extract just the filenames:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ g`tests/**/*.py`.files().paths().filter(lambda p: p.stem.startswith('test_'))
     [PosixPath('tests/test_main.py'), PosixPath('tests/test_utils.py')]
@@ -261,7 +261,7 @@ When ``m`` glob has multiple capture groups, the result is a list of tuples.
 Path-based methods (``.files()``, ``.dirs()``, ``.exists()``, ``.paths()``)
 don't work on tuples — use ``.select(n)`` first to extract a specific element:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ results = m`src/(.*)/(.*\.py)`
     @ print(results[:2])
@@ -282,23 +282,23 @@ don't work on tuples — use ``.select(n)`` first to extract a specific element:
 Methods that don't need paths — ``.unique()``, ``.sorted()``, ``.filter()``
 — work on tuples directly:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ m`src/(.*)/(.*\.py)`.unique().sorted()[:3]
     [('lib', 'main.py'), ('lib', 'utils.py'), ('tests', 'test_main.py')]
 
-``XonshList`` is a regular ``list`` subclass, so it works everywhere a list
+``PygwinList`` is a regular ``list`` subclass, so it works everywhere a list
 does — iteration, indexing, ``len()``, passing to functions, etc.
 
 
 Full-Path Regex via Custom Search
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Xonsh supports custom path search functions with the ``@func`pattern``` syntax.
+Pygwin supports custom path search functions with the ``@func`pattern``` syntax.
 This can be used to implement full-path regex matching where the pattern is
 applied to the entire path, not split by ``/``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ def refullglob(pattern):
           import re, os

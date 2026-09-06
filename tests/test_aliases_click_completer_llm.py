@@ -1,15 +1,15 @@
-"""Tests for tab-completion of click-based aliases (xonsh/xonsh#6265).
+"""Tests for tab-completion of click-based aliases (pygwin/pygwin#6265).
 
-Exercises :func:`xonsh.completers.click.complete_click`, wired up by
+Exercises :func:`pygwin.completers.click.complete_click`, wired up by
 ``@aliases.register_click_command``. The completer is looked up by
-``xonsh.completers._aliases.complete_aliases`` via
-``alias.func.xonsh_complete``.
+``pygwin.completers._aliases.complete_aliases`` via
+``alias.func.pygwin_complete``.
 """
 
 import pytest
 
-from xonsh.aliases import Aliases
-from xonsh.parsers.completion_context import (
+from pygwin.aliases import Aliases
+from pygwin.parsers.completion_context import (
     CommandArg,
     CommandContext,
     CompletionContext,
@@ -22,7 +22,7 @@ def click():
 
 
 def _complete(aliases, alias_name, *tokens, prefix=""):
-    """Drive the alias's ``xonsh_complete`` directly and return a set of strs.
+    """Drive the alias's ``pygwin_complete`` directly and return a set of strs.
 
     ``tokens`` are the full argument words typed *before* the cursor (not
     including the alias name itself); ``prefix`` is the partial word at
@@ -31,7 +31,7 @@ def _complete(aliases, alias_name, *tokens, prefix=""):
     args = (CommandArg(alias_name),) + tuple(CommandArg(t) for t in tokens)
     ctx = CommandContext(args=args, arg_index=len(args), prefix=prefix)
     alias = aliases._raw[alias_name]
-    result = alias.func.xonsh_complete(command=ctx, alias=alias)
+    result = alias.func.pygwin_complete(command=ctx, alias=alias)
     if result is None:
         return None
     return {str(r) for r in result}
@@ -268,9 +268,9 @@ def test_click_complete_custom_alias_name(click):
 
 def test_click_complete_via_complete_aliases(click, xession):
     """Smoke test: the full ``complete_aliases`` pipeline picks up our
-    ``xonsh_complete`` attribute and produces the same completions.
+    ``pygwin_complete`` attribute and produces the same completions.
     """
-    from xonsh.completers._aliases import complete_aliases
+    from pygwin.completers._aliases import complete_aliases
 
     @xession.aliases.register_click_command
     @xession.aliases.click.option("--name", default="World")
@@ -296,7 +296,7 @@ def test_click_complete_option_help_text_in_description(click):
     """Options surface their ``help=`` text as the RichCompletion description —
     keeps the behaviour parity with argparse-based aliases.
     """
-    from xonsh.completers.tools import RichCompletion
+    from pygwin.completers.tools import RichCompletion
 
     aliases = Aliases()
 
@@ -307,7 +307,7 @@ def test_click_complete_option_help_text_in_description(click):
 
     alias = aliases._raw["hello"]
     ctx = CommandContext(args=(CommandArg("hello"),), arg_index=1, prefix="--nam")
-    result = alias.func.xonsh_complete(command=ctx, alias=alias)
+    result = alias.func.pygwin_complete(command=ctx, alias=alias)
     comps = {c: c for c in result if isinstance(c, RichCompletion)}
     assert any(c.description == "Who to greet" for c in comps)
 

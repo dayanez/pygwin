@@ -1,6 +1,6 @@
 import pytest
 
-from xonsh.lib.string import commonprefix
+from pygwin.lib.string import commonprefix
 
 
 @pytest.mark.parametrize(
@@ -9,7 +9,7 @@ from xonsh.lib.string import commonprefix
         ([], ""),
         (["ab", "cd"], ""),
         (["ls"], "ls"),
-        (["xonsh", "xonfig", "xontrib"], "xon"),
+        (["flower", "flow", "flight"], "fl"),
         (["a", "ab"], "a"),
         (["ab", "ab"], "ab"),
         (["python3", "python3.13"], "python3"),

@@ -1,4 +1,4 @@
-"""Tests for ``xonsh.tools._case_insensitive_iglob`` — the segment-walking
+"""Tests for ``pygwin.tools._case_insensitive_iglob`` — the segment-walking
 case-insensitive glob that backs path/dir/command completion on POSIX.
 
 Coverage:
@@ -18,7 +18,7 @@ import sys
 
 import pytest
 
-from xonsh.tools import _case_insensitive_iglob
+from pygwin.tools import _case_insensitive_iglob
 
 skip_on_windows = pytest.mark.skipif(
     sys.platform.startswith("win"), reason="helper is POSIX-only"

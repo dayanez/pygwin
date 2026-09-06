@@ -2,7 +2,7 @@
 
 import pytest
 
-from xonsh.ansi_colors import (
+from pygwin.ansi_colors import (
     ansi_color_escape_code_to_name,
     ansi_color_name_to_escape_code,
     ansi_color_style_names,

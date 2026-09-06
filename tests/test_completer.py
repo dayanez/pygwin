@@ -1,14 +1,14 @@
-"""Tests for the base completer's logic (xonsh/completer.py)"""
+"""Tests for the base completer's logic (pygwin/completer.py)"""
 
 import pytest
 
-from xonsh.completer import Completer
-from xonsh.completers.tools import (
+from pygwin.completer import Completer
+from pygwin.completers.tools import (
     RichCompletion,
     contextual_command_completer,
     non_exclusive_completer,
 )
-from xonsh.parsers.completion_context import CommandContext
+from pygwin.parsers.completion_context import CommandContext
 
 
 @pytest.fixture(scope="session")
@@ -45,7 +45,7 @@ def test_sanity(completer, completers_mock):
 
 
 def test_cursor_after_closing_quote(completer, completers_mock):
-    """See ``Completer.complete`` in ``xonsh/completer.py``"""
+    """See ``Completer.complete`` in ``pygwin/completer.py``"""
 
     @contextual_command_completer
     def comp(context: CommandContext):
@@ -264,8 +264,8 @@ def test_deduplicate_trailing_space(completer, completers_mock):
     generator-completer that yields plain Python-name completions AND
     command completions with ``append_space=True`` for the same name.
     """
-    from xonsh.completers.tools import contextual_completer
-    from xonsh.parsers.completion_context import CompletionContext
+    from pygwin.completers.tools import contextual_completer
+    from pygwin.parsers.completion_context import CompletionContext
 
     @contextual_completer
     def comp(context: CompletionContext):
@@ -297,11 +297,11 @@ def test_python_only_context(completer, completers_mock):
 def test_trace_completions_is_per_line_with_source(
     completer, completers_mock, xession, monkeypatch, capsys
 ):
-    """``$XONSH_COMPLETER_TRACE`` should print one line per completion,
+    """``$PYGWIN_COMPLETER_TRACE`` should print one line per completion,
     each tagged with ``source=<completer-name>`` and non-default
     ``RichCompletion`` attrs. See user request in conversation.
     """
-    monkeypatch.setitem(xession.env, "XONSH_COMPLETER_TRACE", True)
+    monkeypatch.setitem(xession.env, "PYGWIN_COMPLETER_TRACE", True)
 
     completers_mock["commands"] = lambda *a: {
         RichCompletion("ls", append_space=True),
@@ -331,7 +331,7 @@ def test_trace_completions_non_exclusive_type(
     completer, completers_mock, xession, monkeypatch, capsys
 ):
     """Trace lines from a non-exclusive completer must show ``type=non-exclusive``."""
-    monkeypatch.setitem(xession.env, "XONSH_COMPLETER_TRACE", True)
+    monkeypatch.setitem(xession.env, "PYGWIN_COMPLETER_TRACE", True)
 
     completers_mock["env"] = non_exclusive_completer(lambda *a: {"$FOO"})
     completers_mock["cmd"] = lambda *a: {"ls"}
@@ -348,20 +348,20 @@ def test_trace_completions_shows_provider(
 ):
     """Completions with a ``provider`` tag must surface it in trace output.
 
-    Verifies the user-facing goal: telling that ``qwe-xonsh`` from the
+    Verifies the user-facing goal: telling that ``qwe-pygwin`` from the
     ``base`` completer came from aliases rather than $PATH. We mock the
     ``base`` completer directly so the test doesn't depend on the real
     commands_cache/filesystem.
     """
-    monkeypatch.setitem(xession.env, "XONSH_COMPLETER_TRACE", True)
+    monkeypatch.setitem(xession.env, "PYGWIN_COMPLETER_TRACE", True)
 
     completers_mock["base"] = lambda *a: {
-        RichCompletion("qwe-xonsh ", append_space=True, provider="alias"),
-        RichCompletion("xonsh-real ", append_space=True, provider="command"),
+        RichCompletion("qwe-pygwin ", append_space=True, provider="alias"),
+        RichCompletion("pygwin-real ", append_space=True, provider="command"),
     }
 
     completer.complete(
-        "xonsh", "xonsh", 0, 5, {}, multiline_text="xonsh", cursor_index=5
+        "pygwin", "pygwin", 0, 5, {}, multiline_text="pygwin", cursor_index=5
     )
     captured = capsys.readouterr().out
 
@@ -372,7 +372,7 @@ def test_trace_completions_shows_provider(
 
 def test_tag_provider_preserves_return_shapes():
     """``tag_provider`` must accept None / iterable / (iter, extra) tuple."""
-    from xonsh.completers.tools import tag_provider
+    from pygwin.completers.tools import tag_provider
 
     # None passthrough
     assert tag_provider(None, "x") is None
@@ -390,7 +390,7 @@ def test_tag_provider_preserves_return_shapes():
 
 def test_tag_provider_does_not_overwrite_existing():
     """A completion with an existing ``provider`` keeps its own tag."""
-    from xonsh.completers.tools import tag_provider
+    from pygwin.completers.tools import tag_provider
 
     out = list(tag_provider([RichCompletion("x", provider="inner"), "y"], "outer"))
     assert out[0].provider == "inner"
@@ -400,14 +400,14 @@ def test_tag_provider_does_not_overwrite_existing():
 def test_xompleter_tags_with_module_basename():
     """``CommandCompleter`` must tag xompletion results with module basename.
 
-    Verifies that ``xompletions.<name>.xonsh_complete`` output is wrapped
+    Verifies that ``xompletions.<name>.pygwin_complete`` output is wrapped
     so the trace shows ``provider=<name>`` — the ``xompleter`` bridging
     layer discussed in the user conversation.
     """
     from types import SimpleNamespace
 
-    from xonsh.completers.commands import CommandCompleter
-    from xonsh.parsers.completion_context import (
+    from pygwin.completers.commands import CommandCompleter
+    from pygwin.parsers.completion_context import (
         CommandArg,
         CommandContext,
         CompletionContext,
@@ -415,7 +415,7 @@ def test_xompleter_tags_with_module_basename():
 
     fake_module = SimpleNamespace(
         __name__="xompletions.fake_pip",
-        xonsh_complete=lambda ctx: {RichCompletion("install"), "freeze"},
+        pygwin_complete=lambda ctx: {RichCompletion("install"), "freeze"},
     )
     cc = CommandCompleter()
     cc._matcher = SimpleNamespace(
@@ -437,8 +437,8 @@ def test_xompleter_passes_through_none():
     """
     from types import SimpleNamespace
 
-    from xonsh.completers.commands import CommandCompleter
-    from xonsh.parsers.completion_context import (
+    from pygwin.completers.commands import CommandCompleter
+    from pygwin.parsers.completion_context import (
         CommandArg,
         CommandContext,
         CompletionContext,
@@ -446,7 +446,7 @@ def test_xompleter_passes_through_none():
 
     fake_module = SimpleNamespace(
         __name__="xompletions.fake_pip",
-        xonsh_complete=lambda ctx: None,
+        pygwin_complete=lambda ctx: None,
     )
     cc = CommandCompleter()
     cc._matcher = SimpleNamespace(
@@ -464,7 +464,7 @@ def test_trace_completions_uses_close_quote_alias(
     completer, completers_mock, xession, monkeypatch, capsys
 ):
     """``append_closing_quote=False`` should surface as ``close_quote=False``."""
-    monkeypatch.setitem(xession.env, "XONSH_COMPLETER_TRACE", True)
+    monkeypatch.setitem(xession.env, "PYGWIN_COMPLETER_TRACE", True)
 
     completers_mock["a"] = lambda *a: {
         RichCompletion("foo", append_closing_quote=False)
@@ -489,7 +489,7 @@ def test_query_limit_warns_above_prompt(
 
     messages = []
     monkeypatch.setattr(
-        "xonsh.completer.print_above_prompt", lambda msg: messages.append(msg)
+        "pygwin.completer.print_above_prompt", lambda msg: messages.append(msg)
     )
 
     result, _ = completer.complete(
@@ -510,7 +510,7 @@ def test_query_limit_silent_when_not_hit(
 
     messages = []
     monkeypatch.setattr(
-        "xonsh.completer.print_above_prompt", lambda msg: messages.append(msg)
+        "pygwin.completer.print_above_prompt", lambda msg: messages.append(msg)
     )
 
     completer.complete("", "", 0, 0)
@@ -531,7 +531,7 @@ def test_query_limit_silent_for_empty_line(
 
     messages = []
     monkeypatch.setattr(
-        "xonsh.completer.print_above_prompt", lambda msg: messages.append(msg)
+        "pygwin.completer.print_above_prompt", lambda msg: messages.append(msg)
     )
 
     result, _ = completer.complete("", "", 0, 0, {}, multiline_text="", cursor_index=0)
@@ -553,7 +553,7 @@ def test_query_limit_warns_for_empty_prefix_with_command(
 
     messages = []
     monkeypatch.setattr(
-        "xonsh.completer.print_above_prompt", lambda msg: messages.append(msg)
+        "pygwin.completer.print_above_prompt", lambda msg: messages.append(msg)
     )
 
     result, _ = completer.complete(
@@ -572,7 +572,7 @@ def test_trace_completions_reports_zero_results(
     Lets the user see which completers ran even when they produce no
     matches. Non-exclusive completers with 0 results must also be shown.
     """
-    monkeypatch.setitem(xession.env, "XONSH_COMPLETER_TRACE", True)
+    monkeypatch.setitem(xession.env, "PYGWIN_COMPLETER_TRACE", True)
 
     completers_mock["first"] = non_exclusive_completer(lambda *a: None)
     completers_mock["second"] = lambda *a: set()
@@ -598,7 +598,7 @@ def test_trace_completions_when_query_limit_hit_midstream(
     suspended ``yield`` and the per-completer trace block was skipped,
     so users saw only the names of completers that had already finished.
     """
-    monkeypatch.setitem(xession.env, "XONSH_COMPLETER_TRACE", True)
+    monkeypatch.setitem(xession.env, "PYGWIN_COMPLETER_TRACE", True)
     monkeypatch.setitem(xession.env, "COMPLETION_QUERY_LIMIT", 3)
 
     completers_mock["env"] = non_exclusive_completer(lambda *a: set())

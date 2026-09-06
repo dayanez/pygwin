@@ -51,8 +51,8 @@ def rstjinja(app, docname, source):
 class FixEnvVarSectionIds(SphinxTransform):
     """Replace auto-generated section IDs for env vars with variable names.
 
-    Sphinx generates IDs like ``xonsh-capture-always`` from the title text.
-    This transform changes them to ``XONSH_CAPTURE_ALWAYS`` so that both the
+    Sphinx generates IDs like ``pygwin-capture-always`` from the title text.
+    This transform changes them to ``PYGWIN_CAPTURE_ALWAYS`` so that both the
     page anchors and the right-side TOC use the actual variable name.
 
     Runs as a transform (not an event handler) to guarantee execution before
@@ -73,7 +73,7 @@ class FixEnvVarSectionIds(SphinxTransform):
             if not title_text.startswith("$"):
                 continue
 
-            var_name = title_text[1:]  # e.g. XONSH_CAPTURE_ALWAYS
+            var_name = title_text[1:]  # e.g. PYGWIN_CAPTURE_ALWAYS
             # Sanitize special chars (e.g. w*DIRS$ -> w_DIRS_)
             var_name = re.sub(r"[^\w]", "_", var_name)
             # Canonical old-style ID for backward compat with existing URLs

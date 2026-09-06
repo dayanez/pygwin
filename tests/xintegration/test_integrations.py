@@ -1,5 +1,5 @@
-"""Tests involving running Xonsh in subproc.
-This requires Xonsh installed in venv or otherwise available on PATH
+"""Tests involving running Pygwin in subproc.
+This requires Pygwin installed in venv or otherwise available on PATH
 """
 
 import os
@@ -11,15 +11,9 @@ from pathlib import Path
 
 import pytest
 
-import xonsh
-from tests.xintegration.conftest import (
-    check_run_xonsh,
-    run_xonsh,
-    skip_if_no_make,
-    skip_if_no_sleep,
-)
-from xonsh.dirstack import with_pushd
-from xonsh.pytest.tools import (
+import pygwin
+from pygwin.dirstack import with_pushd
+from pygwin.pytest.tools import (
     ON_DARWIN,
     ON_TRAVIS,
     ON_WINDOWS,
@@ -29,6 +23,12 @@ from xonsh.pytest.tools import (
     skip_if_on_msys,
     skip_if_on_unix,
     skip_if_on_windows,
+)
+from tests.xintegration.conftest import (
+    check_run_pygwin,
+    run_pygwin,
+    skip_if_no_make,
+    skip_if_no_sleep,
 )
 
 #
@@ -41,7 +41,7 @@ ALL_PLATFORMS = [
     # conch in action
     (
         """
-print(isinstance(@, type(__xonsh__.interface)))
+print(isinstance(@, type(__pygwin__.interface)))
 """,
         "True\n",
         0,
@@ -58,7 +58,7 @@ with @.env.swap(CONCH=42):
     (
         """
 @aliases.register
-@@.imp.xonsh.tools.unthreadable
+@@.imp.pygwin.tools.unthreadable
 def _mycmd(args, stdin=None):
     return 'ok'
 mycmd
@@ -195,7 +195,7 @@ def _test_stream(args, stdin, stdout, stderr):
     return 1
 
 aliases['test-stream'] = _test_stream
-with __xonsh__.env.swap(XONSH_SUBPROC_CAPTURED_PRINT_STDERR=True):
+with __pygwin__.env.swap(PYGWIN_SUBPROC_CAPTURED_PRINT_STDERR=True):
     x = !(test-stream)
     print(x.returncode)
 """,
@@ -271,7 +271,7 @@ pathwc = str(p{tests_path!r}.absolute() / 'bin' / 'wc')
     # test unthreadable alias (which should trigger a ProcPoxy call)
     (
         """
-from xonsh.tools import unthreadable
+from pygwin.tools import unthreadable
 
 @unthreadable
 def _f():
@@ -286,7 +286,7 @@ f
     # test system exit in unthreadable alias (see #5689)
     (
         """
-from xonsh.tools import unthreadable
+from pygwin.tools import unthreadable
 
 @unthreadable
 def _f():
@@ -371,7 +371,7 @@ echo @$(which ls)
     ),
     (
         """
-$XONSH_SUBPROC_OUTPUT_FORMAT = 'list_lines'
+$PYGWIN_SUBPROC_OUTPUT_FORMAT = 'list_lines'
 aliases['ls'] = 'spam spam sausage spam'
 
 echo @$(which ls)
@@ -456,7 +456,7 @@ def _echo(args):
     print(' '.join(args))
 aliases['echo'] = _echo
 
-from xonsh.api.subprocess import check_output
+from pygwin.api.subprocess import check_output
 
 print(check_output(["echo", "hello"]).decode("utf8"))
 """,
@@ -642,7 +642,7 @@ echo $SHLVL # == 5
 # creating a subshell should increment the child's $SHLVL and maintain the parents $SHLVL
 
 $SHLVL = 5
-{sys.executable} -m xonsh --no-rc -c r'echo $SHLVL' # == 6
+{sys.executable} -m pygwin --no-rc -c r'echo $SHLVL' # == 6
 echo $SHLVL # == 5
 
 # replacing the current process with another process should derease $SHLVL
@@ -652,7 +652,7 @@ $SHLVL = 5
 xexec {sys.executable} -c 'import os; print(os.environ["SHLVL"])' # == 4
 """,
         # The script's ``source-bash temp_shlvl_test.sh`` step is incidental
-        # to the $SHLVL test and emits an xonsh ``Source failed`` warning on
+        # to the $SHLVL test and emits an pygwin ``Source failed`` warning on
         # systems where ``source-bash`` actually invokes a real Bash (the
         # touched file is empty/syntax-invalid). On systems without Bash on
         # PATH (FreeBSD poudriere build jails, slim CI containers) the
@@ -661,7 +661,7 @@ xexec {sys.executable} -c 'import os; print(os.environ["SHLVL"])' # == 4
         # parsing and inheritance.
         lambda out: (
             "\n".join(
-                ln for ln in out.splitlines() if not ln.startswith("xonsh: error:")
+                ln for ln in out.splitlines() if not ln.startswith("pygwin: error:")
             )
             + "\n"
             == "1\n1\n0\n0\n999\n1\n5\n6\n5\n4\n"
@@ -720,10 +720,10 @@ three
         ),
         marks=pytest.mark.xfail(reason="$[] does not send stdout through the pipe"),
     ),
-    # test $XONSH_BUILTINS_TO_CMD: bare `id` (a Python builtin) runs as command
+    # test $PYGWIN_BUILTINS_TO_CMD: bare `id` (a Python builtin) runs as command
     (
         """
-$XONSH_BUILTINS_TO_CMD = True
+$PYGWIN_BUILTINS_TO_CMD = True
 id
 """,
         lambda out: "uid=" in out,
@@ -741,7 +741,7 @@ def test_script(case):
     script, exp_out, exp_rtn = case
     if ON_DARWIN:
         script = script.replace("tests/bin", str(Path(__file__).parent.parent / "bin"))
-    out, err, rtn = run_xonsh(script)
+    out, err, rtn = run_pygwin(script)
     out = out.replace("bash: no job control in this shell\n", "")
     if callable(exp_out):
         assert exp_out(out), (
@@ -771,7 +771,7 @@ f o>e
 @pytest.mark.parametrize("case", ALL_PLATFORMS_STDERR)
 def test_script_stderr(case):
     script, exp_err, exp_rtn = case
-    out, err, rtn = run_xonsh(script, stderr=sp.PIPE)
+    out, err, rtn = run_pygwin(script, stderr=sp.PIPE)
     assert exp_err == err
     assert exp_rtn == rtn
 
@@ -784,14 +784,14 @@ def test_script_stderr(case):
         ("echo WORKING", None, "WORKING\n"),
         ("ls -f", lambda out: out.splitlines().sort(), os.listdir().sort()),
         (
-            f"$FOO='foo' $BAR=2 {sys.executable} -m xonsh --no-rc -c r'echo -n $FOO$BAR'",
+            f"$FOO='foo' $BAR=2 {sys.executable} -m pygwin --no-rc -c r'echo -n $FOO$BAR'",
             None,
             "foo2",
         ),
     ],
 )
 def test_single_command_no_windows(cmd, fmt, exp):
-    check_run_xonsh(cmd, fmt, exp)
+    check_run_pygwin(cmd, fmt, exp)
 
 
 @skip_if_on_windows
@@ -802,9 +802,9 @@ def test_single_command_no_windows(cmd, fmt, exp):
         # immediate subprocess even when it is set in the session env.
         # The inline-prefix form requires no whitespace around `=`.
         (
-            f"$XONSH_DELETE_VAR_TEST = 'leaked_value'\n"
-            f"$XONSH_DELETE_VAR_TEST=@.env.DELETE_VAR {sys.executable} -c "
-            f"\"import os; print('XONSH_DELETE_VAR_TEST' not in os.environ)\"\n",
+            f"$PYGWIN_DELETE_VAR_TEST = 'leaked_value'\n"
+            f"$PYGWIN_DELETE_VAR_TEST=@.env.DELETE_VAR {sys.executable} -c "
+            f"\"import os; print('PYGWIN_DELETE_VAR_TEST' not in os.environ)\"\n",
             "True\n",
         ),
         # A callable alias can mask a variable for any subprocess it
@@ -814,12 +814,12 @@ def test_single_command_no_windows(cmd, fmt, exp):
         # registered alias name is `check`, not `_check`.
         (
             f"""
-$XONSH_DELETE_VAR_TEST = 'leaked_value'
+$PYGWIN_DELETE_VAR_TEST = 'leaked_value'
 
 @aliases.register
 def _check(env):
-    env['XONSH_DELETE_VAR_TEST'] = @.env.DELETE_VAR
-    {sys.executable} -c "import os; print('XONSH_DELETE_VAR_TEST' not in os.environ)"
+    env['PYGWIN_DELETE_VAR_TEST'] = @.env.DELETE_VAR
+    {sys.executable} -c "import os; print('PYGWIN_DELETE_VAR_TEST' not in os.environ)"
 
 check
 """,
@@ -828,14 +828,14 @@ check
     ],
 )
 def test_env_delete_var(script, expected):
-    out, err, rtn = run_xonsh(script)
+    out, err, rtn = run_pygwin(script)
     assert out == expected, err
     assert rtn == 0, err
 
 
 @skip_if_on_windows
 def test_stdin_script_reopens_tty_for_children():
-    """When xonsh reads a script from stdin and /dev/tty is available,
+    """When pygwin reads a script from stdin and /dev/tty is available,
     it should reopen fd 0 on /dev/tty so child processes see a real
     terminal instead of the exhausted pipe.
 
@@ -853,20 +853,20 @@ def test_stdin_script_reopens_tty_for_children():
         pytest.skip("/dev/tty not available in this environment")
 
     script = f"{sys.executable} -c 'import os; print(os.isatty(0))'\n"
-    out, err, rtn = run_xonsh(script, stderr=sp.PIPE)
+    out, err, rtn = run_pygwin(script, stderr=sp.PIPE)
     assert out.strip() == "True", f"expected child stdin to be a TTY, got: {out!r}"
     assert rtn == 0
 
 
 def test_script_local_import(tmp_path):
-    """xonsh script-file should add script dir to sys.path like CPython does."""
+    """pygwin script-file should add script dir to sys.path like CPython does."""
     pkg_dir = tmp_path / "pkg"
     pkg_dir.mkdir()
     (pkg_dir / "__init__.py").write_text("")
     (pkg_dir / "mod.py").write_text("X = 42\n")
     script = tmp_path / "run.py"
     script.write_text("import pkg.mod\nprint(pkg.mod.X)\n")
-    out, err, rtn = run_xonsh(
+    out, err, rtn = run_pygwin(
         None,
         stdin=None,
         args=["--no-rc", str(script)],
@@ -879,7 +879,7 @@ def test_script_local_import(tmp_path):
 def test_eof_syntax_error():
     """Ensures syntax errors for EOF appear on last line."""
     script = "x = 1\na = (1, 0\n"
-    out, err, rtn = run_xonsh(script, stderr=sp.PIPE)
+    out, err, rtn = run_pygwin(script, stderr=sp.PIPE)
     assert "line 0" not in err
     assert "EOF in multi-line statement" in err and "line 2" in err
 
@@ -892,7 +892,7 @@ def test_open_quote_syntax_error():
         'x = "This is a string where I forget the closing quote on line 5\n'
         'echo "This is line 6"\n'
     )
-    out, err, rtn = run_xonsh(script, stderr=sp.PIPE)
+    out, err, rtn = run_pygwin(script, stderr=sp.PIPE)
     assert """('code: "This is line 3"',)""" not in err
     assert "line 5" in err
     assert "SyntaxError:" in err
@@ -911,29 +911,29 @@ def _echo(args):
 aliases['echo'] = _echo
 @$(echo)
 """
-    out, err, rtn = run_xonsh(script, stderr=sp.PIPE)
+    out, err, rtn = run_pygwin(script, stderr=sp.PIPE)
     assert "command is empty" in err
 
 
 def test_empty_command():
     script = "$['']\n"
-    out, err, rtn = run_xonsh(script, stderr=sp.PIPE)
+    out, err, rtn = run_pygwin(script, stderr=sp.PIPE)
     assert "command is empty" in err
 
 
 @_bad_case
 def test_printfile():
-    check_run_xonsh("printfile.xsh", None, "printfile.xsh\n")
+    check_run_pygwin("printfile.xsh", None, "printfile.xsh\n")
 
 
 @_bad_case
 def test_printname():
-    check_run_xonsh("printname.xsh", None, "__main__\n")
+    check_run_pygwin("printname.xsh", None, "__main__\n")
 
 
 @_bad_case
 def test_sourcefile():
-    check_run_xonsh("sourcefile.xsh", None, "printfile.xsh\n")
+    check_run_pygwin("sourcefile.xsh", None, "printfile.xsh\n")
 
 
 @_bad_case
@@ -971,15 +971,15 @@ with open(temp_path, 'w') as fp:
     ],
 )
 def test_subshells(cmd, fmt, exp):
-    check_run_xonsh(cmd, fmt, exp)
+    check_run_pygwin(cmd, fmt, exp)
 
 
 @skip_if_on_windows
 @pytest.mark.parametrize("cmd, exp", [("pwd", lambda: os.getcwd() + "\n")])
 def test_redirect_out_to_file(cmd, exp, tmpdir):
-    outfile = tmpdir.mkdir("xonsh_test_dir").join("xonsh_test_file")
+    outfile = tmpdir.mkdir("pygwin_test_dir").join("pygwin_test_file")
     command = f"{cmd} > {outfile}\n"
-    out, _, _ = run_xonsh(command)
+    out, _, _ = run_pygwin(command)
     content = outfile.read()
     if callable(exp):
         exp = exp()
@@ -990,7 +990,7 @@ def test_redirect_out_to_file(cmd, exp, tmpdir):
 @skip_if_no_sleep
 @skip_if_on_windows
 @pytest.mark.xfail(strict=False)  # TODO: fixme (super flaky on OSX)
-def test_xonsh_no_close_fds():
+def test_pygwin_no_close_fds():
     # see issue https://github.com/xonsh/xonsh/issues/2984
     makefile = (
         "default: all\n"
@@ -1006,7 +1006,7 @@ def test_xonsh_no_close_fds():
     with tempfile.TemporaryDirectory() as d, with_pushd(d):
         with open("Makefile", "w") as f:
             f.write(makefile)
-        out = sp.check_output(["make", "-sj2", "SHELL=xonsh"], universal_newlines=True)
+        out = sp.check_output(["make", "-sj2", "SHELL=pygwin"], universal_newlines=True)
         assert "warning" not in out
 
 
@@ -1018,14 +1018,14 @@ def test_xonsh_no_close_fds():
 )
 def test_pipe_between_subprocs(cmd, fmt, exp):
     """verify pipe between subprocesses doesn't throw an exception"""
-    check_run_xonsh(cmd, fmt, exp)
+    check_run_pygwin(cmd, fmt, exp)
 
 
 @skip_if_on_windows
 def test_negative_exit_codes_fail():
     # see issue 3309
     script = 'python -c "import os; os.abort()" && echo OK\n'
-    out, err, rtn = run_xonsh(script)
+    out, err, rtn = run_pygwin(script)
     assert "OK" != out
     assert "OK" != err
 
@@ -1046,7 +1046,7 @@ def _echo(args):
 aliases['echo'] = _echo
 {cmd}
 """
-    out, _, _ = run_xonsh(script)
+    out, _, _ = run_pygwin(script)
     assert out == exp
 
 
@@ -1065,7 +1065,7 @@ def _echo(args):
 aliases['echo'] = _echo
 {cmd}
 """
-    out, _, _ = run_xonsh(script)
+    out, _, _ = run_pygwin(script)
     assert out == exp
 
 
@@ -1082,8 +1082,8 @@ aliases['echo'] = _echo
         ("exit unknown", 1),
         ("exit()", 0),
         ("exit(100)", 100),
-        ("__xonsh__.exit=0", 0),
-        ("__xonsh__.exit=100", 100),
+        ("__pygwin__.exit=0", 0),
+        ("__pygwin__.exit=100", 100),
         ("raise Exception()", 1),
         ("raise SystemExit(100)", 100),
         ("sh -c 'exit 0'", 0),
@@ -1091,7 +1091,7 @@ aliases['echo'] = _echo
     ],
 )
 def test_single_command_return_code(cmd, exp_rtn):
-    _, _, rtn = run_xonsh(cmd, single_command=True)
+    _, _, rtn = run_pygwin(cmd, single_command=True)
     assert rtn == exp_rtn
 
 
@@ -1105,7 +1105,7 @@ def test_single_command_return_code(cmd, exp_rtn):
         ("exit 0; echo no", "", 0),
         ("exit 2", "", 2),
         ("echo 1 && exit 2 && echo 3", "1\n", 2),
-        ("__xonsh__.exit=5; echo no", "", 5),
+        ("__pygwin__.exit=5; echo no", "", 5),
         (
             "@aliases.register\n"
             "def _a():\n"
@@ -1120,7 +1120,7 @@ def test_single_command_return_code(cmd, exp_rtn):
     ],
 )
 def test_exit_aborts_execution(cmd, exp_out, exp_rtn):
-    out, _, rtn = run_xonsh(cmd, single_command=True)
+    out, _, rtn = run_pygwin(cmd, single_command=True)
     assert out == exp_out
     assert rtn == exp_rtn
 
@@ -1134,26 +1134,26 @@ def test_argv0():
     # Linux's procfs. macOS and the BSDs have no /proc by default (and
     # FreeBSD's optional linprocfs is rarely mounted), so the helper has no
     # portable way to read argv[0] there.
-    check_run_xonsh("checkargv0.xsh", None, "OK\n")
+    check_run_pygwin("checkargv0.xsh", None, "OK\n")
 
 
 @pytest.mark.parametrize("interactive", [True, False])
 def test_loading_correctly(monkeypatch, interactive):
     # Ensure everything loads correctly in interactive mode (e.g. #4289)
     monkeypatch.setenv("SHELL_TYPE", "prompt_toolkit")
-    monkeypatch.setenv("XONSH_LOGIN", "1")
-    monkeypatch.setenv("XONSH_INTERACTIVE", "1")
-    out, err, ret = run_xonsh(
-        "import xonsh; echo -n AAA @(xonsh.__file__) BBB",
+    monkeypatch.setenv("PYGWIN_LOGIN", "1")
+    monkeypatch.setenv("PYGWIN_INTERACTIVE", "1")
+    out, err, ret = run_pygwin(
+        "import pygwin; echo -n AAA @(pygwin.__file__) BBB",
         interactive=interactive,
         single_command=True,
     )
     assert not err
     assert ret == 0
-    our_xonsh = (
-        xonsh.__file__
-    )  # make sure xonsh didn't fail and fallback to the system shell
-    assert f"AAA {our_xonsh} BBB" in out  # ignore tty warnings/prompt text
+    our_pygwin = (
+        pygwin.__file__
+    )  # make sure pygwin didn't fail and fallback to the system shell
+    assert f"AAA {our_pygwin} BBB" in out  # ignore tty warnings/prompt text
 
 
 @pytest.mark.parametrize(
@@ -1164,7 +1164,7 @@ def test_loading_correctly(monkeypatch, interactive):
     ],
 )
 def test_exec_function_scope(cmd):
-    _, _, rtn = run_xonsh(cmd, single_command=True)
+    _, _, rtn = run_pygwin(cmd, single_command=True)
     assert rtn == 0
 
 
@@ -1180,12 +1180,12 @@ def test_run_currentfolder(monkeypatch):
 
     # With explicit path prefix: should work
     cmd = f".\\{batfile.name}"
-    out, _, _ = run_xonsh(cmd, stdout=sp.PIPE, stderr=sp.PIPE, path=os.environ["PATH"])
+    out, _, _ = run_pygwin(cmd, stdout=sp.PIPE, stderr=sp.PIPE, path=os.environ["PATH"])
     assert out.strip() == "hello world"
 
     # Without path prefix: should NOT run from CWD
     cmd_bare = batfile.name
-    out, _, _ = run_xonsh(
+    out, _, _ = run_pygwin(
         cmd_bare, stdout=sp.PIPE, stderr=sp.PIPE, path=os.environ["PATH"]
     )
     assert "hello world" not in out.strip().lower()
@@ -1194,27 +1194,27 @@ def test_run_currentfolder(monkeypatch):
 @skip_if_on_unix
 def test_run_dynamic_on_path():
     """Ensure we can run an executable which is added to the path
-    after xonsh is loaded
+    after pygwin is loaded
     """
     batfile = Path(__file__).parent.parent / "bin" / "hello_world.bat"
     cmd = f"$PATH.add(r'{batfile.parent}');![hello_world.bat]"
-    out, _, _ = run_xonsh(cmd, path=os.environ["PATH"])
+    out, _, _ = run_pygwin(cmd, path=os.environ["PATH"])
     assert out.strip() == "hello world"
 
 
 @skip_if_on_unix
 def test_run_fail_not_on_path():
-    """Test that xonsh fails to run an executable when not on path."""
+    """Test that pygwin fails to run an executable when not on path."""
     cmd = "hello_world.bat"
-    out, _, _ = run_xonsh(cmd, stdout=sp.PIPE, stderr=sp.PIPE, path=os.environ["PATH"])
+    out, _, _ = run_pygwin(cmd, stdout=sp.PIPE, stderr=sp.PIPE, path=os.environ["PATH"])
     assert out != "Hello world"
 
 
 ALIASES_THREADABLE_PRINT_CASES = [
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = False
-$XONSH_SHOW_TRACEBACK = False
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = False
+$PYGWIN_SHOW_TRACEBACK = False
 aliases['f'] = lambda: 1/0
 echo f1f1f1 ; f ; echo f2f2f2
 """,
@@ -1222,8 +1222,8 @@ echo f1f1f1 ; f ; echo f2f2f2
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-$XONSH_SHOW_TRACEBACK = False
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+$PYGWIN_SHOW_TRACEBACK = False
 aliases['f'] = lambda: 1/0
 echo f1f1f1 ; f ; echo f2f2f2
 """,
@@ -1231,8 +1231,8 @@ echo f1f1f1 ; f ; echo f2f2f2
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+$PYGWIN_SHOW_TRACEBACK = True
 aliases['f'] = lambda: 1/0
 echo f1f1f1 ; f ; echo f2f2f2
 """,
@@ -1240,8 +1240,8 @@ echo f1f1f1 ; f ; echo f2f2f2
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = False
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = False
+$PYGWIN_SHOW_TRACEBACK = True
 aliases['f'] = lambda: 1/0
 echo f1f1f1 ; f ; echo f2f2f2
 """,
@@ -1249,8 +1249,8 @@ echo f1f1f1 ; f ; echo f2f2f2
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = False
-$XONSH_SHOW_TRACEBACK = False
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = False
+$PYGWIN_SHOW_TRACEBACK = False
 aliases['f'] = lambda: (None, "I failed", 2)
 echo f1f1f1 ; f ; echo f2f2f2
 """,
@@ -1258,8 +1258,8 @@ echo f1f1f1 ; f ; echo f2f2f2
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-$XONSH_SHOW_TRACEBACK = False
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+$PYGWIN_SHOW_TRACEBACK = False
 aliases['f'] = lambda: (None, "I failed", 2)
 echo f1f1f1 ; f ; echo f2f2f2
 """,
@@ -1267,8 +1267,8 @@ echo f1f1f1 ; f ; echo f2f2f2
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+$PYGWIN_SHOW_TRACEBACK = True
 aliases['f'] = lambda: (None, "I failed", 2)
 echo f1f1f1 ; f ; echo f2f2f2
 """,
@@ -1276,8 +1276,8 @@ echo f1f1f1 ; f ; echo f2f2f2
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = False
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = False
+$PYGWIN_SHOW_TRACEBACK = True
 aliases['f'] = lambda: (None, "I failed", 2)
 echo f1f1f1 ; f ; echo f2f2f2
 """,
@@ -1288,80 +1288,80 @@ echo f1f1f1 ; f ; echo f2f2f2
 ALIASES_UNTHREADABLE_PRINT_CASES = [
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = False
-$XONSH_SHOW_TRACEBACK = False
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = False
+$PYGWIN_SHOW_TRACEBACK = False
 aliases['f'] = lambda: 1/0
-aliases['f'].__xonsh_threadable__ = False
+aliases['f'].__pygwin_threadable__ = False
 echo f1f1f1 ; f ; echo f2f2f2
 """,
         "^f1f1f1\nException in.*FuncAlias.*\nZeroDivisionError.*\nf2f2f2\n$",
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-$XONSH_SHOW_TRACEBACK = False
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+$PYGWIN_SHOW_TRACEBACK = False
 aliases['f'] = lambda: 1/0
-aliases['f'].__xonsh_threadable__ = False
+aliases['f'].__pygwin_threadable__ = False
 echo f1f1f1 ; f ; echo f2f2f2
 """,
         "f1f1f1\nException in.*\nZeroDivisionError: .*\nsubprocess.CalledProcessError.*\n$",
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+$PYGWIN_SHOW_TRACEBACK = True
 aliases['f'] = lambda: 1/0
-aliases['f'].__xonsh_threadable__ = False
+aliases['f'].__pygwin_threadable__ = False
 echo f1f1f1 ; f ; echo f2f2f2
 """,
         "f1f1f1\nException in.*\nTraceback.*\nZeroDivisionError: .*\nsubprocess.CalledProcessError.*\n$",
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = False
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = False
+$PYGWIN_SHOW_TRACEBACK = True
 aliases['f'] = lambda: 1/0
-aliases['f'].__xonsh_threadable__ = False
+aliases['f'].__pygwin_threadable__ = False
 echo f1f1f1 ; f ; echo f2f2f2
 """,
         "f1f1f1\nException in.*FuncAlias.*\nTraceback.*\nZeroDivisionError.*\nf2f2f2\n$",
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = False
-$XONSH_SHOW_TRACEBACK = False
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = False
+$PYGWIN_SHOW_TRACEBACK = False
 aliases['f'] = lambda: (None, "I failed", 2)
-aliases['f'].__xonsh_threadable__ = False
+aliases['f'].__pygwin_threadable__ = False
 echo f1f1f1 ; f ; echo f2f2f2
 """,
         "^f1f1f1\nI failed\nf2f2f2\n$",
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-$XONSH_SHOW_TRACEBACK = False
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+$PYGWIN_SHOW_TRACEBACK = False
 aliases['f'] = lambda: (None, "I failed", 2)
-aliases['f'].__xonsh_threadable__ = False
+aliases['f'].__pygwin_threadable__ = False
 echo f1f1f1 ; f ; echo f2f2f2
 """,
         "f1f1f1\nI failed\nsubprocess.CalledProcessError.*\n$",
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+$PYGWIN_SHOW_TRACEBACK = True
 aliases['f'] = lambda: (None, "I failed", 2)
-aliases['f'].__xonsh_threadable__ = False
+aliases['f'].__pygwin_threadable__ = False
 echo f1f1f1 ; f ; echo f2f2f2
 """,
         "f1f1f1\nI failed.*\nTraceback.*\nsubprocess.CalledProcessError.*\n$",
     ),
     (
         """
-$XONSH_SUBPROC_CMD_RAISE_ERROR = False
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = False
+$PYGWIN_SHOW_TRACEBACK = True
 aliases['f'] = lambda: (None, "I failed", 2)
-aliases['f'].__xonsh_threadable__ = False
+aliases['f'].__pygwin_threadable__ = False
 echo f1f1f1 ; f ; echo f2f2f2
 """,
         "f1f1f1\nI failed\nf2f2f2\n$",
@@ -1375,7 +1375,7 @@ echo f1f1f1 ; f ; echo f2f2f2
 )
 def test_aliases_print(case):
     cmd, match = case
-    out, err, ret = run_xonsh(cmd=cmd, single_command=False)
+    out, err, ret = run_pygwin(cmd=cmd, single_command=False)
     assert re.match(match, out, re.MULTILINE | re.DOTALL), (
         f"\nFailed:\n```\n{cmd.strip()}\n```,\nresult: {out!r}\nexpected: {match!r}."
     )
@@ -1384,16 +1384,16 @@ def test_aliases_print(case):
 @skip_if_on_windows
 @pytest.mark.parametrize("interactive", [True, False])
 def test_raise_subproc_error_with_show_traceback(monkeypatch, interactive):
-    out, err, ret = run_xonsh(
-        "$COLOR_RESULTS=False\n$XONSH_SUBPROC_CMD_RAISE_ERROR=False\n$XONSH_SHOW_TRACEBACK=False\nls nofile",
+    out, err, ret = run_pygwin(
+        "$COLOR_RESULTS=False\n$PYGWIN_SUBPROC_CMD_RAISE_ERROR=False\n$PYGWIN_SHOW_TRACEBACK=False\nls nofile",
         interactive=interactive,
         single_command=True,
     )
     assert ret != 0
     assert re.match("ls.*No such file or directory\n", out)
 
-    out, err, ret = run_xonsh(
-        "$COLOR_RESULTS=False\n$XONSH_SUBPROC_CMD_RAISE_ERROR=True\n$XONSH_SHOW_TRACEBACK=False\nls nofile",
+    out, err, ret = run_pygwin(
+        "$COLOR_RESULTS=False\n$PYGWIN_SUBPROC_CMD_RAISE_ERROR=True\n$PYGWIN_SHOW_TRACEBACK=False\nls nofile",
         interactive=interactive,
         single_command=True,
     )
@@ -1404,8 +1404,8 @@ def test_raise_subproc_error_with_show_traceback(monkeypatch, interactive):
         re.MULTILINE | re.DOTALL,
     )
 
-    out, err, ret = run_xonsh(
-        "$COLOR_RESULTS=False\n$XONSH_SUBPROC_CMD_RAISE_ERROR=True\n$XONSH_SHOW_TRACEBACK=True\nls nofile",
+    out, err, ret = run_pygwin(
+        "$COLOR_RESULTS=False\n$PYGWIN_SUBPROC_CMD_RAISE_ERROR=True\n$PYGWIN_SHOW_TRACEBACK=True\nls nofile",
         interactive=interactive,
         single_command=True,
     )
@@ -1416,8 +1416,8 @@ def test_raise_subproc_error_with_show_traceback(monkeypatch, interactive):
         re.MULTILINE | re.DOTALL,
     )
 
-    out, err, ret = run_xonsh(
-        "$COLOR_RESULTS=False\n$XONSH_SUBPROC_CMD_RAISE_ERROR=False\n$XONSH_SHOW_TRACEBACK=True\nls nofile",
+    out, err, ret = run_pygwin(
+        "$COLOR_RESULTS=False\n$PYGWIN_SUBPROC_CMD_RAISE_ERROR=False\n$PYGWIN_SHOW_TRACEBACK=True\nls nofile",
         interactive=interactive,
         single_command=True,
     )
@@ -1426,12 +1426,14 @@ def test_raise_subproc_error_with_show_traceback(monkeypatch, interactive):
 
 
 def test_main_d():
-    out, err, ret = run_xonsh(cmd="print($XONSH_HISTORY_BACKEND)", single_command=True)
+    out, err, ret = run_pygwin(
+        cmd="print($PYGWIN_HISTORY_BACKEND)", single_command=True
+    )
     assert out == "json\n"
 
-    out, err, ret = run_xonsh(
-        args=["--no-rc", "-DXONSH_HISTORY_BACKEND='dummy'"],
-        cmd="print($XONSH_HISTORY_BACKEND)",
+    out, err, ret = run_pygwin(
+        args=["--no-rc", "-DPYGWIN_HISTORY_BACKEND='dummy'"],
+        cmd="print($PYGWIN_HISTORY_BACKEND)",
         single_command=True,
     )
     assert out == "dummy\n"
@@ -1440,7 +1442,7 @@ def test_main_d():
 @pytest.mark.flaky(reruns=3, reruns_delay=1)
 def test_catching_system_exit():
     stdin_cmd = "__import__('sys').exit(2)\n"
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         cmd=None, stdin_cmd=stdin_cmd, interactive=True, single_command=False, timeout=3
     )
     assert ret > 0
@@ -1450,7 +1452,7 @@ def test_catching_system_exit():
 @pytest.mark.flaky(reruns=3, reruns_delay=1)
 def test_catching_exit_signal():
     stdin_cmd = "sleep 0.2; kill -SIGHUP @(__import__('os').getpid())\n"
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         cmd=None, stdin_cmd=stdin_cmd, interactive=True, single_command=False, timeout=3
     )
     assert ret > 0
@@ -1462,7 +1464,7 @@ def test_forwarding_sighup(tmpdir):
     received, so we spin up a Bash process that waits for SIGHUP and then
     writes `SIGHUP` to a file, then exits. Then we check the content of
     that file to ensure that the Bash process really did get SIGHUP."""
-    outfile = tmpdir.mkdir("xonsh_test_dir").join("sighup_test.out")
+    outfile = tmpdir.mkdir("pygwin_test_dir").join("sighup_test.out")
 
     # Use ``sh -c`` rather than ``bash -c``: ``trap '…' HUP`` is POSIX
     # so /bin/sh works, and bash isn't guaranteed on every install (e.g.
@@ -1472,7 +1474,7 @@ sleep 0.2
 (sleep 1 && kill -SIGHUP @(__import__('os').getppid())) &
 sh -c "trap 'echo SIGHUP > {outfile}; exit 0' HUP; sleep 30 & wait $!"
 """
-    proc = run_xonsh(
+    proc = run_pygwin(
         cmd=None,
         stdin_cmd=stdin_cmd,
         stderr=sp.PIPE,
@@ -1488,8 +1490,8 @@ sh -c "trap 'echo SIGHUP > {outfile}; exit 0' HUP; sleep 30 & wait $!"
 @skip_if_on_windows
 def test_on_postcommand_waiting(tmpdir):
     """Ensure that running a subcommand in the on_postcommand hook doesn't
-    block xonsh from exiting when there is a running foreground process."""
-    outdir = tmpdir.mkdir("xonsh_test_dir")
+    block pygwin from exiting when there is a running foreground process."""
+    outdir = tmpdir.mkdir("pygwin_test_dir")
 
     stdin_cmd = f"""
 sleep 0.2
@@ -1500,7 +1502,7 @@ def postcmd_hook(**kwargs):
 (sleep 1 && kill -SIGHUP @(__import__('os').getppid())) &
 sh -c "trap '' HUP; sleep 30"
 """
-    proc = run_xonsh(
+    proc = run_pygwin(
         cmd=None,
         stdin_cmd=stdin_cmd,
         stderr=sp.PIPE,
@@ -1515,7 +1517,7 @@ sh -c "trap '' HUP; sleep 30"
 def test_suspended_captured_process_pipeline():
     """See also test_specs.py:test_specs_with_suspended_captured_process_pipeline"""
     stdin_cmd = f"!({sys.executable} -c 'import os, signal, time; time.sleep(0.2); os.kill(os.getpid(), signal.SIGTTIN)')\n"
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         cmd=None, stdin_cmd=stdin_cmd, interactive=True, single_command=False, timeout=5
     )
     match = ".*suspended=True.*"
@@ -1529,14 +1531,14 @@ def test_suspended_captured_process_pipeline():
 def test_captured_subproc_is_not_affected_next_command():
     """Testing #5769."""
     stdin_cmd = (
-        "t = __xonsh__.imp.time.time()\n"
+        "t = __pygwin__.imp.time.time()\n"
         "p = !(sleep 2)\n"
-        "print('OK_'+'TEST' if __xonsh__.imp.time.time() - t < 1 else 'FAIL_'+'TEST')\n"
-        "t = __xonsh__.imp.time.time()\n"
+        "print('OK_'+'TEST' if __pygwin__.imp.time.time() - t < 1 else 'FAIL_'+'TEST')\n"
+        "t = __pygwin__.imp.time.time()\n"
         "echo 1\n"
-        "print('OK_'+'TEST' if __xonsh__.imp.time.time() - t < 1 else 'FAIL_'+'TEST')\n"
+        "print('OK_'+'TEST' if __pygwin__.imp.time.time() - t < 1 else 'FAIL_'+'TEST')\n"
     )
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         cmd=None,
         stdin_cmd=stdin_cmd,
         interactive=True,
@@ -1553,12 +1555,12 @@ def test_captured_subproc_is_not_affected_next_command():
 def test_spec_decorator_alias():
     """Testing spec modifier alias with `@` in the alias name."""
     stdin_cmd = (
-        "from xonsh.procs.specs import SpecAttrDecoratorAlias as mod\n"
+        "from pygwin.procs.specs import SpecAttrDecoratorAlias as mod\n"
         'aliases["@dict"] = mod({"output_format": lambda lines: eval("\\n".join(lines))})\n'
         "d = $(@dict echo '{\"a\":42}')\n"
         "print('Answer =', d['a'])\n"
     )
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         cmd=None,
         stdin_cmd=stdin_cmd,
         interactive=True,
@@ -1573,25 +1575,25 @@ def test_spec_decorator_alias():
     [
         [
             "-i",
-            ".*CONFIG_XONSH_RC_XSH.*HOME_XONSHRC.*CONFIG_XONSH_RCD.*CONFIG_XONSH_PY_RCD.*",
+            ".*CONFIG_PYGWIN_RC_XSH.*HOME_PYGWINRC.*CONFIG_PYGWIN_RCD.*CONFIG_PYGWIN_PY_RCD.*",
         ],
         ["--rc rc.xsh", ".*RCXSH.*"],
         ["-i --rc rc.xsh", ".*RCXSH.*"],
         [
             "-c print('CMD')",
-            ".*CONFIG_XONSH_RC_XSH.*CONFIG_XONSH_RCD.*CONFIG_XONSH_PY_RCD.*CMD.*",
+            ".*CONFIG_PYGWIN_RC_XSH.*CONFIG_PYGWIN_RCD.*CONFIG_PYGWIN_PY_RCD.*CMD.*",
         ],
         [
             "-i -c print('CMD')",
-            ".*CONFIG_XONSH_RC_XSH.*HOME_XONSHRC.*CONFIG_XONSH_RCD.*CONFIG_XONSH_PY_RCD.*CMD.*",
+            ".*CONFIG_PYGWIN_RC_XSH.*HOME_PYGWINRC.*CONFIG_PYGWIN_RCD.*CONFIG_PYGWIN_PY_RCD.*CMD.*",
         ],
         [
             "script.xsh",
-            ".*CONFIG_XONSH_RC_XSH.*CONFIG_XONSH_RCD.*CONFIG_XONSH_PY_RCD.*SCRIPT.*",
+            ".*CONFIG_PYGWIN_RC_XSH.*CONFIG_PYGWIN_RCD.*CONFIG_PYGWIN_PY_RCD.*SCRIPT.*",
         ],
         [
             "-i script.xsh",
-            ".*CONFIG_XONSH_RC_XSH.*HOME_XONSHRC.*CONFIG_XONSH_RCD.*CONFIG_XONSH_PY_RCD.*SCRIPT.*",
+            ".*CONFIG_PYGWIN_RC_XSH.*HOME_PYGWINRC.*CONFIG_PYGWIN_RCD.*CONFIG_PYGWIN_PY_RCD.*SCRIPT.*",
         ],
         ["--rc rc.xsh -- script.xsh", ".*RCXSH.*SCRIPT.*"],
         ["-i --rc rc.xsh -- script.xsh", ".*RCXSH.*SCRIPT.*"],
@@ -1599,27 +1601,27 @@ def test_spec_decorator_alias():
         ["-i --no-rc --rc rc.xsh -- script.xsh", ".*SCRIPT.*"],
     ],
 )
-def test_xonshrc(tmpdir, cmd, exp):
-    # ~/.xonshrc
+def test_pygwinrc(tmpdir, cmd, exp):
+    # ~/.pygwinrc
     home = tmpdir.mkdir("home")
-    (home / ".xonshrc").write_text("echo HOME_XONSHRC", encoding="utf8")
-    home_xonsh_rc_path = str(  # crossplatform path
-        (Path(home) / ".xonshrc").expanduser()
+    (home / ".pygwinrc").write_text("echo HOME_PYGWINRC", encoding="utf8")
+    home_pygwin_rc_path = str(  # crossplatform path
+        (Path(home) / ".pygwinrc").expanduser()
     )
 
-    # ~/.config/xonsh/rc.xsh
-    home_config_xonsh = tmpdir.mkdir("home_config_xonsh")
-    (home_config_xonsh_rc_xsh := home_config_xonsh / "rc.xsh").write_text(
-        "echo CONFIG_XONSH_RC_XSH", encoding="utf8"
+    # ~/.config/pygwin/rc.xsh
+    home_config_pygwin = tmpdir.mkdir("home_config_pygwin")
+    (home_config_pygwin_rc_xsh := home_config_pygwin / "rc.xsh").write_text(
+        "echo CONFIG_PYGWIN_RC_XSH", encoding="utf8"
     )
 
-    # ~/.config/xonsh/rc.d/
-    home_config_xonsh_rcd = tmpdir.mkdir("home_config_xonsh_rcd")
-    (home_config_xonsh_rcd / "rcd1.xsh").write_text(
-        "echo CONFIG_XONSH_RCD", encoding="utf8"
+    # ~/.config/pygwin/rc.d/
+    home_config_pygwin_rcd = tmpdir.mkdir("home_config_pygwin_rcd")
+    (home_config_pygwin_rcd / "rcd1.xsh").write_text(
+        "echo CONFIG_PYGWIN_RCD", encoding="utf8"
     )
-    (home_config_xonsh_rcd / "rcd2.py").write_text(
-        "__xonsh__.print(__xonsh__.subproc_captured_stdout(['echo', 'CONFIG_XONSH_PY_RCD']))",
+    (home_config_pygwin_rcd / "rcd2.py").write_text(
+        "__pygwin__.print(__pygwin__.subproc_captured_stdout(['echo', 'CONFIG_PYGWIN_PY_RCD']))",
         encoding="utf8",
     )
 
@@ -1627,25 +1629,25 @@ def test_xonshrc(tmpdir, cmd, exp):
     (rc_xsh := home / "rc.xsh").write_text("echo RCXSH", encoding="utf8")
     (script_xsh := home / "script.xsh").write_text("echo SCRIPT_XSH", encoding="utf8")
 
-    # Construct $XONSHRC and $XONSHRC_DIR.
-    xonshrc_files = [
-        str(home_config_xonsh_rc_xsh),
-        str(home_xonsh_rc_path),
+    # Construct $PYGWINRC and $PYGWINRC_DIR.
+    pygwinrc_files = [
+        str(home_config_pygwin_rc_xsh),
+        str(home_pygwin_rc_path),
     ]
-    xonshrc_dir = [str(home_config_xonsh_rcd)]
+    pygwinrc_dir = [str(home_config_pygwin_rcd)]
 
     args = [
         f'-DHOME="{str(home)}"',
-        f'-DXONSHRC="{os.pathsep.join(xonshrc_files)}"',
-        f'-DXONSHRC_DIR="{os.pathsep.join(xonshrc_dir)}"',
+        f'-DPYGWINRC="{os.pathsep.join(pygwinrc_files)}"',
+        f'-DPYGWINRC_DIR="{os.pathsep.join(pygwinrc_dir)}"',
     ]
     env = {"HOME": str(home)}
 
     cmd = cmd.replace("rc.xsh", str(rc_xsh)).replace("script.xsh", str(script_xsh))
     args = args + cmd.split()
 
-    # xonsh
-    out, err, ret = run_xonsh(
+    # pygwin
+    out, err, ret = run_pygwin(
         cmd=None,
         args=args,
         env=env,
@@ -1655,24 +1657,24 @@ def test_xonshrc(tmpdir, cmd, exp):
         exp,
         out,
         re.MULTILINE | re.DOTALL,
-    ), f"Case: xonsh {cmd},\nExpected: {exp!r},\nResult: {out!r},\nargs={args!r}"
+    ), f"Case: pygwin {cmd},\nExpected: {exp!r},\nResult: {out!r},\nargs={args!r}"
 
 
 @skip_if_on_windows
 def test_shebang_cr(tmpdir):
-    testdir = tmpdir.mkdir("xonsh_test_dir")
+    testdir = tmpdir.mkdir("pygwin_test_dir")
     testfile = "shebang_cr.xsh"
-    expected_out = "I'm xonsh with shebang␍"
+    expected_out = "I'm pygwin with shebang␍"
     (f := testdir / testfile).write_text(
-        f"""#!/usr/bin/env -S {sys.executable} -m xonsh\r\nprint("{expected_out}")""",
+        f"""#!/usr/bin/env -S {sys.executable} -m pygwin\r\nprint("{expected_out}")""",
         encoding="utf8",
     )
     os.chmod(f, 0o777)
     command = f"cd {testdir}; ./{testfile}\n"
-    # The shebang spawns a fresh ``python -m xonsh`` whose cwd is ``testdir``.
-    # That subprocess can't import xonsh from a source-tree layout unless we
+    # The shebang spawns a fresh ``python -m pygwin`` whose cwd is ``testdir``.
+    # That subprocess can't import pygwin from a source-tree layout unless we
     # forward the repo root via PYTHONPATH (CI / dev setups without a global
     # ``pip install`` would fail otherwise).
-    xonsh_root = str(Path(__file__).resolve().parents[2])
-    out, err, rtn = run_xonsh(command, env={"PYTHONPATH": xonsh_root})
+    pygwin_root = str(Path(__file__).resolve().parents[2])
+    out, err, rtn = run_pygwin(command, env={"PYTHONPATH": pygwin_root})
     assert out == f"{expected_out}\n"

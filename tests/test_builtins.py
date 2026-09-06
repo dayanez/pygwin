@@ -1,4 +1,4 @@
-"""Tests the xonsh builtins."""
+"""Tests the pygwin builtins."""
 
 import os
 import re
@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from xonsh.built_ins import (
+from pygwin.built_ins import (
     DynamicAccessProxy,
     call_macro,
     convert_macro_arg,
@@ -29,8 +29,8 @@ from xonsh.built_ins import (
     resetting_signal_handle,
     superhelper,
 )
-from xonsh.environ import Env
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.environ import Env
+from pygwin.pytest.tools import skip_if_on_windows
 
 HOME_PATH = os.path.expanduser("~")
 
@@ -55,8 +55,8 @@ def test_dynamic_access_proxy_setattr():
 
 
 @pytest.fixture(autouse=True)
-def xonsh_execer_autouse(xonsh_execer):
-    return xonsh_execer
+def pygwin_execer_autouse(pygwin_execer):
+    return pygwin_execer
 
 
 @pytest.mark.parametrize("testfile", reglob("test_.*"))
@@ -115,7 +115,7 @@ class TestDotglob:
 
 @pytest.fixture
 def home_env(xession):
-    """Set `__xonsh__.env ` to a new Env instance on `xonsh_builtins`"""
+    """Set `__pygwin__.env ` to a new Env instance on `pygwin_builtins`"""
     xession.env["HOME"] = HOME_PATH
     return xession
 
@@ -560,7 +560,7 @@ def test_enter_macro():
     assert obj.macro_locals
 
 
-def test_xonshpathliteral_contextmanager(tmp_path):
+def test_pygwinpathliteral_contextmanager(tmp_path):
     start_cwd = os.getcwd()
     p = path_literal(str(tmp_path))
     try:
@@ -575,7 +575,7 @@ def test_xonshpathliteral_contextmanager(tmp_path):
 
 
 def test_resetting_signal_handle_off_main_thread_is_noop():
-    """Regression for xonsh#3689: setup() called from a non-main thread must
+    """Regression for pygwin#3689: setup() called from a non-main thread must
     not crash with ValueError('signal only works in main thread')."""
     import signal
     import threading

@@ -7,9 +7,9 @@ import sys
 
 import pytest
 
-from xonsh import dirstack
-from xonsh.dirstack import DIRSTACK, _unc_tempDrives
-from xonsh.platform_info import ON_WINDOWS
+from pygwin import dirstack
+from pygwin.dirstack import DIRSTACK, _unc_tempDrives
+from pygwin.platform_info import ON_WINDOWS
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PARENT = os.path.dirname(HERE)
@@ -267,7 +267,7 @@ def with_unc_check_disabled(toggle_unc_check):
 
 
 @pytest.fixture()
-def xonsh_builtins_cd(xession):
+def pygwin_builtins_cd(xession):
     xession.env["CDPATH"] = PARENT
     xession.env["PWD"] = os.getcwd()
     xession.env["DIRSTACK_SIZE"] = 20
@@ -275,8 +275,8 @@ def xonsh_builtins_cd(xession):
 
 
 @pytest.mark.skipif(not ON_WINDOWS, reason="Windows-only UNC functionality")
-def test_uncpushd_cd_unc_auto_pushd(xonsh_builtins_cd, with_unc_check_enabled):
-    xonsh_builtins_cd.env["AUTO_PUSHD"] = True
+def test_uncpushd_cd_unc_auto_pushd(pygwin_builtins_cd, with_unc_check_enabled):
+    pygwin_builtins_cd.env["AUTO_PUSHD"] = True
     so, se, rc = dirstack.cd([r"\\localhost\uncpushd_test_PARENT"])
     if rc != 0:
         return
@@ -286,7 +286,7 @@ def test_uncpushd_cd_unc_auto_pushd(xonsh_builtins_cd, with_unc_check_enabled):
 
 
 @pytest.mark.skipif(not ON_WINDOWS, reason="Windows-only UNC functionality")
-def test_uncpushd_cd_unc_nocheck(xonsh_builtins_cd, with_unc_check_disabled):
+def test_uncpushd_cd_unc_nocheck(pygwin_builtins_cd, with_unc_check_disabled):
     if with_unc_check_disabled == 0:
         return
     dirstack.cd([r"\\localhost\uncpushd_test_HERE"])
@@ -294,7 +294,7 @@ def test_uncpushd_cd_unc_nocheck(xonsh_builtins_cd, with_unc_check_disabled):
 
 
 @pytest.mark.skipif(not ON_WINDOWS, reason="Windows-only UNC functionality")
-def test_uncpushd_cd_unc_no_auto_pushd(xonsh_builtins_cd, with_unc_check_enabled):
+def test_uncpushd_cd_unc_no_auto_pushd(pygwin_builtins_cd, with_unc_check_enabled):
     if with_unc_check_enabled == 0:
         return
     so, se, rc = dirstack.cd([r"\\localhost\uncpushd_test_PARENT"])

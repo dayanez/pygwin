@@ -1,12 +1,12 @@
-"""Tests for xonsh code caching."""
+"""Tests for pygwin code caching."""
 
 import marshal
 import os
 
 import pytest
 
-from xonsh import __version__ as XONSH_VERSION
-from xonsh.codecache import (
+from pygwin import __version__ as PYGWIN_VERSION
+from pygwin.codecache import (
     _check_cache_versions,
     _splitpath,
     code_cache_check,
@@ -20,17 +20,17 @@ from xonsh.codecache import (
     should_use_cache,
     update_cache,
 )
-from xonsh.platform_info import PYTHON_VERSION_INFO_BYTES
+from pygwin.platform_info import PYTHON_VERSION_INFO_BYTES
 
 
 @pytest.fixture(autouse=True)
 def cache_env(xession, tmp_path):
     xession.env.update(
         {
-            "XONSH_DATA_DIR": str(tmp_path),
-            "XONSH_CACHE_SCRIPTS": True,
-            "XONSH_CACHE_EVERYTHING": False,
-            "XONSH_DEBUG": False,
+            "PYGWIN_DATA_DIR": str(tmp_path),
+            "PYGWIN_CACHE_SCRIPTS": True,
+            "PYGWIN_CACHE_EVERYTHING": False,
+            "PYGWIN_DEBUG": False,
         }
     )
     yield xession
@@ -53,7 +53,7 @@ def test_splitpath_single():
 def test_should_use_cache_exec_mode(cache_env):
     execer = cache_env.execer
     execer.scriptcache = True
-    cache_env.env["XONSH_CACHE_SCRIPTS"] = True
+    cache_env.env["PYGWIN_CACHE_SCRIPTS"] = True
     assert should_use_cache(execer, "exec") is True
 
 
@@ -61,15 +61,15 @@ def test_should_use_cache_exec_mode_no_execer_flag(cache_env):
     execer = cache_env.execer
     execer.scriptcache = False
     execer.cacheall = False
-    cache_env.env["XONSH_CACHE_SCRIPTS"] = True
+    cache_env.env["PYGWIN_CACHE_SCRIPTS"] = True
     assert should_use_cache(execer, "exec") is False
 
 
 def test_should_use_cache_exec_mode_env_disabled(cache_env):
     execer = cache_env.execer
     execer.scriptcache = True
-    cache_env.env["XONSH_CACHE_SCRIPTS"] = False
-    cache_env.env["XONSH_CACHE_EVERYTHING"] = False
+    cache_env.env["PYGWIN_CACHE_SCRIPTS"] = False
+    cache_env.env["PYGWIN_CACHE_EVERYTHING"] = False
     assert should_use_cache(execer, "exec") is False
 
 
@@ -82,14 +82,14 @@ def test_should_use_cache_single_mode_cacheall(cache_env):
 def test_should_use_cache_single_mode_no_cacheall(cache_env):
     execer = cache_env.execer
     execer.cacheall = False
-    cache_env.env["XONSH_CACHE_EVERYTHING"] = False
+    cache_env.env["PYGWIN_CACHE_EVERYTHING"] = False
     assert should_use_cache(execer, "single") is False
 
 
 def test_should_use_cache_everything_overrides(cache_env):
     execer = cache_env.execer
     execer.cacheall = False
-    cache_env.env["XONSH_CACHE_EVERYTHING"] = True
+    cache_env.env["PYGWIN_CACHE_EVERYTHING"] = True
     assert should_use_cache(execer, "single") is True
 
 
@@ -119,12 +119,12 @@ def test_run_compiled_code_exception():
 
 def test_get_cache_filename_code(cache_env):
     fname = get_cache_filename("abc123", code=True)
-    assert "xonsh_code_cache" in fname
+    assert "pygwin_code_cache" in fname
 
 
 def test_get_cache_filename_script(cache_env):
     fname = get_cache_filename("/some/script.xsh", code=False)
-    assert "xonsh_script_cache" in fname
+    assert "pygwin_script_cache" in fname
 
 
 def test_update_cache_roundtrip(cache_env, tmp_path):
@@ -143,7 +143,7 @@ def test_update_cache_none_file():
     update_cache(compile("x=1", "<t>", "exec"), None)
 
 
-def test_check_cache_versions_xonsh_mismatch(tmp_path):
+def test_check_cache_versions_pygwin_mismatch(tmp_path):
     cache_file = os.path.join(str(tmp_path), "bad.cache")
     with open(cache_file, "wb") as f:
         f.write(b"0.0.0\n")
@@ -157,7 +157,7 @@ def test_check_cache_versions_xonsh_mismatch(tmp_path):
 def test_check_cache_versions_python_mismatch(tmp_path):
     cache_file = os.path.join(str(tmp_path), "bad2.cache")
     with open(cache_file, "wb") as f:
-        f.write(XONSH_VERSION.encode() + b"\n")
+        f.write(PYGWIN_VERSION.encode() + b"\n")
         f.write(b"99.99\n")
         marshal.dump(compile("x=1", "<t>", "exec"), f)
 
@@ -283,7 +283,7 @@ def test_run_script_with_cache_creates_file_py(cache_env, tmp_path):
 
     execer = cache_env.execer
     execer.scriptcache = True
-    cache_env.env["XONSH_CACHE_SCRIPTS"] = True
+    cache_env.env["PYGWIN_CACHE_SCRIPTS"] = True
 
     glb = {}
     run_script_with_cache(src_file, execer, glb)
@@ -300,7 +300,7 @@ def test_run_script_with_cache_creates_file_xsh(cache_env, tmp_path):
 
     execer = cache_env.execer
     execer.scriptcache = True
-    cache_env.env["XONSH_CACHE_SCRIPTS"] = True
+    cache_env.env["PYGWIN_CACHE_SCRIPTS"] = True
 
     glb = {}
     run_script_with_cache(src_file, execer, glb)
@@ -317,7 +317,7 @@ def test_run_script_with_cache_second_run(cache_env, tmp_path):
 
     execer = cache_env.execer
     execer.scriptcache = True
-    cache_env.env["XONSH_CACHE_SCRIPTS"] = True
+    cache_env.env["PYGWIN_CACHE_SCRIPTS"] = True
 
     glb1 = {}
     run_script_with_cache(src_file, execer, glb1)
@@ -336,7 +336,7 @@ def test_run_script_with_cache_disabled(cache_env, tmp_path):
     execer = cache_env.execer
     execer.scriptcache = False
     execer.cacheall = False
-    cache_env.env["XONSH_CACHE_SCRIPTS"] = False
+    cache_env.env["PYGWIN_CACHE_SCRIPTS"] = False
 
     glb = {}
     run_script_with_cache(src_file, execer, glb)
@@ -365,7 +365,7 @@ def test_run_code_with_cache(cache_env):
 def test_run_code_with_cache_creates_file(cache_env, tmp_path):
     execer = cache_env.execer
     execer.cacheall = True
-    cache_env.env["XONSH_CACHE_EVERYTHING"] = True
+    cache_env.env["PYGWIN_CACHE_EVERYTHING"] = True
 
     code_str = "cached_val = 123\n"
 
@@ -381,7 +381,7 @@ def test_run_code_with_cache_creates_file(cache_env, tmp_path):
 def test_run_code_with_cache_second_run(cache_env, tmp_path):
     execer = cache_env.execer
     execer.cacheall = True
-    cache_env.env["XONSH_CACHE_EVERYTHING"] = True
+    cache_env.env["PYGWIN_CACHE_EVERYTHING"] = True
 
     code_str = "reused = 77\n"
 

@@ -2,14 +2,14 @@ from unittest.mock import Mock
 
 import pytest
 
-from xonsh.completer import Completer
-from xonsh.completers.commands import complete_command, complete_skipper
-from xonsh.parsers.completion_context import (
+from pygwin.completer import Completer
+from pygwin.completers.commands import complete_command, complete_skipper
+from pygwin.parsers.completion_context import (
     CommandArg,
     CommandContext,
     CompletionContext,
 )
-from xonsh.pytest.tools import ON_WINDOWS, completions_from_result, skip_if_on_windows
+from pygwin.pytest.tools import ON_WINDOWS, completions_from_result, skip_if_on_windows
 
 
 @pytest.fixture(autouse=True)
@@ -62,7 +62,7 @@ def test_skipper_arg(completion_context_parse, xession, monkeypatch):
 
 
 def test_argparse_completer(check_completer, monkeypatch):
-    assert check_completer("xonsh", prefix="-").issuperset(
+    assert check_completer("pygwin", prefix="-").issuperset(
         {
             "--cache-everything",
             "--help",
@@ -82,7 +82,7 @@ def test_argparse_completer(check_completer, monkeypatch):
 def test_argparse_completer_after_option(check_completer, tmp_path):
     prefix = str(tmp_path)[:-1]
     # has one or more completions including the above tmp_path
-    assert check_completer("xonsh --no-rc", prefix)
+    assert check_completer("pygwin --no-rc", prefix)
 
 
 def test_argparse_completer_description_no_ansi(check_completer, xession):
@@ -93,7 +93,7 @@ def test_argparse_completer_description_no_ansi(check_completer, xession):
     ``code`` spans in pygments ANSI color escapes. Those escapes leak as
     literal characters into the prompt-toolkit completion menu.
     """
-    xession.env["XONSH_INTERACTIVE"] = True
+    xession.env["PYGWIN_INTERACTIVE"] = True
     completions = check_completer("xontrib load", prefix="-")
     assert completions
     for comp in completions:
@@ -115,7 +115,7 @@ def test_argparse_completer_unknown_option(check_completer):
 
 @skip_if_on_windows
 def test_complete_command_substring(completion_context_parse):
-    """Completers should match by substring, not just prefix (xonsh#6082)."""
+    """Completers should match by substring, not just prefix (pygwin#6082)."""
     # 'grep' should match prefix 'rep' via substring
     comps = set(map(str, complete_command(completion_context_parse("rep", 3).command)))
     assert "grep" in comps
@@ -123,13 +123,13 @@ def test_complete_command_substring(completion_context_parse):
 
 def test_filter_function_substring(xession):
     """Filter functions should use case-insensitive substring matching."""
-    from xonsh.completers.tools import (
+    from pygwin.completers.tools import (
         RichCompletion,
         _filter_substring,
     )
 
     # case-insensitive substring match (middle of string)
-    assert _filter_substring("Dev-Xonsh-Deploy", "deploy")
+    assert _filter_substring("Dev-Pygwin-Deploy", "deploy")
     assert _filter_substring("ASDFGH", "asd")
     assert not _filter_substring("asdfgh", "xyz")
 

@@ -1,4 +1,4 @@
-"""Tests for :mod:`xonsh.procs.posix`.
+"""Tests for :mod:`pygwin.procs.posix`.
 
 Currently focused on the SIGBREAK (Windows Ctrl+Break) handling added for
 issue #4852. The handler methods are pure logic, so they are exercised on
@@ -9,8 +9,8 @@ import signal
 
 import pytest
 
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.procs.posix import PopenThread
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.procs.posix import PopenThread
 
 skip_if_not_on_windows = pytest.mark.skipif(
     not ON_WINDOWS, reason="SIGBREAK / Ctrl+Break only exist on Windows"
@@ -58,8 +58,8 @@ def test_popen_signal_break_is_idempotent():
 def test_popen_signal_break_restores_and_chains(monkeypatch):
     """Once the child has exited, the break restores the previous handler
     and chains to it — so the saved ``default_int_handler`` raises the
-    catchable KeyboardInterrupt that returns xonsh to its prompt."""
-    import xonsh.procs.posix as pmod
+    catchable KeyboardInterrupt that returns pygwin to its prompt."""
+    import pygwin.procs.posix as pmod
 
     calls = []
     monkeypatch.setattr(pmod.signal, "signal", lambda s, h: calls.append((s, h)))
@@ -77,7 +77,7 @@ def test_popen_signal_break_restores_and_chains(monkeypatch):
 def test_popen_restore_sigbreak_without_frame_does_not_chain(monkeypatch):
     """Cleanup-path restore (frame=None) reinstalls the old handler but must
     not chain into it (that would raise mid-teardown)."""
-    import xonsh.procs.posix as pmod
+    import pygwin.procs.posix as pmod
 
     calls = []
     monkeypatch.setattr(pmod.signal, "signal", lambda s, h: calls.append((s, h)))

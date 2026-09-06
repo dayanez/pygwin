@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.completers.tools``.
+"""Smoke tests for ``pygwin.completers.tools``.
 
 The module backs the public completer-author API: ``RichCompletion``, the
 ``contextual_*`` decorators, the various filter helpers, and the
@@ -6,7 +6,7 @@ The module backs the public completer-author API: ``RichCompletion``, the
 before it reaches the UI.
 """
 
-from xonsh.completers.tools import (
+from pygwin.completers.tools import (
     RichCompletion,
     _filter_prefix,
     _filter_substring,
@@ -133,17 +133,17 @@ def test_filter_substring_with_rich_completion_display_uses_display():
 
 
 def test_get_filter_function_substring_default(xession):
-    xession.env.pop("XONSH_COMPLETER_MODE", None)
+    xession.env.pop("PYGWIN_COMPLETER_MODE", None)
     assert get_filter_function() is _filter_substring
 
 
 def test_get_filter_function_prefix_mode(xession):
-    xession.env["XONSH_COMPLETER_MODE"] = "prefix"
+    xession.env["PYGWIN_COMPLETER_MODE"] = "prefix"
     assert get_filter_function() is _filter_prefix
 
 
 def test_get_filter_function_substring_explicit_mode(xession):
-    xession.env["XONSH_COMPLETER_MODE"] = "substring_tier"
+    xession.env["PYGWIN_COMPLETER_MODE"] = "substring_tier"
     assert get_filter_function() is _filter_substring
 
 

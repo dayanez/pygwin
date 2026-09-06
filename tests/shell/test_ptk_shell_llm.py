@@ -52,7 +52,7 @@ def test_ptk_suppresses_cpr_inside_ssh(monkeypatch, ssh_var, restore_vt100_cpr):
     ``last_was_cr`` to 0, so ssh never sees ``\\r~`` and ``~.`` etc.
     silently fail.
 
-    We re-import ``xonsh.shells.ptk_shell`` with the SSH env var set so
+    We re-import ``pygwin.shells.ptk_shell`` with the SSH env var set so
     the module-level guard runs, then check that
     ``Vt100_Output.ask_for_cpr`` is the no-op installed by the guard.
     """
@@ -60,7 +60,7 @@ def test_ptk_suppresses_cpr_inside_ssh(monkeypatch, ssh_var, restore_vt100_cpr):
         monkeypatch.delenv(v, raising=False)
     monkeypatch.setenv(ssh_var, "/dev/pts/0")
 
-    import xonsh.shells.ptk_shell as ptk_shell_module
+    import pygwin.shells.ptk_shell as ptk_shell_module
 
     importlib.reload(ptk_shell_module)
 
@@ -80,7 +80,7 @@ def test_ptk_does_not_touch_cpr_outside_ssh(monkeypatch, restore_vt100_cpr):
     for v in ("SSH_TTY", "SSH_CONNECTION"):
         monkeypatch.delenv(v, raising=False)
 
-    import xonsh.shells.ptk_shell as ptk_shell_module
+    import pygwin.shells.ptk_shell as ptk_shell_module
 
     importlib.reload(ptk_shell_module)
 
@@ -141,7 +141,7 @@ def input_hook(xession):
     """A hook wired to a fake tty, with ``builtins.input`` restored after."""
     import builtins
 
-    from xonsh.shells.ptk_shell.input_hook import PTKInputHook
+    from pygwin.shells.ptk_shell.input_hook import PTKInputHook
 
     original = builtins.input
     hook = PTKInputHook()
@@ -279,10 +279,10 @@ def test_input_hook_falls_back_inside_a_running_app(input_hook, monkeypatch, xes
 
 
 def test_input_hook_disabled_by_env(input_hook, monkeypatch, xession):
-    """``$XONSH_PTK_INPUT_HOOK = False`` is honored per call, so it can be
+    """``$PYGWIN_PTK_INPUT_HOOK = False`` is honored per call, so it can be
     flipped at runtime."""
     make_tty(monkeypatch)
-    xession.env["XONSH_PTK_INPUT_HOOK"] = False
+    xession.env["PYGWIN_PTK_INPUT_HOOK"] = False
     monkeypatch.setattr(
         input_hook, "prompt", lambda msg: pytest.fail("ptk must not be used")
     )
@@ -323,7 +323,7 @@ def test_input_hook_falls_back_on_ptk_failure(input_hook, monkeypatch, xession):
 
 def test_cmdloop_installs_and_restores_the_hook(ptk_shell, xession):
     """The hook lives exactly as long as the interactive command loop:
-    ``cmdloop`` is only reached from ``main_xonsh`` in interactive mode,
+    ``cmdloop`` is only reached from ``main_pygwin`` in interactive mode,
     so ``-c``, scripts and piped stdin keep the built-in ``input()``."""
     import builtins
 
@@ -381,7 +381,7 @@ def test_input_hook_enables_auto_suggest(input_hook, fake_session, xession):
     those key bindings itself)."""
     from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
-    xession.env["XONSH_PROMPT_AUTO_SUGGEST"] = True
+    xession.env["PYGWIN_PROMPT_AUTO_SUGGEST"] = True
     input_hook.prompt("token: ")
     (message, kwargs) = fake_session.instances[0].calls[0]
     assert message == "token: "
@@ -389,11 +389,11 @@ def test_input_hook_enables_auto_suggest(input_hook, fake_session, xession):
 
 
 def test_input_hook_auto_suggest_follows_env(input_hook, fake_session, xession):
-    """``$XONSH_PROMPT_AUTO_SUGGEST`` is read per call, so turning
+    """``$PYGWIN_PROMPT_AUTO_SUGGEST`` is read per call, so turning
     suggestions off applies to the very next ``input()``."""
-    xession.env["XONSH_PROMPT_AUTO_SUGGEST"] = False
+    xession.env["PYGWIN_PROMPT_AUTO_SUGGEST"] = False
     input_hook.prompt("a: ")
-    xession.env["XONSH_PROMPT_AUTO_SUGGEST"] = True
+    xession.env["PYGWIN_PROMPT_AUTO_SUGGEST"] = True
     input_hook.prompt("b: ")
     session = fake_session.instances[0]
     assert session.calls[0][1]["auto_suggest"] is None

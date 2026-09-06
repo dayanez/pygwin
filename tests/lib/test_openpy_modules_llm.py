@@ -1,13 +1,13 @@
-"""Smoke tests for ``xonsh.lib.openpy`` and ``xonsh.lib.modules``.
+"""Smoke tests for ``pygwin.lib.openpy`` and ``pygwin.lib.modules``.
 
 Both modules support the introspection / Python-script handling pieces that
-the rest of xonsh leans on for source-code reading and module discovery.
+the rest of pygwin leans on for source-code reading and module discovery.
 """
 
 import pytest
 
-from xonsh.lib import modules as xmodules
-from xonsh.lib import openpy
+from pygwin.lib import modules as xmodules
+from pygwin.lib import openpy
 
 # --- openpy.source_to_unicode ----------------------------------------------
 
@@ -114,27 +114,27 @@ def test_list_readline_yields_consecutive_items():
 
 
 def test_module_finder_pkg_only_no_paths():
-    finder = xmodules.ModuleFinder("xonsh")
-    assert "xonsh" in finder._pkgs
+    finder = xmodules.ModuleFinder("pygwin")
+    assert "pygwin" in finder._pkgs
     assert finder._paths == {}
 
 
 def test_module_finder_separates_paths_from_pkgs(tmp_path):
-    finder = xmodules.ModuleFinder("xonsh", str(tmp_path))
+    finder = xmodules.ModuleFinder("pygwin", str(tmp_path))
     # path-like items go in _paths, name-like in _pkgs
-    assert "xonsh" in finder._pkgs
+    assert "pygwin" in finder._pkgs
     assert str(tmp_path) in finder._paths
 
 
 def test_module_finder_get_module_finds_real_package():
-    finder = xmodules.ModuleFinder("xonsh")
+    finder = xmodules.ModuleFinder("pygwin")
     mod = finder.get_module("tools")
     assert mod is not None
-    assert mod.__name__ == "xonsh.tools"
+    assert mod.__name__ == "pygwin.tools"
 
 
 def test_module_finder_get_module_returns_none_for_missing():
-    finder = xmodules.ModuleFinder("xonsh")
+    finder = xmodules.ModuleFinder("pygwin")
     assert finder.get_module("definitely_not_there_xyz") is None
 
 

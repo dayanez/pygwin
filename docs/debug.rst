@@ -4,35 +4,35 @@
 Debug
 *****
 
-Xonsh supports two complementary ways to debug xonsh code:
+Pygwin supports two complementary ways to debug pygwin code:
 
 * **Debug in IDE** — attach a full graphical debugger from an editor like
   VS Code.
 * **Instant debugging** — drop into a debugger at the exact call site with
-  ``@.debug``, with automatic engine selection and a xonsh-syntax REPL
+  ``@.debug``, with automatic engine selection and a pygwin-syntax REPL
   when no external debugger is installed.
 
 Debug in IDE
 ============
 
-Xonsh extension for VS Code provides syntax highlighting and basic language support for ``.xsh`` files.
+Pygwin extension for VS Code provides syntax highlighting and basic language support for ``.xsh`` files.
 Install via the extensions menu.
 
 Instant debugging
 =================
 
 When you need to stop execution at a specific call site without wiring up
-an IDE, xonsh ships a debugging helper attached to every session as
+an IDE, pygwin ships a debugging helper attached to every session as
 ``@.debug``. It works like Python's builtin ``breakpoint()``, but with
-automatic engine selection, session-aware fallbacks, and a xonsh-syntax
+automatic engine selection, session-aware fallbacks, and a pygwin-syntax
 REPL when no external debugger is installed.
 
 Quick Start
 -----------
 
-Drop into a debugger at any point in your xonsh code:
+Drop into a debugger at any point in your pygwin code:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     @.debug.breakpoint()
 
@@ -43,23 +43,23 @@ session) wins.
 
 To force a specific engine for a single call:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     @.debug.breakpoint(engine='pdbp')
     @.debug.breakpoint(engine='ipdb')
     @.debug.breakpoint(engine='pdb')
-    @.debug.breakpoint(engine='execer')   # xonsh REPL at the call site
+    @.debug.breakpoint(engine='execer')   # pygwin REPL at the call site
     @.debug.breakpoint(engine='eval')     # plain-Python REPL
 
 Setting the Default Engine
 --------------------------
 
-Set ``$XONSH_DEBUG_BREAKPOINT_ENGINE`` in your :doc:`xonsh RC <xonshrc>` to
+Set ``$PYGWIN_DEBUG_BREAKPOINT_ENGINE`` in your :doc:`pygwin RC <pygwinrc>` to
 change the default used when ``engine`` is not passed (or is ``'auto'``):
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
-    $XONSH_DEBUG_BREAKPOINT_ENGINE = 'pdbp'
+    $PYGWIN_DEBUG_BREAKPOINT_ENGINE = 'pdbp'
 
 Allowed values: ``'auto'`` (default), ``'pdbp'``, ``'ipdb'``, ``'pdb'``,
 ``'execer'``, ``'eval'``.
@@ -75,7 +75,7 @@ rarely what you want. Pass an explicit ``frame=`` to relocate the stop
 site to any frame on the stack — typically the helper's caller. This
 mirrors ``pdbp.set_trace(frame=...)``.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ def my_dev_helper():
          print("dropping in…")
@@ -107,13 +107,13 @@ Engines
      - Stdlib ``pdb``. Always available.
    * - ``execer``
      - A REPL at the caller's frame backed by the session's
-       :class:`~xonsh.execer.Execer`. Full xonsh syntax is available —
+       :class:`~pygwin.execer.Execer`. Full pygwin syntax is available —
        subprocesses (``ls``, ``$(ls)``), env lookups (``@.env['HOME']``),
        aliases, and ``@.`` attribute access. Raises ``RuntimeError`` if no
        execer is attached to the session.
    * - ``eval``
      - A minimal REPL using plain Python ``eval``/``exec``. Has no
-       dependency on a xonsh session — works in detached contexts (scripts,
+       dependency on a pygwin session — works in detached contexts (scripts,
        tests) the same as inside an interactive shell.
 
 When ``engine='auto'`` resolves to an engine, ``@.debug`` prints a short
@@ -123,7 +123,7 @@ abort, then drops into that engine.
 Tab completion in callable aliases
 ----------------------------------
 
-xonsh runs callable aliases (registered via ``@aliases.register``) in
+pygwin runs callable aliases (registered via ``@aliases.register``) in
 worker threads. CPython only wires ``readline`` into the main thread, so
 the ``pdbp``, ``ipdb``, and ``pdb`` engines lose tab completion when
 invoked from inside an alias — the ``TAB`` key inserts a literal tab
@@ -135,19 +135,19 @@ auto-walks past the readline-based engines and selects ``execer`` (or
 with no completion, so the missing ``TAB`` matches the prompt and there
 is no false expectation.
 
-If you set ``$XONSH_DEBUG_BREAKPOINT_ENGINE`` or pass ``engine=`` to one
+If you set ``$PYGWIN_DEBUG_BREAKPOINT_ENGINE`` or pass ``engine=`` to one
 of the readline-based engines, ``@.debug`` still honours your choice
 from a worker thread but prints a :class:`UserWarning` so the broken
 ``TAB`` is not surprising. The warning is informational — pdbp/ipdb/pdb
 still work, just without tab completion.
 
-This is a CPython limitation, not a xonsh bug.
+This is a CPython limitation, not a pygwin bug.
 
 REPL Commands (execer and eval engines)
 ---------------------------------------
 
 Both ``execer`` and ``eval`` engines start a small REPL at the caller's
-frame. The REPL accepts any Python/xonsh expression or statement, and
+frame. The REPL accepts any Python/pygwin expression or statement, and
 recognizes the following control commands:
 
 .. list-table::
@@ -159,7 +159,7 @@ recognizes the following control commands:
    * - ``c`` / ``cont`` / ``continue``
      - Resume execution after the breakpoint.
    * - ``exit`` / ``quit`` / ``q``
-     - Abort execution — raises :class:`xonsh.debug.XonshDebugQuit`, which
+     - Abort execution — raises :class:`pygwin.debug.PygwinDebugQuit`, which
        propagates out of the ``breakpoint()`` call and unwinds the stack.
    * - ``EOF`` / ``Ctrl-C``
      - Same as ``continue`` (least destructive default).
@@ -168,7 +168,7 @@ Expression results are printed automatically. Statements (assignments,
 loops, etc.) run in the caller's frame, so local variables are visible and
 modifiable:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     execer> @.env['HOME']
     '/Users/you'
@@ -186,14 +186,14 @@ PEP 553 makes Python's builtin ``breakpoint()`` go through
 ``sys.breakpointhook``. ``@.debug`` can install a hook that routes every
 builtin ``breakpoint()`` call through the same engine as
 ``@.debug.breakpoint()``. Add the following to your
-:doc:`xonsh RC <xonshrc>`:
+:doc:`pygwin RC <pygwinrc>`:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
-    $XONSH_DEBUG_BREAKPOINT_ENGINE = 'pdbp'
+    $PYGWIN_DEBUG_BREAKPOINT_ENGINE = 'pdbp'
     @.debug.replace_builtin_breakpoint()
 
-After this, ``breakpoint()`` anywhere in xonsh code — or in any plain
+After this, ``breakpoint()`` anywhere in pygwin code — or in any plain
 Python module loaded inside the session — drops into the configured engine
 at the call site. To restore Python's default behavior:
 

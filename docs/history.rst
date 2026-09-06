@@ -3,18 +3,18 @@
 *******
 History
 *******
-Import your best Leonard Nimoy documentary voice and get ready for the xonsh tutorial
+Import your best Leonard Nimoy documentary voice and get ready for the pygwin tutorial
 on ``history``.
 
 Basics
 ======
 
-By default xonsh implements a collection of JSON-formatted history files that
+By default pygwin implements a collection of JSON-formatted history files that
 can be thought of as having the following structure:
 
 .. code-block:: python
 
-    {'env': {...},  # Environment that xonsh was started with
+    {'env': {...},  # Environment that pygwin was started with
      'sessionid': str, # UUID4 for the session
      'ts': [start, stop],  # start and stop timestamps for session [s since epoch]
      'locked': True,  # boolean for whether the file is in use or not
@@ -29,24 +29,24 @@ can be thought of as having the following structure:
         ],
     }
 
-This rich set of data allows xonsh to do much more advanced inspection and manipulation.
+This rich set of data allows pygwin to do much more advanced inspection and manipulation.
 The sessionid, locking, and one-file-per-shell ideas allow for there to be multiple
-instances of xonsh running at the same time without competing and overwriting
+instances of pygwin running at the same time without competing and overwriting
 history constantly.
 
 
 ``history`` command
 ====================
-All xonsh history inspection and manipulation goes through the top-level ``history``
+All pygwin history inspection and manipulation goes through the top-level ``history``
 alias or command.  If you run this without an ``action`` argument, it will default to
 the ``show`` action, see below.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history
 
-Also note that the history object itself can be accessed through the xonsh built-in variables
-``@.history`` and ``__xonsh__.history``.
+Also note that the history object itself can be accessed through the pygwin built-in variables
+``@.history`` and ``__pygwin__.history``.
 
 
 ``show`` action
@@ -56,7 +56,7 @@ in other shells.  Namely, it displays the past inputs along with the index of th
 inputs. This operates on the current session by default and is the default action for
 the ``history`` command. For example,
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ 1 + 1
     2
@@ -73,7 +73,7 @@ The show command can also optionally take as an argument any integer (to just di
 that history index) or a slice (to display a range of history indices). To display
 only the even indices from above, you could write:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history show ::2
      0  1 + 1
@@ -83,22 +83,22 @@ One can also use many slice/integer arguments to get different portions of histo
 
 After ``show`` an option that indicates which history to be returned can be used:
 
-``xonsh`` displays the past inputs from all
-valid json files found in ``XONSH_DATA_DIR``. As such, this operates on all
-past and present xonsh sessions.
+``pygwin`` displays the past inputs from all
+valid json files found in ``PYGWIN_DATA_DIR``. As such, this operates on all
+past and present pygwin sessions.
 
-``all`` is an alias for ``xonsh``.
+``all`` is an alias for ``pygwin``.
 
 ``zsh`` will display all history from the history file specified
 by the ``HISTFILE`` environmental variable in zsh.
 By default this is ``~/.zsh_history``. However, they can also be respectively
-specified in both ``~/.zshrc`` and ``~/.zprofile``. Xonsh will parse these files
+specified in both ``~/.zshrc`` and ``~/.zprofile``. Pygwin will parse these files
 (rc file first) to check if ``HISTFILE`` has been set.
 
 The ``bash`` action will display all history from the history file specified
 by the ``HISTFILE`` environmental variable in bash.
 By default this is ``~/.bash_history``. However, they can also be respectively
-specified in both ``~/.bashrc`` and ``~/.bash_profile``. Xonsh will parse these
+specified in both ``~/.bashrc`` and ``~/.bash_profile``. Pygwin will parse these
 files (rc file first) to check if ``HISTFILE`` has been set.
 
 
@@ -111,10 +111,10 @@ Filtering by date and time
 ---------------------------
 
 Use ``--start-time`` and ``--end-time`` to filter history by timestamp.
-Both accept the format set in ``$XONSH_DATETIME_FORMAT`` (default
+Both accept the format set in ``$PYGWIN_DATETIME_FORMAT`` (default
 ``%Y-%m-%d %H:%M``) as well as any ISO-8601 date or datetime:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ # all commands from a specific day (across all sessions)
     @ history show all --start-time 2025-07-17 --end-time 2025-07-18
@@ -131,26 +131,26 @@ Times are interpreted in your local timezone.
 
 ``id`` action
 ================
-Each xonsh history has its own universally unique ``sessionid``. The ``id`` action is how you
+Each pygwin history has its own universally unique ``sessionid``. The ``id`` action is how you
 display this identified. For instance,
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history id
     ace97177-f8dd-4a8d-8a91-a98ffd0b3d17
 
 ``file`` action
 ================
-Similarly, each xonsh history has its own file associated with it. The ``file`` action is
+Similarly, each pygwin history has its own file associated with it. The ``file`` action is
 how you display the path to this file. For example,
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history file
-    /home/me/.local/share/xonsh/xonsh-ace97177-f8dd-4a8d-8a91-a98ffd0b3d17.json
+    /home/me/.local/share/pygwin/pygwin-ace97177-f8dd-4a8d-8a91-a98ffd0b3d17.json
 
-Note that by these files are stored in ``$XONSH_DATA_DIR`` environment variable. This
-is, by default, set to the ``xonsh`` dir inside of the free desktop standards
+Note that by these files are stored in ``$PYGWIN_DATA_DIR`` environment variable. This
+is, by default, set to the ``pygwin`` dir inside of the free desktop standards
 ``$XDG_DATA_HOME`` environment variable. See
 `this page <http://standards.freedesktop.org/basedir-spec/latest/ar01s03.html>`_ for
 more details.
@@ -161,20 +161,20 @@ The info action combines the ``id`` and ``file`` actions as well as adds some ad
 information about the current state of the history. By default, this prints a key-value
 series of lines. However, it can also return a JSON formatted string.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history info
     sessionid: ace97177-f8dd-4a8d-8a91-a98ffd0b3d17
-    filename: /home/snail/.local/share/xonsh/xonsh-ace97177-f8dd-4a8d-8a91-a98ffd0b3d17.json
+    filename: /home/snail/.local/share/pygwin/pygwin-ace97177-f8dd-4a8d-8a91-a98ffd0b3d17.json
     length: 6
     buffersize: 100
     bufferlength: 6
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history info --json
     {"sessionid": "ace97177-f8dd-4a8d-8a91-a98ffd0b3d17",
-     "filename": "/home/snail/.local/share/xonsh/xonsh-ace97177-f8dd-4a8d-8a91-a98ffd0b3d17.json",
+     "filename": "/home/snail/.local/share/pygwin/pygwin-ace97177-f8dd-4a8d-8a91-a98ffd0b3d17.json",
      "length": 7, "buffersize": 100, "bufferlength": 7}
 
 
@@ -182,7 +182,7 @@ series of lines. However, it can also return a JSON formatted string.
 ===============
 Between any two history files, we can run the ``diff`` action. This does more that a simple line
 diff that you might generate with the unix ``diff`` command. (If you want a line diff, just
-use the unix command!) Instead this takes advantage of the fact that we know we have xonsh
+use the unix command!) Instead this takes advantage of the fact that we know we have pygwin
 history files to do a more sophisticated diff on the environment, input, output (if available),
 and return values.  Of course, the histories inputs should be 'sufficiently similar' if the diff
 is to be meaningful. However, they don't need to be exactly the same.
@@ -191,7 +191,7 @@ The diff action has one major option, ``-v`` or ``--verbose``. This basically sa
 diff should go into as much detail as possible or only pick out the relevant pieces. Diffing
 the new and next examples, we see the diff looks like:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history diff ~/new.json ~/next.json
     --- /home/snail/new.json (35712b6f-4b15-4ef9-8ce3-b4c781601bc2) [unlocked]
@@ -209,7 +209,7 @@ the new and next examples, we see the diff looks like:
     - 2
     + 3
 
-    'XONSH_INTERACTIVE' is in both, but differs
+    'PYGWIN_INTERACTIVE' is in both, but differs
     - True
     + False
 
@@ -271,7 +271,7 @@ will still be saved.
 Removes duplicate commands from history, keeping only the latest occurrence of each
 command. Works with both JSON and SQLite backends.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history erasedups
     Removed 42 duplicate entries (187 total)
@@ -294,12 +294,12 @@ history garbage control. Since history has the potential for a lot of informatio
 to be stored, it is necessary to be able to clean out the cache every once in a
 while.
 
-Garbage control is launched automatically for every xonsh thread, but runs in the
+Garbage control is launched automatically for every pygwin thread, but runs in the
 a background thread. The garbage collector only operates on unlocked history files.
 The action here allows you to manually start a new garbage collector, possibly with
 different criteria.
 
-Normally, the garbage collector uses the environment variable ``$XONSH_HISTORY_SIZE``
+Normally, the garbage collector uses the environment variable ``$PYGWIN_HISTORY_SIZE``
 to determine the size and units of what should be allowed to remain on disk. By default,
 this is ``(8128, 'commands')``. This variable is usually a tuple or list of a
 number and a string, as seen here.  However, you can also use a string with the same
@@ -335,14 +335,14 @@ This makes it easier to garbage collect based on human-friendly values.
 So all said and done, if you wanted to remove all history files older than a month,
 you could run the following command:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history gc --size 1 month
 
 
 History Indexing
 =======================
-History object (``@.history``, ``__xonsh__.history``) acts like a sequence
+History object (``@.history``, ``__pygwin__.history``) acts like a sequence
 that can be indexed by int or slice. At the moment only history from the
 current session can be retrieved. Note that the most recent command
 is the last item in history.
@@ -351,7 +351,7 @@ Indexing with an **int** returns a single ``HistoryEntry`` object with
 attributes ``cmd``, ``out``, ``rtn``, ``ts``, and ``cwd``. Indexing with a
 **slice** returns a list of ``HistoryEntry`` objects.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo mkdir with/a/huge/name/
     mkdir with/a/huge/name/
@@ -364,38 +364,38 @@ attributes ``cmd``, ``out``, ``rtn``, ``ts``, and ``cwd``. Indexing with a
 Exciting Technical Detail: Lazy JSON
 =====================================
 So now you know how to inspect, run, and remove history. But what *is* a history file exactly?
-While xonsh history files are JSON formatted, and they do have the structure indicated at the
+While pygwin history files are JSON formatted, and they do have the structure indicated at the
 top of the page, that isn't their top-level structure.  If you open one up, you'll see a bunch
 of hocus pocus before you get to anything real.
 
-Xonsh has implemented a generic indexing system (sizes, offsets, etc)for JSON files that lives
+Pygwin has implemented a generic indexing system (sizes, offsets, etc)for JSON files that lives
 inside of the file that it indexes.  This is known as ``LazyJSON`` because it allows us to
 only read in the parts of a file that we need. For garbage collecting based on the number
 of commands, we can get this information from the index and don't need to read in any of the
 original data.
 
-The best part about this is that it is totally generic. Feel free to use ``xonsh.lib.lazyjson``
-yourself for things other than xonsh history! Of course, if you want to read in xonsh history,
+The best part about this is that it is totally generic. Feel free to use ``pygwin.lib.lazyjson``
+yourself for things other than pygwin history! Of course, if you want to read in pygwin history,
 you should probably use the module.
 
 
 Exciting Technical Detail: Teeing and Pseudo Terminals
 ========================================================
-Xonsh is able to capture all stdout and stderr transparently and responsively. For aliases,
-Python code, or xonsh code, this isn't a big deal. It is easy to redirect information
+Pygwin is able to capture all stdout and stderr transparently and responsively. For aliases,
+Python code, or pygwin code, this isn't a big deal. It is easy to redirect information
 flowing through ``sys.stdout`` and ``sys.stderr``.  For subprocess commands, this is
 considerably harder. Capturing stdout during the session is disabled by default but can be
-enabled by setting ``$XONSH_CAPTURE_ALWAYS=True``. Storing stdout to the history backend
-is disabled by default but can be enabled by setting ``$XONSH_STORE_STDOUT=True``.
+enabled by setting ``$PYGWIN_CAPTURE_ALWAYS=True``. Storing stdout to the history backend
+is disabled by default but can be enabled by setting ``$PYGWIN_STORE_STDOUT=True``.
 
-To be able to tee stdout and stderr and still have the terminal responsive, xonsh implements
+To be able to tee stdout and stderr and still have the terminal responsive, pygwin implements
 its own teeing pseudo-terminal on top of the Python standard library ``pty`` module.
 
 
 Sqlite History Backend
 ======================
 
-Xonsh has a second built-in history backend powered by sqlite (other than
+Pygwin has a second built-in history backend powered by sqlite (other than
 the JSON version mentioned all above in this tutorial). It shares the same
 functionality as the JSON version in most ways, except it currently doesn't
 support the ``history diff`` action and does not store the output of commands,
@@ -403,17 +403,17 @@ as the json-backend does. E.g.
 `@.history[-1].out` will always be `None`.
 
 The Sqlite history backend can provide a speed advantage in loading history
-into a just-started xonsh session. The JSON history backend may need to read
+into a just-started pygwin session. The JSON history backend may need to read
 potentially thousands of json files and the sqlite backend only reads one.
 Note that this does not affect startup time, but the amount of time before
 all history is available for searching.
 
-To use sqlite history backend, set ``$XONSH_HISTORY_BACKEND = 'sqlite'`` in
-your :doc:`xonsh RC <xonshrc>`. To switch back to JSON version, remove this line,
+To use sqlite history backend, set ``$PYGWIN_HISTORY_BACKEND = 'sqlite'`` in
+your :doc:`pygwin RC <pygwinrc>`. To switch back to JSON version, remove this line,
 or set it to ``'json'``.
 
 .. note:: SQLite history backend currently only supports ``commands`` as
-    the unit in ``$XONSH_HISTORY_SIZE`` in its garbage collection.
+    the unit in ``$PYGWIN_HISTORY_SIZE`` in its garbage collection.
 
 .. tip:: If you have `sqlite-web <https://pypi.python.org/pypi/sqlite-web>`_
     installed, you can read the history easily with command:
@@ -431,12 +431,12 @@ implemented:
 * MCMC-based tab-completer for inputs,
 * and many more!
 
-Let us know if you'd be interested in working on any of these, inside or outside of xonsh.
+Let us know if you'd be interested in working on any of these, inside or outside of pygwin.
 
 
 See also
 ========
 
-* :doc:`envvars` -- history-related environment variables (``$XONSH_HISTORY_*``)
-* :doc:`xonsh RC <xonshrc>` -- configuring history backend in RC files
-* :doc:`tutorial` -- introduction to xonsh
+* :doc:`envvars` -- history-related environment variables (``$PYGWIN_HISTORY_*``)
+* :doc:`pygwin RC <pygwinrc>` -- configuring history backend in RC files
+* :doc:`tutorial` -- introduction to pygwin

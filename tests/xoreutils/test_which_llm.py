@@ -1,12 +1,12 @@
-"""Tests for the ``which`` alias in ``xonsh.xoreutils.which``."""
+"""Tests for the ``which`` alias in ``pygwin.xoreutils.which``."""
 
 import io
 import os
 
 import pytest
 
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.xoreutils import which as xxw
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.xoreutils import which as xxw
 
 #: Name of the file created on ``$PATH``; on Windows the extension is needed
 #: so that ``whichgen`` picks it up via ``$PATHEXT``.

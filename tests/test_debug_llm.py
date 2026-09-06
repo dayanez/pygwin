@@ -1,4 +1,4 @@
-"""Tests for xonsh.debug.XonshDebug and $XONSH_DEBUG_BREAKPOINT_ENGINE."""
+"""Tests for pygwin.debug.PygwinDebug and $PYGWIN_DEBUG_BREAKPOINT_ENGINE."""
 
 import builtins
 import importlib
@@ -7,10 +7,10 @@ import types
 
 import pytest
 
-from xonsh.debug import (
+from pygwin.debug import (
     CANONIC_BREAKPOINT_ENGINES,
-    XonshDebug,
-    XonshDebugQuit,
+    PygwinDebug,
+    PygwinDebugQuit,
     is_breakpoint_engine,
     to_breakpoint_engine,
 )
@@ -52,7 +52,7 @@ def test_to_breakpoint_engine_unknown_falls_back():
 
 @pytest.fixture
 def dbg():
-    return XonshDebug()
+    return PygwinDebug()
 
 
 @pytest.fixture
@@ -72,7 +72,7 @@ def fake_specs(monkeypatch):
 def isolate_env(monkeypatch):
     """Detach the real session so ``_env_default`` returns ``'auto'``."""
     monkeypatch.setattr(
-        builtins, "__xonsh__", types.SimpleNamespace(env=None), raising=False
+        builtins, "__pygwin__", types.SimpleNamespace(env=None), raising=False
     )
 
 
@@ -114,20 +114,20 @@ def test_resolve_unknown_engine_raises(dbg):
 
 
 def test_env_var_overrides_auto(dbg, xession, fake_specs):
-    xession.env["XONSH_DEBUG_BREAKPOINT_ENGINE"] = "pdb"
+    xession.env["PYGWIN_DEBUG_BREAKPOINT_ENGINE"] = "pdb"
     # pdbp would win the priority walk, but env var forces pdb.
     fake_specs({"pdbp", "ipdb", "pdb"})
     assert dbg._resolve_engine("auto") == "pdb"
 
 
 def test_explicit_arg_beats_env_var(dbg, xession, fake_specs):
-    xession.env["XONSH_DEBUG_BREAKPOINT_ENGINE"] = "pdb"
+    xession.env["PYGWIN_DEBUG_BREAKPOINT_ENGINE"] = "pdb"
     fake_specs({"pdbp", "ipdb", "pdb"})
     assert dbg._resolve_engine("ipdb") == "ipdb"
 
 
 def test_env_var_auto_walks_priority(dbg, xession, fake_specs):
-    xession.env["XONSH_DEBUG_BREAKPOINT_ENGINE"] = "auto"
+    xession.env["PYGWIN_DEBUG_BREAKPOINT_ENGINE"] = "auto"
     fake_specs({"ipdb", "pdb"})
     assert dbg._resolve_engine("auto") == "ipdb"
 
@@ -300,14 +300,14 @@ def test_eval_repl_continue_aliases(dbg, monkeypatch, cmd, isolate_env):
 @pytest.mark.parametrize("cmd", ["exit", "quit", "q"])
 def test_eval_repl_abort_aliases_raise(dbg, monkeypatch, cmd, isolate_env):
     _feed_lines(monkeypatch, [cmd])
-    with pytest.raises(XonshDebugQuit):
+    with pytest.raises(PygwinDebugQuit):
         dbg.breakpoint(engine="eval")
 
 
 def test_eval_repl_abort_runs_after_computation(dbg, monkeypatch, capsys, isolate_env):
     # User evaluates an expression, then aborts.
     _feed_lines(monkeypatch, ["1 + 2", "exit"])
-    with pytest.raises(XonshDebugQuit):
+    with pytest.raises(PygwinDebugQuit):
         dbg.breakpoint(engine="eval")
     out = capsys.readouterr().out
     assert "3" in out
@@ -346,7 +346,7 @@ class _ExecerStub:
 def _install_session_with_execer(monkeypatch, execer):
     monkeypatch.setattr(
         builtins,
-        "__xonsh__",
+        "__pygwin__",
         types.SimpleNamespace(env=None, execer=execer),
         raising=False,
     )
@@ -377,8 +377,8 @@ def test_execer_repl_shows_traceback_on_error(dbg, monkeypatch, capsys):
 
 
 def test_execer_repl_requires_execer(dbg, monkeypatch, isolate_env):
-    # isolate_env leaves __xonsh__ with env=None, no execer attribute.
-    with pytest.raises(RuntimeError, match="requires an active xonsh session"):
+    # isolate_env leaves __pygwin__ with env=None, no execer attribute.
+    with pytest.raises(RuntimeError, match="requires an active pygwin session"):
         dbg.breakpoint(engine="execer")
 
 
@@ -626,25 +626,25 @@ def test_builtin_breakpoint_handles_frame_with_other_kwargs(
 
 
 def test_xsh_has_debug(xession):
-    assert isinstance(xession.debug, XonshDebug)
+    assert isinstance(xession.debug, PygwinDebug)
     assert xession.interface.debug is xession.debug
 
 
 def test_env_var_default_is_auto(xession):
-    assert xession.env.get("XONSH_DEBUG_BREAKPOINT_ENGINE") == "auto"
+    assert xession.env.get("PYGWIN_DEBUG_BREAKPOINT_ENGINE") == "auto"
 
 
 def test_env_var_validator_rejects_invalid(xession):
     with pytest.warns(RuntimeWarning):
-        xession.env["XONSH_DEBUG_BREAKPOINT_ENGINE"] = "nonsense"
-    assert xession.env["XONSH_DEBUG_BREAKPOINT_ENGINE"] == "auto"
+        xession.env["PYGWIN_DEBUG_BREAKPOINT_ENGINE"] = "nonsense"
+    assert xession.env["PYGWIN_DEBUG_BREAKPOINT_ENGINE"] == "auto"
 
 
 # ---------------------------------------------------------------------------
 # worker-thread guard
 #
 # CPython's readline integration in ``input()`` is only fully active in the
-# main thread. xonsh runs callable aliases in worker threads, so ``pdbp``,
+# main thread. pygwin runs callable aliases in worker threads, so ``pdbp``,
 # ``ipdb``, and ``pdb`` lose tab completion in that context. ``@.debug``
 # auto-walks past those engines and warns when the user picked one
 # explicitly.
@@ -654,7 +654,7 @@ def test_env_var_validator_rejects_invalid(xession):
 @pytest.fixture
 def in_worker_thread(monkeypatch):
     """Pretend the debugger is being invoked off the main thread."""
-    monkeypatch.setattr(XonshDebug, "_is_main_thread", staticmethod(lambda: False))
+    monkeypatch.setattr(PygwinDebug, "_is_main_thread", staticmethod(lambda: False))
 
 
 def test_resolve_auto_in_worker_falls_to_eval_without_execer(
@@ -701,7 +701,7 @@ def test_resolve_auto_via_env_var_in_worker_warns(
     dbg, xession, fake_specs, in_worker_thread
 ):
     # Env var pins a readline engine; auto-resolution honours it but warns.
-    xession.env["XONSH_DEBUG_BREAKPOINT_ENGINE"] = "pdbp"
+    xession.env["PYGWIN_DEBUG_BREAKPOINT_ENGINE"] = "pdbp"
     fake_specs({"pdbp"})
     with pytest.warns(UserWarning, match="non-main thread"):
         assert dbg._resolve_engine("auto") == "pdbp"

@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from xonsh.aliases import xexec
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.aliases import xexec
+from pygwin.pytest.tools import skip_if_on_windows
 
 
 @pytest.fixture(autouse=True)
@@ -20,10 +20,10 @@ def mockexecvpe(monkeypatch):
 
 
 def test_missing_command(mockexecvpe):
-    assert xexec([]) == (None, "xonsh: exec: no command specified\n", 1)
-    assert xexec(["-a", "foo"]) == (None, "xonsh: exec: no command specified\n", 1)
-    assert xexec(["-c"]) == (None, "xonsh: exec: no command specified\n", 1)
-    assert xexec(["-l"]) == (None, "xonsh: exec: no command specified\n", 1)
+    assert xexec([]) == (None, "pygwin: exec: no command specified\n", 1)
+    assert xexec(["-a", "foo"]) == (None, "pygwin: exec: no command specified\n", 1)
+    assert xexec(["-c"]) == (None, "pygwin: exec: no command specified\n", 1)
+    assert xexec(["-l"]) == (None, "pygwin: exec: no command specified\n", 1)
 
 
 def test_command_not_found(monkeypatch):
@@ -39,7 +39,7 @@ def test_command_not_found(monkeypatch):
 
     assert xexec([command]) == (
         None,
-        f"xonsh: exec: file not found: {dummy_error_msg}: {command}\n",
+        f"pygwin: exec: file not found: {dummy_error_msg}: {command}\n",
         1,
     )
 
@@ -99,7 +99,7 @@ def test_c_switch(monkeypatch):
 def test_alias_stack_cleared(monkeypatch, xession):
     """exec must not pass __ALIAS_STACK to the new process.
 
-    Regression test for #5216 / #5709: when a xonsh script does
+    Regression test for #5216 / #5709: when a pygwin script does
     ``exec ./other_script.xsh`` and that script also uses ``exec``,
     the inherited __ALIAS_STACK caused a false "Recursive calls to exec"
     error.
@@ -137,7 +137,7 @@ def test_exec_script_shebang_fallback(monkeypatch, tmp_path):
     monkeypatch.setattr(os, "execvpe", mocked_execvpe)
 
     script = tmp_path / "test.xsh"
-    script.write_text("#!/usr/bin/env xonsh\necho hello\n")
+    script.write_text("#!/usr/bin/env pygwin\necho hello\n")
     script.chmod(0o755)
 
     xexec([str(script)])
@@ -150,8 +150,8 @@ def test_exec_script_shebang_fallback(monkeypatch, tmp_path):
     assert str(script) in calls[0]["args"]
 
 
-def test_exec_script_no_shebang_defaults_to_xonsh(monkeypatch, tmp_path):
-    """exec on a .xsh script without shebang should default to xonsh."""
+def test_exec_script_no_shebang_defaults_to_pygwin(monkeypatch, tmp_path):
+    """exec on a .xsh script without shebang should default to pygwin."""
     calls = []
 
     def mocked_execvpe(command, args, env):
@@ -174,7 +174,7 @@ def test_exec_script_no_shebang_defaults_to_xonsh(monkeypatch, tmp_path):
 
 @skip_if_on_windows
 def test_exec_script_no_shebang_sh_fallback(monkeypatch, tmp_path):
-    """exec on a shebang-less non-xonsh script should fall back to sh (#5843)."""
+    """exec on a shebang-less non-pygwin script should fall back to sh (#5843)."""
     calls = []
 
     def mocked_execvpe(command, args, env):

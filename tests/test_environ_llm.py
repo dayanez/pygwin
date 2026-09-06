@@ -5,8 +5,8 @@ from collections.abc import Iterable
 
 import pytest
 
-from xonsh.environ import DELETE_VAR, Env, EnvPath, _DeleteVarSentinel
-from xonsh.tools import env_path_to_str
+from pygwin.environ import DELETE_VAR, Env, EnvPath, _DeleteVarSentinel
+from pygwin.tools import env_path_to_str
 
 
 def test_env_path_preserves_empty_from_str():
@@ -41,7 +41,7 @@ def test_env_path_round_trip_preserves_empty():
 
 def test_env_preserves_empty_for_manpath():
     # ``man``/``info`` interpret an empty entry as "insert the system
-    # default list here", so xonsh must not silently drop it.
+    # default list here", so pygwin must not silently drop it.
     raw = os.pathsep + "/home/u/.opam/man"
     env = Env(MANPATH=raw)
     assert env["MANPATH"]._l == ["", "/home/u/.opam/man"]
@@ -64,7 +64,7 @@ def test_env_windows_path_strips_empty_entries(monkeypatch):
     # for ``PATH``, only on Windows. The input uses plain names (no
     # drive-letter colons) so the host's ``os.pathsep`` splits the string
     # unambiguously on any platform.
-    import xonsh.environ as xenviron
+    import pygwin.environ as xenviron
 
     monkeypatch.setattr(xenviron, "ON_WINDOWS", True)
     raw = os.pathsep.join(["a", "b", ""])
@@ -74,7 +74,7 @@ def test_env_windows_path_strips_empty_entries(monkeypatch):
 
 def test_env_windows_does_not_strip_other_path_vars(monkeypatch):
     # The Windows-only stripping must not bleed into other ``*PATH`` vars.
-    import xonsh.environ as xenviron
+    import pygwin.environ as xenviron
 
     monkeypatch.setattr(xenviron, "ON_WINDOWS", True)
     raw = os.pathsep.join(["", "manuals"])
@@ -268,7 +268,7 @@ def test_contains_returns_false_for_delete_var():
 def test_no_event_fires_on_delete_var_transitions():
     # User-facing handlers should not receive DELETE_VAR as a value:
     # neither when the mask is applied nor when it is lifted.
-    import xonsh.environ as environ_mod
+    import pygwin.environ as environ_mod
 
     env = Env(FOO="bar")
     seen = []
@@ -299,7 +299,7 @@ def test_prep_env_subproc_drops_delete_var_key(xession):
     a key that was masked via DELETE_VAR — neither as an empty value nor
     as a stringified sentinel.
     """
-    from xonsh.procs.specs import SubprocSpec
+    from pygwin.procs.specs import SubprocSpec
 
     xession.env["MY_TEST_VAR"] = "leaked_value"
     spec = SubprocSpec(
@@ -315,7 +315,7 @@ def test_prep_env_subproc_drops_delete_var_key(xession):
 
 
 def test_prep_env_subproc_drops_delete_var_but_keeps_override(xession):
-    from xonsh.procs.specs import SubprocSpec
+    from pygwin.procs.specs import SubprocSpec
 
     xession.env["KEEP_ME"] = "session_value"
     xession.env["DROP_ME"] = "leaked"
@@ -334,7 +334,7 @@ def test_on_pre_spec_run_handler_can_mask_via_delete_var(xession):
     the subprocess env. Doing so via ``spec.env[name] = DELETE_VAR`` is
     the supported pattern.
     """
-    from xonsh.procs.specs import SubprocSpec
+    from pygwin.procs.specs import SubprocSpec
 
     xession.env["FOO"] = "session_value"
 

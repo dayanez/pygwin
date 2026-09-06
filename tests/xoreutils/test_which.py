@@ -2,8 +2,8 @@ import os
 import tempfile
 from unittest import TestCase
 
-from xonsh.tools import ON_WINDOWS
-from xonsh.xoreutils import _which
+from pygwin.tools import ON_WINDOWS
+from pygwin.xoreutils import _which
 
 
 class TestWhich(TestCase):

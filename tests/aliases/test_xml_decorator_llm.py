@@ -7,8 +7,8 @@ The ``@xml`` decorator captures subprocess output and parses it with
 
 from xml.etree.ElementTree import Element
 
-from xonsh.aliases import make_default_aliases
-from xonsh.procs.specs import SpecAttrDecoratorAlias
+from pygwin.aliases import make_default_aliases
+from pygwin.procs.specs import SpecAttrDecoratorAlias
 
 
 def _xml_output_format():

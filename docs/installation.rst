@@ -1,7 +1,7 @@
 Installation
 ============
 
-Xonsh can be installed and run with various methods:
+Pygwin can be installed and run with various methods:
 
 .. toctree::
     :titlesonly:

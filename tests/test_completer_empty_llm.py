@@ -1,4 +1,4 @@
-"""Tests for empty-completion fallthrough in ``xonsh.completer``.
+"""Tests for empty-completion fallthrough in ``pygwin.completer``.
 
 See https://github.com/xonsh/xonsh/issues/5810 and the related
 https://github.com/xonsh/xonsh/issues/5809 — an exclusive completer that
@@ -9,8 +9,8 @@ etc.) still get a chance to run.
 
 import pytest
 
-from xonsh.completer import Completer
-from xonsh.completers.tools import (
+from pygwin.completer import Completer
+from pygwin.completers.tools import (
     RichCompletion,
     complete_from_sub_proc,
     completion_from_cmd_output,

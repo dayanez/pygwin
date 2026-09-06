@@ -1,16 +1,16 @@
-"""Smoke tests for the ``xonsh.webconfig`` package.
+"""Smoke tests for the ``pygwin.webconfig`` package.
 
 The webconfig module powers the browser-based "xonfig web" UI. These tests
 exercise the pure parts that don't need an HTTP server:
 
 * ``tags`` — the tiny element-tree wrapper used to render snippets.
-* ``file_writes`` — the helper that injects a config dict into ``xonshrc``.
-* ``xonsh_data`` — the data-collectors used by the UI's color/prompt previews.
+* ``file_writes`` — the helper that injects a config dict into ``pygwinrc``.
+* ``pygwin_data`` — the data-collectors used by the UI's color/prompt previews.
 """
 
 import pytest
 
-from xonsh.webconfig import file_writes, tags, xonsh_data
+from pygwin.webconfig import file_writes, pygwin_data, tags
 
 # --- tags.Elem --------------------------------------------------------------
 
@@ -154,9 +154,9 @@ def test_append_to_list_with_existing_dedupes():
     assert set(out.split()) == {"a", "b", "c"}
 
 
-def test_config_to_xonsh_emits_prefix_and_suffix():
+def test_config_to_pygwin_emits_prefix_and_suffix():
     lines = list(
-        file_writes.config_to_xonsh(
+        file_writes.config_to_pygwin(
             {"prompt": "@ "},
             prefix="# START",
             suffix="# END",
@@ -167,10 +167,10 @@ def test_config_to_xonsh_emits_prefix_and_suffix():
     assert any("$PROMPT" in line for line in lines)
 
 
-def test_config_to_xonsh_preserves_unmatched_existing_lines():
+def test_config_to_pygwin_preserves_unmatched_existing_lines():
     """Lines that don't match any RENDERER are passed through verbatim."""
     out = list(
-        file_writes.config_to_xonsh(
+        file_writes.config_to_pygwin(
             {},
             prefix="# S",
             suffix="# E",
@@ -180,9 +180,9 @@ def test_config_to_xonsh_preserves_unmatched_existing_lines():
     assert "# random comment" in out
 
 
-def test_config_to_xonsh_replaces_existing_prompt_line():
+def test_config_to_pygwin_replaces_existing_prompt_line():
     out = list(
-        file_writes.config_to_xonsh(
+        file_writes.config_to_pygwin(
             {"prompt": "$ "},
             prefix="# S",
             suffix="# E",
@@ -195,10 +195,10 @@ def test_config_to_xonsh_replaces_existing_prompt_line():
     assert not any("'old'" in line for line in out)
 
 
-def test_insert_into_xonshrc_writes_new_file(tmp_path):
-    rc = tmp_path / "test_xonshrc"
-    fname = file_writes.insert_into_xonshrc(
-        {"prompt": "@ "}, xonshrc=str(rc), prefix="# S", suffix="# E"
+def test_insert_into_pygwinrc_writes_new_file(tmp_path):
+    rc = tmp_path / "test_pygwinrc"
+    fname = file_writes.insert_into_pygwinrc(
+        {"prompt": "@ "}, pygwinrc=str(rc), prefix="# S", suffix="# E"
     )
     assert fname == str(rc)
     text = rc.read_text()
@@ -207,12 +207,12 @@ def test_insert_into_xonshrc_writes_new_file(tmp_path):
     assert "$PROMPT" in text
 
 
-def test_insert_into_xonshrc_preserves_outer_content(tmp_path):
+def test_insert_into_pygwinrc_preserves_outer_content(tmp_path):
     """Content outside the prefix..suffix block survives the rewrite."""
     rc = tmp_path / "rcfile"
     rc.write_text("before-the-block\n# S\n$PROMPT = 'old'\n# E\nafter-the-block\n")
-    file_writes.insert_into_xonshrc(
-        {"prompt": "@ "}, xonshrc=str(rc), prefix="# S", suffix="# E"
+    file_writes.insert_into_pygwinrc(
+        {"prompt": "@ "}, pygwinrc=str(rc), prefix="# S", suffix="# E"
     )
     text = rc.read_text()
     assert "before-the-block" in text
@@ -222,27 +222,27 @@ def test_insert_into_xonshrc_preserves_outer_content(tmp_path):
     assert "'old'" not in text
 
 
-# --- xonsh_data -------------------------------------------------------------
+# --- pygwin_data -------------------------------------------------------------
 
 
 def test_invert_color_round_trips_extreme_values():
     # 000000 inverts to ffffff and vice versa
-    assert xonsh_data.invert_color("000000").lower() == "ffffff"
-    assert xonsh_data.invert_color("ffffff").lower() == "000000"
+    assert pygwin_data.invert_color("000000").lower() == "ffffff"
+    assert pygwin_data.invert_color("ffffff").lower() == "000000"
 
 
 def test_invert_color_pads_short_components():
     """Hex components < 16 must be left-padded with a leading zero."""
-    inv = xonsh_data.invert_color("ffff01")  # last byte = 0xfe
+    inv = pygwin_data.invert_color("ffff01")  # last byte = 0xfe
     assert inv.lower().endswith("fe")
 
 
 def test_escape_replaces_newlines_with_br():
-    assert xonsh_data.escape("a\nb") == "a<br/>b"
+    assert pygwin_data.escape("a\nb") == "a<br/>b"
 
 
 def test_get_named_prompts_returns_iterable_of_pairs():
-    prompts = list(xonsh_data.get_named_prompts())
+    prompts = list(pygwin_data.get_named_prompts())
     assert prompts
     assert all(isinstance(p, tuple) and len(p) == 2 for p in prompts)
     # the first one is the canonical default prompt
@@ -250,14 +250,14 @@ def test_get_named_prompts_returns_iterable_of_pairs():
 
 
 def test_format_xontrib_returns_dict_with_expected_keys():
-    from xonsh.xontribs import Xontrib
+    from pygwin.xontribs import Xontrib
 
-    out = xonsh_data.format_xontrib(Xontrib(module="xontrib.does_not_exist"))
+    out = pygwin_data.format_xontrib(Xontrib(module="xontrib.does_not_exist"))
     assert set(out.keys()) == {"url", "license", "display"}
 
 
 def test_render_xontribs_yields_pairs():
-    iter_ = xonsh_data.render_xontribs()
+    iter_ = pygwin_data.render_xontribs()
     pair = next(iter_, None)
     if pair is None:
         pytest.skip("no xontribs discovered in this environment")
@@ -269,13 +269,13 @@ def test_render_xontribs_yields_pairs():
 def test_html_format_returns_html_string(xession):
     """``html_format`` produces inline-styled HTML for a color template."""
     # On Windows pyghooks dereferences ``XSH.shell.shell_type`` while
-    # constructing the XonshStyle; DummyShell doesn't set it.
+    # constructing the PygwinStyle; DummyShell doesn't set it.
     xession.shell.shell_type = "prompt_toolkit"
-    out = xonsh_data.html_format("hello world")
+    out = pygwin_data.html_format("hello world")
     assert "<" in out and ">" in out
 
 
 def test_rst_to_html_smoke():
-    out = xonsh_data.rst_to_html("Hello *world*")
+    out = pygwin_data.rst_to_html("Hello *world*")
     assert isinstance(out, str)
     assert "world" in out

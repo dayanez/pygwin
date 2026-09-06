@@ -2,7 +2,7 @@
 
 import pytest
 
-import xonsh.pygments_cache as pc
+import pygwin.pygments_cache as pc
 
 
 def test_load_rejects_code_execution(tmp_path):

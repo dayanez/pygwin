@@ -3,8 +3,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from xonsh.prompt import env as prompt_env
-from xonsh.prompt.base import PromptField, PromptFields, PromptFormatter
+from pygwin.prompt import env as prompt_env
+from pygwin.prompt.base import PromptField, PromptFields, PromptFormatter
 
 
 @pytest.fixture
@@ -51,9 +51,9 @@ def test_format_prompt(inp, exp, fields, formatter, xession):
     "inp, exp",
     [
         ("{a_number:{0:^3}}cats", " 7 cats"),
-        ("{a_function:{} | }xonsh", "hello | xonsh"),
-        ("{current_job:{} | }xonsh", "sleep | xonsh"),
-        ("{none_pf:{} | }xonsh", "xonsh"),
+        ("{a_function:{} | }pygwin", "hello | pygwin"),
+        ("{current_job:{} | }pygwin", "sleep | pygwin"),
+        ("{none_pf:{} | }pygwin", "pygwin"),
         ("{none:{} | }{a_string}{empty:!}", "cats!"),
         ("{none:{}}", ""),
         ("{{{a_string:{{{}}}}}}", "{{cats}}"),
@@ -310,11 +310,11 @@ def test_reset_clears_dependent_field(live_fields, formatter, xession):
     xession.shell.prompt_formatter = formatter
 
     live_fields["modified_title"] = lambda: (
-        live_fields.pick_val("current_job") or "xonsh"
+        live_fields.pick_val("current_job") or "pygwin"
     )
 
-    # first render — no job running, modified_title caches "xonsh"
-    assert formatter("{modified_title}", fields=live_fields) == "xonsh"
+    # first render — no job running, modified_title caches "pygwin"
+    assert formatter("{modified_title}", fields=live_fields) == "pygwin"
 
     # simulate a job starting (as _shell_set_title does)
     current_job = live_fields["current_job"]

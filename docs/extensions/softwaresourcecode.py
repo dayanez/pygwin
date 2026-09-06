@@ -8,8 +8,8 @@ Emits for each ``.. code-block::`` / ``.. sourcecode::`` / ``::`` directive::
       <div class="highlight"><pre><code itemprop="text">...highlighted code...</code></pre></div>
     </div>
 
-The language meta maps xonsh-flavored lexers (``python``, ``xonshcon``) to
-``xonsh`` so AI crawlers and search engines see the actual shell language.
+The language meta maps pygwin-flavored lexers (``python``, ``pygwincon``) to
+``pygwin`` so AI crawlers and search engines see the actual shell language.
 The name meta is derived from the nearest enclosing section's title with
 ``" example"`` appended — skipped if the block has no section ancestor.
 No-op for parsed-literal blocks (those are verbatim text, not code).
@@ -24,11 +24,11 @@ from sphinx.writers.html5 import HTML5Translator
 
 SCHEMA_TYPE = "https://schema.org/SoftwareSourceCode"
 
-# xonsh code blocks use the `python` lexer (for Python mode) or `xonshcon`
-# (for the mock REPL transcript lexer). Both are semantically xonsh code.
+# pygwin code blocks use the `python` lexer (for Python mode) or `pygwincon`
+# (for the mock REPL transcript lexer). Both are semantically pygwin code.
 _LANG_MAP = {
-    "python": "xonsh",
-    "xonshcon": "xonsh",
+    "python": "pygwin",
+    "pygwincon": "pygwin",
 }
 
 _ORIGINAL_VISIT_LITERAL_BLOCK = HTML5Translator.visit_literal_block

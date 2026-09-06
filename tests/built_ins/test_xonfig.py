@@ -12,9 +12,9 @@ import re
 import pytest  # noqa F401
 import requests
 
-from xonsh.webconfig import file_writes
-from xonsh.webconfig import main as web_main
-from xonsh.xonfig import xonfig_main
+from pygwin.webconfig import file_writes
+from pygwin.webconfig import main as web_main
+from pygwin.xonfig import xonfig_main
 
 
 def test_xonfig_help(capsys, xession):
@@ -50,7 +50,7 @@ class MockRequest:
         return ("sockname",)
 
     def _request(self):
-        web_main.XonshConfigHTTPRequestHandler(self, (0, 0), None)
+        web_main.PygwinConfigHTTPRequestHandler(self, (0, 0), None)
         return self
 
     def get(self):
@@ -106,7 +106,7 @@ def request_factory():
 
 @pytest.fixture
 def rc_file(tmp_path, monkeypatch):
-    file = tmp_path / "xonshrc"
+    file = tmp_path / "pygwinrc"
     monkeypatch.setattr(file_writes, "RC_FILE", str(file))
     return file
 
@@ -118,7 +118,7 @@ class TestXonfigWeb:
 
     def test_colors_post(self, request_factory, rc_file):
         resp = request_factory("/", selected="default").post()
-        assert "$XONSH_COLOR_STYLE = 'default'" in rc_file.read_text()
+        assert "$PYGWIN_COLOR_STYLE = 'default'" in rc_file.read_text()
         assert "302" in resp  # redirect
 
     def test_xontribs_get(self, request_factory):
@@ -126,7 +126,7 @@ class TestXonfigWeb:
         assert "Xontribs" in resp
 
     def test_xontribs_post(self, request_factory, rc_file, mocker):
-        mocker.patch("xonsh.xontribs.xontribs_load", return_value=(None, None, None))
+        mocker.patch("pygwin.xontribs.xontribs_load", return_value=(None, None, None))
         resp = request_factory("/xontribs").post(xontrib1="")
         assert "xontrib load xontrib1" in rc_file.read_text()
         assert "302" in resp
@@ -144,9 +144,9 @@ class TestXonfigWeb:
         rc_file.write_text(
             """
 pre-lines
-# XONSH WEBCONFIG START
-$XONSH_COLOR_STYLE = 'abap'
-# XONSH WEBCONFIG END
+# PYGWIN WEBCONFIG START
+$PYGWIN_COLOR_STYLE = 'abap'
+# PYGWIN WEBCONFIG END
 post
 lines
 """
@@ -156,10 +156,10 @@ lines
             rc_file.read_text()
             == """
 pre-lines
-# XONSH WEBCONFIG START
-$XONSH_COLOR_STYLE = 'abap'
+# PYGWIN WEBCONFIG START
+$PYGWIN_COLOR_STYLE = 'abap'
 $PROMPT = 'custom'
-# XONSH WEBCONFIG END
+# PYGWIN WEBCONFIG END
 post
 lines
 """

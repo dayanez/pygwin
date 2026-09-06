@@ -4,7 +4,7 @@
 History Backend
 ***************
 
-One of the great things about xonsh is how easy it is to customize. In
+One of the great things about pygwin is how easy it is to customize. In
 this tutorial, let's write our own history backend based on CouchDB.
 
 
@@ -16,7 +16,7 @@ Here is a minimal history backend to start with:
 .. code-block:: python
 
     import collections
-    from xonsh.history.base import History
+    from pygwin.history.base import History
 
     class CouchDBHistory(History):
         def append(self, cmd):
@@ -34,27 +34,27 @@ Here is a minimal history backend to start with:
             data['sessionid'] = str(self.sessionid)
             return data
 
-Go ahead and create the file ``~/.xonsh/history_couchdb.py`` and put the
+Go ahead and create the file ``~/.pygwin/history_couchdb.py`` and put the
 content above into it.
 
-Now we need to tell xonsh to use it as the history backend. To do this
-we need xonsh to be able to find our file and this ``CouchDBHistory`` class.
-Putting the following code into your :doc:`xonsh RC <xonshrc>` can achieve this.
+Now we need to tell pygwin to use it as the history backend. To do this
+we need pygwin to be able to find our file and this ``CouchDBHistory`` class.
+Putting the following code into your :doc:`pygwin RC <pygwinrc>` can achieve this.
 
 .. code-block:: python
 
     import os.path
     import sys
-    xonsh_ext_dir = os.path.expanduser('~/.xonsh')
-    if os.path.isdir(xonsh_ext_dir):
-        sys.path.append(xonsh_ext_dir)
+    pygwin_ext_dir = os.path.expanduser('~/.pygwin')
+    if os.path.isdir(pygwin_ext_dir):
+        sys.path.append(pygwin_ext_dir)
 
     from history_couchdb import CouchDBHistory
-    $XONSH_HISTORY_BACKEND = CouchDBHistory
+    $PYGWIN_HISTORY_BACKEND = CouchDBHistory
 
-After starting a new xonsh session, try the following commands:
+After starting a new pygwin session, try the following commands:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history info
     backend: couchdb
@@ -75,7 +75,7 @@ install it. we will wait for you. Take your time.
 
 After installing, check that it's configured correctly with ``curl``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ curl -i 'http://127.0.0.1:5984/'
     HTTP/1.1 200 OK
@@ -96,7 +96,7 @@ After installing, check that it's configured correctly with ``curl``:
     }
 
 Okay, CouchDB is working. Now open `<http://127.0.0.1:5984/_utils/>`_ with
-your browser, and create a new database called ``xonsh-history``.
+your browser, and create a new database called ``pygwin-history``.
 
 
 Initialize History Backend
@@ -118,8 +118,8 @@ Initialize History Backend
         return '{}-{}'.format(ts, str(uuid.uuid4())[:18])
 
 In the ``__init__()`` method, let's initialize
-`Some Public Attributes <api/history/base.html#xonsh.history.base.History>`_
-which xonsh uses in various places. Note that we use Unix timestamp and
+`Some Public Attributes <api/history/base.html#pygwin.history.base.History>`_
+which pygwin uses in various places. Note that we use Unix timestamp and
 some random char to make ``self.sessionid`` unique and to keep the entries
 ordered in time. We will cover it with a bit more detail in the next section.
 
@@ -138,7 +138,7 @@ First, we need some helper functions to write docs to CouchDB.
             data.pop('out')
         data['_id'] = self._build_doc_id()
         try:
-            self._request_db_data('/xonsh-history', data=data)
+            self._request_db_data('/pygwin-history', data=data)
         except Exception as e:
             msg = 'failed to save history: {}: {}'.format(e.__class__.__name__, e)
             print(msg, file=sys.stderr)
@@ -163,7 +163,7 @@ about a command that user input, and saves it into CouchDB.
 Instead of letting CouchDB provide us a random Document ID (i.e. the
 ``data['_id']`` in our code), we build it for ourselves.  We use the Unix
 timestamp and UUID string for a second time. Prefixing this with
-``self.sessionid``, we make history entries in order inside a single xonsh
+``self.sessionid``, we make history entries in order inside a single pygwin
 session too. So that we don't need any extra CouchDB's
 `Design Documents and Views <http://docs.couchdb.org/en/2.0.0/couchapp/ddocs.html>`_
 feature. Just with a bare ``_all_docs`` API, we can fetch history items back
@@ -181,7 +181,7 @@ to do the real job - save history into DB.
         self.tss.append(cmd.get('ts', (None, None)))
         self._save_to_db(cmd)
 
-This method will be called by xonsh every time it runs a new command from user.
+This method will be called by pygwin every time it runs a new command from user.
 
 
 Retrieve History Items
@@ -196,14 +196,14 @@ Retrieve History Items
         yield from self._get_db_items()
 
 These two methods are responsible for getting history items for the current
-xonsh session and all historical sessions respectively.
+pygwin session and all historical sessions respectively.
 
 And here is our helper method to get docs from DB:
 
 .. code-block:: python
 
     def _get_db_items(self, sessionid=None):
-        path = '/xonsh-history/_all_docs?include_docs=true'
+        path = '/pygwin-history/_all_docs?include_docs=true'
         if sessionid is not None:
             path += '&start_key="{0}"&end_key="{0}-z"'.format(sessionid)
         try:
@@ -231,9 +231,9 @@ an extra Python library is used: ``requests``. You could easily install it
 with ``pip`` or other library managers. You can find the full code here:
 `<https://gist.github.com/mitnk/2d08dc60aab33d8b8b758c544b37d570>`_
 
-Let's start a new xonsh session:
+Let's start a new pygwin session:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history info
     backend: couchdb
@@ -245,9 +245,9 @@ Let's start a new xonsh session:
     @ echo hi
     hi
 
-Start a second xonsh session:
+Start a second pygwin session:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ history info
     backend: couchdb
@@ -275,9 +275,9 @@ History Garbage Collection
 ==========================
 
 For the built-in history backends ``json`` and ``sqlite``, garbage collection
-is triggered when xonsh is started or when the user runs ``history gc``.
+is triggered when pygwin is started or when the user runs ``history gc``.
 History items outside of the range defined by
-`$XONSH_HISTORY_SIZE <envvars.html#xonsh-history-size>`_ are deleted.
+`$PYGWIN_HISTORY_SIZE <envvars.html#pygwin-history-size>`_ are deleted.
 
 .. code-block:: python
 
@@ -305,17 +305,17 @@ Other History Options
 
 There are some environment variables that can change the behavior of the
 history backend. Such as `$HISTCONTROL <envvars.html#histcontrol>`_,
-`$XONSH_HISTORY_SIZE <envvars.html#xonsh-history-size>`_,
-`$XONSH_STORE_STDOUT <envvars.html#xonsh-store-stdout>`_, etc.
+`$PYGWIN_HISTORY_SIZE <envvars.html#pygwin-history-size>`_,
+`$PYGWIN_STORE_STDOUT <envvars.html#pygwin-store-stdout>`_, etc.
 
 We should implement these ENVs in our CouchDB backend. Luckily, it's not a
 hard thing. We'll leave the implementation of those features to you,
 but you can see how it's handled for
-`the sqlite backend <_modules/xonsh/history/sqlite.html#SqliteHistory>`_.
+`the sqlite backend <_modules/pygwin/history/sqlite.html#SqliteHistory>`_.
 
 
 Wrap Up
 =======
 
 This is a barebones implementation but hopefully it will give you a sense
-of how you can customize xonsh's history backend for your own needs!
+of how you can customize pygwin's history backend for your own needs!

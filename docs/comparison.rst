@@ -11,7 +11,7 @@ The following table lists built in features and capabilities that various tools 
           <th class="head"><p>Traditional<br> bash, zsh</p></th>
           <th class="head"><p>Next-generation<br> fish, nu, elvish</p></th>
           <th class="head"><p>Python‑based<br> IPython, plumbum</p></th>
-          <th class="head"><p>Xonsh<br> shell</p></th>
+          <th class="head"><p>Pygwin<br> shell</p></th>
         </tr>
       </thead>
       <tbody>

@@ -1,6 +1,6 @@
 """Tests for path/cd completion through ``..`` segments.
 
-The path completer routes through ``xonsh.tools._case_insensitive_iglob``
+The path completer routes through ``pygwin.tools._case_insensitive_iglob``
 on POSIX. That helper used to walk paths segment-by-segment via
 ``os.listdir``, which never yields ``.`` or ``..`` — so any pattern with
 a ``..`` component (``cd ../<Tab>``, ``cd ../../<Tab>``, even
@@ -18,14 +18,14 @@ import tempfile
 
 import pytest
 
-import xonsh.completers.path as xcp
-from xompletions.cd import xonsh_complete as cd_xonsh_complete
-from xonsh.parsers.completion_context import CommandArg, CommandContext
+import pygwin.completers.path as xcp
+from pygwin.parsers.completion_context import CommandArg, CommandContext
+from xompletions.cd import pygwin_complete as cd_pygwin_complete
 
 
 @pytest.fixture(autouse=True)
-def xonsh_execer_autouse(xession, xonsh_execer):
-    return xonsh_execer
+def pygwin_execer_autouse(xession, pygwin_execer):
+    return pygwin_execer
 
 
 @pytest.fixture
@@ -38,7 +38,7 @@ def completer_env(xession):
             "SUGGEST_THRESHOLD": 3,
             "CDPATH": set(),
             "DOTGLOB": False,
-            "XONSH_COMPLETER_MODE": "substring_tier",
+            "PYGWIN_COMPLETER_MODE": "substring_tier",
         }
     )
     return xession.env
@@ -72,7 +72,7 @@ def test_cd_dotdot_slash_lists_parent_subdirs(completer_env, monkeypatch):
         open(os.path.join(td, "file.txt"), "w").close()
         monkeypatch.chdir(work)
 
-        results, _ = cd_xonsh_complete(_cd_command_ctx("../"))
+        results, _ = cd_pygwin_complete(_cd_command_ctx("../"))
         basenames = {os.path.basename(str(r).rstrip().rstrip(os.sep)) for r in results}
         assert {"sib1", "sib2", "work"}.issubset(basenames)
         # Plain files in the parent must not appear — cd filters to dirs.
@@ -90,7 +90,7 @@ def test_cd_dotdot_dotdot_slash_lists_grandparent(completer_env, monkeypatch):
         os.mkdir(os.path.join(td, "sib_of_a"))
         monkeypatch.chdir(ab)
 
-        results, _ = cd_xonsh_complete(_cd_command_ctx("../../"))
+        results, _ = cd_pygwin_complete(_cd_command_ctx("../../"))
         basenames = {os.path.basename(str(r).rstrip().rstrip(os.sep)) for r in results}
         # Both the grandparent's children must show up.
         assert {"a", "sib_of_a"}.issubset(basenames)
@@ -128,7 +128,7 @@ def test_cd_dotdot_in_absolute_path(completer_env, monkeypatch):
         # Path of the form '<td>/target/../target/'
         prefix = os.path.join(target, "..", "target") + os.sep
 
-        results, _ = cd_xonsh_complete(_cd_command_ctx(prefix))
+        results, _ = cd_pygwin_complete(_cd_command_ctx(prefix))
         basenames = {os.path.basename(str(r).rstrip().rstrip(os.sep)) for r in results}
         assert {"child_a", "child_b"}.issubset(basenames)
 
@@ -147,6 +147,6 @@ def test_cd_dotdot_does_not_break_pipeline(completer_env, monkeypatch):
         monkeypatch.chdir(td)
 
         # 'subdir/../' must list cwd's directories.
-        results, _ = cd_xonsh_complete(_cd_command_ctx("subdir/../"))
+        results, _ = cd_pygwin_complete(_cd_command_ctx("subdir/../"))
         basenames = {os.path.basename(str(r).rstrip().rstrip(os.sep)) for r in results}
         assert "subdir" in basenames

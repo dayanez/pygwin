@@ -1,6 +1,6 @@
 """Stress tests for callable aliases, pipes, and fd leaking.
 
-These tests run xonsh in a subprocess with heavy workloads
+These tests run pygwin in a subprocess with heavy workloads
 and long timeouts. Separated from test_integrations.py to allow
 running quick integration tests without waiting for stress tests.
 """
@@ -9,9 +9,9 @@ import re
 
 import pytest
 
-from tests.xintegration.conftest import run_xonsh
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.pytest.tools import skip_if_on_windows
+from tests.xintegration.conftest import run_pygwin
 
 
 @skip_if_on_windows
@@ -22,7 +22,7 @@ def test_alias_stability():
         "aliases['tst'] = lambda: [print('sleep'), __import__('time').sleep(1)]\n"
         "tst\ntst\ntst\n"
     )
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         cmd=None,
         stdin_cmd=stdin_cmd,
         interactive=True,
@@ -41,7 +41,7 @@ def test_alias_stability_exception():
         "aliases['tst2'] = lambda: [1/0]\n"
         "tst1\ntst2\ntst1\ntst2\n"
     )
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         cmd=None,
         stdin_cmd=stdin_cmd,
         interactive=True,
@@ -58,7 +58,7 @@ def test_alias_stability_exception():
 
 test_code_no_bad_fd = [
     """
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SHOW_TRACEBACK = True
 @aliases.register
 def _e(a,i,o,e):
     echo -n O
@@ -86,7 +86,7 @@ for i in range(0, 12):
 def test_callable_alias_no_bad_file_descriptor(test_code):
     """Test no exceptions during any kind of capturing of callable alias. See also #5631."""
 
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         test_code, interactive=False, single_command=True, timeout=60
     )
     assert ret == 0
@@ -96,7 +96,7 @@ def test_callable_alias_no_bad_file_descriptor(test_code):
 
 test_code_fd_leaking = [
     """
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SHOW_TRACEBACK = True
 import sys
 
 @aliases.register
@@ -187,7 +187,7 @@ def test_callable_alias_fd_leaking(test_code):
     See also #6159.
     """
 
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         test_code, interactive=False, single_command=True, timeout=600
     )
     assert ret == 0
@@ -214,7 +214,7 @@ def test_pipe_into_callable_alias_no_bad_fd_stress():
     triggers reliably and any future regression on CI is unmissable.
     """
     test_code = r"""
-$XONSH_SHOW_TRACEBACK = True
+$PYGWIN_SHOW_TRACEBACK = True
 
 @aliases.register
 def _addsuffix(args, stdin, stdout, stderr):
@@ -240,7 +240,7 @@ for i in range(50):
 for i in range(50):
     printf 'a\nb\nc' | takeall
 """
-    out, err, ret = run_xonsh(
+    out, err, ret = run_pygwin(
         test_code, interactive=False, single_command=True, timeout=120
     )
     assert ret == 0, f"non-zero exit; out={out!r} err={err!r}"

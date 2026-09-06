@@ -18,7 +18,7 @@ def test_current_job(xession):
 
 def test_current_job_thread_safe(xession):
     """Background thread commands must not leak into the main thread's prompt.
-    Regression test for xonsh/xonsh#3175.
+    Regression test for pygwin/pygwin#3175.
     """
     field = xession.env["PROMPT_FIELDS"]["current_job"]
     main_cmds = (["fg_cmd"],)

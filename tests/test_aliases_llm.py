@@ -1,10 +1,10 @@
-"""LLM-generated unit tests for :mod:`xonsh.aliases`.
+"""LLM-generated unit tests for :mod:`pygwin.aliases`.
 
 Currently covers:
 
 * ``win_sudo`` — the Windows UAC sudo fallback alias. The function under
   test is platform-independent enough to exercise on any host:
-  ``xonsh.platforms.winutils.sudo`` is mocked out so the elevation API is
+  ``pygwin.platforms.winutils.sudo`` is mocked out so the elevation API is
   never actually called. See issue #5706 for the original bug.
 * ``@lxml`` — the optional command decorator that is only registered in
   ``make_default_aliases()`` when the third-party ``lxml`` package is
@@ -15,15 +15,15 @@ import os
 
 import pytest
 
-from xonsh import aliases
-from xonsh.aliases import WINDOWS_CMD_ALIASES, make_default_aliases, win_sudo
-from xonsh.procs.specs import SpecAttrDecoratorAlias
+from pygwin import aliases
+from pygwin.aliases import WINDOWS_CMD_ALIASES, make_default_aliases, win_sudo
+from pygwin.procs.specs import SpecAttrDecoratorAlias
 
 
 @pytest.fixture
 def fake_winutils_sudo(monkeypatch):
     """Record calls to ``winutils.sudo`` instead of triggering ShellExecute."""
-    import xonsh.platforms.winutils as winutils
+    import pygwin.platforms.winutils as winutils
 
     calls = []
 

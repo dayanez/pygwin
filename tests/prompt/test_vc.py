@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from xonsh.prompt import vc
+from pygwin.prompt import vc
 
-# Xonsh interaction with version control systems.
+# Pygwin interaction with version control systems.
 VC_BRANCH = {
     "git": {"master", "main"},
     "hg": {"default"},
@@ -158,7 +158,7 @@ def test_git_dirty_working_directory_includes_untracked(
 
 
 def test_is_in_git_repo_uses_pwd_only(set_xenv, monkeypatch, tmpdir):
-    """``$PWD`` is xonsh's own record of the location, so the prompt has no
+    """``$PWD`` is pygwin's own record of the location, so the prompt has no
     reason to call ``os.getcwd()`` on every render -- and calling it used to
     happen unconditionally, because ``env.get("PWD", os.getcwd())`` evaluates
     its default eagerly.

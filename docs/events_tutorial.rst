@@ -3,15 +3,15 @@
 ******
 Events
 ******
-What's the best way to keep informed in xonsh? Subscribe to an event!
+What's the best way to keep informed in pygwin? Subscribe to an event!
 
 Overview
 ========
-Simply, events are a way for various pieces of xonsh to tell each other what's going on. They're
+Simply, events are a way for various pieces of pygwin to tell each other what's going on. They're
 fired when something of note happens, eg the current directory changes or just before a command is
 executed.
 
-See the `event list <events.html>`_ for the core xonsh events.
+See the `event list <events.html>`_ for the core pygwin events.
 
 Show me the code!
 =================
@@ -65,9 +65,9 @@ This will produce output similar to the following:
 .. code-block:: yaml
 
     on_lscolors_change:
-      - xonsh.pyghooks.on_lscolors_change
+      - pygwin.pyghooks.on_lscolors_change
     on_pre_spec_run_ls:
-      - xonsh.environ.ensure_ls_colors_in_env
+      - pygwin.environ.ensure_ls_colors_in_env
     on_precommand:
       - __main__.my_handler
 
@@ -77,7 +77,7 @@ which returns a dictionary mapping event names to a list of handler strings.
 .. code-block:: python
 
     events.handlers()
-    # {'on_lscolors_change': ['xonsh.pyghooks.on_lscolors_change'], ...}
+    # {'on_lscolors_change': ['pygwin.pyghooks.on_lscolors_change'], ...}
 
 Notes for developers
 ====================
@@ -86,9 +86,9 @@ Notes for developers
 
 - ``Event.fire()`` returns a list of the returns from the handlers. You should merge this list if it's needed.
 
-- In xonsh, events come in species. Each one may look like an event and quack like an event, but they
+- In pygwin, events come in species. Each one may look like an event and quack like an event, but they
   behave differently. This was done because load hooks look like events and quack like events, but they have different
-  semantics. See `LoadEvents <api/events.html#xonsh.events.LoadEvent>`_ for details. In order to turn an event from
+  semantics. See `LoadEvents <api/events.html#pygwin.events.LoadEvent>`_ for details. In order to turn an event from
   the default ``Event``, you must transmogrify it, using ``events.transmogrify()``. The class the event is turned
   in to must be a subclass of ``AbstractEvent``. Under the hood, transmogrify creates a new instance and copies
   the handlers and docstring from the old instance to the new one.

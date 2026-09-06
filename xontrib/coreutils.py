@@ -15,20 +15,20 @@ tools avoid the need for a full subprocess call. Additionally, these
 tools are cross-platform.
 """
 
-from xonsh.built_ins import XonshSession
-from xonsh.platform_info import ON_POSIX
-from xonsh.xoreutils.cat import cat
-from xonsh.xoreutils.echo import echo
-from xonsh.xoreutils.pwd import pwd
-from xonsh.xoreutils.tee import tee
-from xonsh.xoreutils.tty import tty
-from xonsh.xoreutils.umask import umask
-from xonsh.xoreutils.uname import uname
-from xonsh.xoreutils.uptime import uptime
-from xonsh.xoreutils.yes import yes
+from pygwin.built_ins import PygwinSession
+from pygwin.platform_info import ON_POSIX
+from pygwin.xoreutils.cat import cat
+from pygwin.xoreutils.echo import echo
+from pygwin.xoreutils.pwd import pwd
+from pygwin.xoreutils.tee import tee
+from pygwin.xoreutils.tty import tty
+from pygwin.xoreutils.umask import umask
+from pygwin.xoreutils.uname import uname
+from pygwin.xoreutils.uptime import uptime
+from pygwin.xoreutils.yes import yes
 
 
-def _load_xontrib_(xsh: XonshSession, **_):
+def _load_xontrib_(xsh: PygwinSession, **_):
     xsh.aliases["cat"] = cat
     xsh.aliases["echo"] = echo
     xsh.aliases["pwd"] = pwd
@@ -39,6 +39,6 @@ def _load_xontrib_(xsh: XonshSession, **_):
     xsh.aliases["umask"] = umask
     xsh.aliases["yes"] = yes
     if ON_POSIX:
-        from xonsh.xoreutils.ulimit import ulimit
+        from pygwin.xoreutils.ulimit import ulimit
 
         xsh.aliases["ulimit"] = ulimit

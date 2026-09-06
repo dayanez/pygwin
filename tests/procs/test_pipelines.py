@@ -6,10 +6,10 @@ import os
 
 import pytest
 
-from xonsh.aliases import Aliases
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.procs.pipelines import CommandPipeline
-from xonsh.pytest.tools import (
+from pygwin.aliases import Aliases
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.procs.pipelines import CommandPipeline
+from pygwin.pytest.tools import (
     VER_MAJOR_MINOR,
     skip_if_on_unix,
     skip_if_on_windows,
@@ -25,20 +25,20 @@ pytestmark = pytest.mark.skipif(
 
 
 @pytest.fixture(autouse=True)
-def patched_events(monkeypatch, xonsh_events, xonsh_session):
-    from xonsh.procs.jobs import get_tasks
+def patched_events(monkeypatch, pygwin_events, pygwin_session):
+    from pygwin.procs.jobs import get_tasks
 
     get_tasks().clear()
     # needed for ci tests
     monkeypatch.setitem(
-        xonsh_session.env, "XONSH_SUBPROC_CMD_RAISE_ERROR", False
+        pygwin_session.env, "PYGWIN_SUBPROC_CMD_RAISE_ERROR", False
     )  # for the failing `grep` commands
     monkeypatch.setitem(
-        xonsh_session.env, "XONSH_CAPTURE_ALWAYS", True
+        pygwin_session.env, "PYGWIN_CAPTURE_ALWAYS", True
     )  # capture output of ![]
     if ON_WINDOWS:
         monkeypatch.setattr(
-            xonsh_session.commands_cache,
+            pygwin_session.commands_cache,
             "aliases",
             Aliases(
                 {
@@ -90,8 +90,8 @@ def patched_events(monkeypatch, xonsh_events, xonsh_session):
     ),
 )
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_command_pipeline_capture(cmdline, stdout, stderr, raw_stdout, xonsh_execer):
-    pipeline: CommandPipeline = xonsh_execer.eval(cmdline)
+def test_command_pipeline_capture(cmdline, stdout, stderr, raw_stdout, pygwin_execer):
+    pipeline: CommandPipeline = pygwin_execer.eval(cmdline)
     assert pipeline.out == stdout
     assert pipeline.err == (stderr or None)
     assert pipeline.raw_out == raw_stdout.replace("\n", os.linesep).encode()
@@ -107,16 +107,16 @@ def test_command_pipeline_capture(cmdline, stdout, stderr, raw_stdout, xonsh_exe
         pytest.param("echo -n hi", "hi", marks=skip_if_on_windows),
     ),
 )
-def test_simple_capture(cmdline, output, xonsh_execer, xonsh_session, monkeypatch):
+def test_simple_capture(cmdline, output, pygwin_execer, pygwin_session, monkeypatch):
     # ``echo hi | grep x`` returns empty stdout with rc=1; the new
-    # XONSH_SUBPROC_RAISE_ERROR semantics would raise on it, but this
+    # PYGWIN_SUBPROC_RAISE_ERROR semantics would raise on it, but this
     # test specifically checks that $() captures the empty string.
-    monkeypatch.setitem(xonsh_session.env, "XONSH_SUBPROC_RAISE_ERROR", False)
-    assert xonsh_execer.eval(f"$({cmdline})") == output
+    monkeypatch.setitem(pygwin_session.env, "PYGWIN_SUBPROC_RAISE_ERROR", False)
+    assert pygwin_execer.eval(f"$({cmdline})") == output
 
 
-def test_raw_substitution(xonsh_execer):
-    assert xonsh_execer.eval("$(echo @(b'bytes!'))") == "bytes!"
+def test_raw_substitution(pygwin_execer):
+    assert pygwin_execer.eval("$(echo @(b'bytes!'))") == "bytes!"
 
 
 @pytest.mark.parametrize(
@@ -136,15 +136,15 @@ def test_raw_substitution(xonsh_execer):
         ("!(nocommand) == ''", True),
     ),
 )
-def test_casting(cmdline, result, xonsh_execer):
-    assert xonsh_execer.eval(f"{cmdline}") == result
+def test_casting(cmdline, result, pygwin_execer):
+    assert pygwin_execer.eval(f"{cmdline}") == result
 
 
 @skip_if_on_windows
 @skip_if_on_unix
-def test_background_pgid(xonsh_session, monkeypatch):
-    monkeypatch.setitem(xonsh_session.env, "XONSH_INTERACTIVE", True)
-    pipeline = xonsh_session.execer.eval("![echo hi &]")
+def test_background_pgid(pygwin_session, monkeypatch):
+    monkeypatch.setitem(pygwin_session.env, "PYGWIN_INTERACTIVE", True)
+    pipeline = pygwin_session.execer.eval("![echo hi &]")
     assert pipeline.term_pgid is not None
 
 
@@ -159,8 +159,8 @@ def test_background_pgid(xonsh_session, monkeypatch):
     ),
 )
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_remove_hide_escape(cmdline, stdout, stderr, raw_stdout, xonsh_execer):
-    pipeline = xonsh_execer.eval(cmdline)
+def test_remove_hide_escape(cmdline, stdout, stderr, raw_stdout, pygwin_execer):
+    pipeline = pygwin_execer.eval(cmdline)
     pipeline.end()
     assert pipeline.out == stdout
     assert pipeline.err == (stderr or None)
@@ -171,7 +171,7 @@ def test_remove_hide_escape(cmdline, stdout, stderr, raw_stdout, xonsh_execer):
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.timeout(30, method="thread")
-def test_callable_alias_redirect_e2o(xonsh_session):
+def test_callable_alias_redirect_e2o(pygwin_session):
     """Callable alias with e>o should merge stderr into stdout.
 
     Regression test: previously captured_stderr was set to the same pipe reader
@@ -182,7 +182,7 @@ def test_callable_alias_redirect_e2o(xonsh_session):
     *outside* poudriere jails — while waiting on a pipe reader that
     never sees EOF (issue #6374). ``method="thread"`` is required:
     pytest-timeout's default ``signal`` mode is delivered to the main
-    thread, but xonsh installs its own SIGALRM/SIGINT handlers around
+    thread, but pygwin installs its own SIGALRM/SIGINT handlers around
     pipeline reads and silently swallows the wakeup.
     """
 
@@ -190,9 +190,9 @@ def test_callable_alias_redirect_e2o(xonsh_session):
         print("OUT")
         print("ERR", file=__import__("sys").stderr)
 
-    xonsh_session.aliases["tste2o"] = _alias
+    pygwin_session.aliases["tste2o"] = _alias
 
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(tste2o e>o)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(tste2o e>o)")
     assert "ERR" in pipeline.out
     assert "OUT" in pipeline.out
     assert pipeline.err is None
@@ -201,7 +201,7 @@ def test_callable_alias_redirect_e2o(xonsh_session):
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.timeout(30, method="thread")
-def test_callable_alias_redirect_o2e(xonsh_session):
+def test_callable_alias_redirect_o2e(pygwin_session):
     """Callable alias with o>e should merge stdout into stderr.
 
     See ``test_callable_alias_redirect_e2o`` above for why the hard
@@ -212,9 +212,9 @@ def test_callable_alias_redirect_o2e(xonsh_session):
         print("OUT")
         print("ERR", file=__import__("sys").stderr)
 
-    xonsh_session.aliases["tsto2e"] = _alias
+    pygwin_session.aliases["tsto2e"] = _alias
 
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(tsto2e o>e)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(tsto2e o>e)")
     assert pipeline.out == ""
     assert "OUT" in pipeline.err
     assert "ERR" in pipeline.err
@@ -222,7 +222,7 @@ def test_callable_alias_redirect_o2e(xonsh_session):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_callable_alias_subcmd_redirect_e2o(xonsh_session):
+def test_callable_alias_subcmd_redirect_e2o(pygwin_session):
     """Callable alias with e>o: writing to both stdout and stderr params.
 
     All output should end up in stdout when e>o is used.
@@ -232,9 +232,9 @@ def test_callable_alias_subcmd_redirect_e2o(xonsh_session):
         print("O", end="", file=stdout)
         print("E", end="", file=stderr)
 
-    xonsh_session.aliases["tstsube2o"] = _alias
+    pygwin_session.aliases["tstsube2o"] = _alias
 
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(tstsube2o e>o)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(tstsube2o e>o)")
     out = pipeline.out
     assert "O" in out
     assert "E" in out
@@ -243,7 +243,7 @@ def test_callable_alias_subcmd_redirect_e2o(xonsh_session):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_callable_alias_o2e_uncaptured(xonsh_session):
+def test_callable_alias_o2e_uncaptured(pygwin_session):
     """$[alias o>e] should not crash on int stdout fd.
 
     Regression test: o>e sets spec.stdout to the int flag 2. For uncaptured
@@ -255,19 +255,19 @@ def test_callable_alias_o2e_uncaptured(xonsh_session):
         print("O", end="", file=stdout)
         print("E", end="", file=stderr)
 
-    xonsh_session.aliases["tsto2euncap"] = _alias
+    pygwin_session.aliases["tsto2euncap"] = _alias
     # Should not raise AttributeError
-    xonsh_session.execer.eval("$[tsto2euncap o>e]")
+    pygwin_session.execer.eval("$[tsto2euncap o>e]")
 
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_stderr_prefix_postfix(xonsh_session):
-    """XONSH_STDERR_PREFIX/POSTFIX should wrap captured stderr output."""
-    xonsh_session.env["XONSH_STDERR_PREFIX"] = "PRE"
-    xonsh_session.env["XONSH_STDERR_POSTFIX"] = "POST"
+def test_stderr_prefix_postfix(pygwin_session):
+    """PYGWIN_STDERR_PREFIX/POSTFIX should wrap captured stderr output."""
+    pygwin_session.env["PYGWIN_STDERR_PREFIX"] = "PRE"
+    pygwin_session.env["PYGWIN_STDERR_POSTFIX"] = "POST"
 
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(echo error o>e)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(echo error o>e)")
     assert pipeline.raw_err.startswith(b"PRE")
     assert pipeline.raw_err.endswith(b"POST")
     assert b"error" in pipeline.raw_err
@@ -275,7 +275,7 @@ def test_stderr_prefix_postfix(xonsh_session):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_object_capture_without_threading(capfd, xonsh_session):
+def test_object_capture_without_threading(capfd, pygwin_session):
     """!() must capture output even when THREAD_SUBPROCS is disabled.
 
     Regression test: during rc-file loading THREAD_SUBPROCS is set to None,
@@ -283,16 +283,16 @@ def test_object_capture_without_threading(capfd, xonsh_session):
     "object" and "hiddenobject" when not threadable, so !() leaked output
     to the terminal instead of capturing it.
     """
-    xonsh_session.env["THREAD_SUBPROCS"] = None
+    pygwin_session.env["THREAD_SUBPROCS"] = None
 
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(echo captured)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(echo captured)")
     assert pipeline.out == "captured"
     assert "captured" not in capfd.readouterr().out
 
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_pipeline_early_exit_no_hang(xonsh_session):
+def test_pipeline_early_exit_no_hang(pygwin_session):
     """Pipeline where downstream exits before upstream must not deadlock.
 
     Regression test: when the last process (head) exited, the read end of
@@ -300,22 +300,22 @@ def test_pipeline_early_exit_no_hang(xonsh_session):
     blocked on write() with a full buffer, and iterraw() waited for it
     via _any_proc_running() — deadlock.
     """
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     # $() — captured stdout
-    out = xonsh_session.execer.eval("$(seq 1000000 | head -n 3)")
+    out = pygwin_session.execer.eval("$(seq 1000000 | head -n 3)")
     assert out.strip() == "1\n2\n3"
 
     # !() — captured object
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(seq 1000000 | head -n 3)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(seq 1000000 | head -n 3)")
     assert pipeline.out.strip() == "1\n2\n3"
 
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_pipeline_early_exit_callable_alias(xonsh_session):
+def test_pipeline_early_exit_callable_alias(pygwin_session):
     """Same early-exit scenario but with callable aliases in the pipeline."""
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     def _many_lines(args, stdin, stdout, stderr):
         for i in range(1, 1000001):
@@ -327,25 +327,25 @@ def test_pipeline_early_exit_callable_alias(xonsh_session):
             if i >= 2:
                 break
 
-    xonsh_session.aliases["manylines"] = _many_lines
-    xonsh_session.aliases["take3"] = _take3
+    pygwin_session.aliases["manylines"] = _many_lines
+    pygwin_session.aliases["take3"] = _take3
 
     # callable upstream | external downstream
-    out = xonsh_session.execer.eval("$(manylines | head -n 3)")
+    out = pygwin_session.execer.eval("$(manylines | head -n 3)")
     assert out.strip() == "1\n2\n3"
 
     # external upstream | callable downstream
-    out = xonsh_session.execer.eval("$(seq 1000000 | take3)")
+    out = pygwin_session.execer.eval("$(seq 1000000 | take3)")
     assert out.strip() == "1\n2\n3"
 
     # both callable
-    out = xonsh_session.execer.eval("$(manylines | take3)")
+    out = pygwin_session.execer.eval("$(manylines | take3)")
     assert out.strip() == "1\n2\n3"
 
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_pipe_into_callable_alias_no_bad_fd(xonsh_session, capsys):
+def test_pipe_into_callable_alias_no_bad_fd(pygwin_session, capsys):
     """Piping into a callable alias that iterates over stdin must not raise
     'Bad file descriptor'.
 
@@ -355,24 +355,24 @@ def test_pipe_into_callable_alias_no_bad_fd(xonsh_session, capsys):
     alias was still actively iterating over its stdin TextIOWrapper around
     the read end, so the very next ``read()`` failed with
     ``OSError: [Errno 9] Bad file descriptor``.  The proxy thread caught
-    the exception, printed it via ``print_exception`` (to xonsh's main
+    the exception, printed it via ``print_exception`` (to pygwin's main
     stderr, not the captured pipeline stderr) and returned exit code 1.
 
     The fix only closes the *write* end of the connecting pipe in
     ``_prev_procs_done``; the read end is closed later in
     ``_close_prev_procs`` once the downstream proc has actually finished.
     """
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     def _add(args, stdin, stdout, stderr):
         name = args[0] if args else ""
         for line in stdin or []:
             stdout.write(line.upper() + name)
 
-    xonsh_session.aliases["add"] = _add
+    pygwin_session.aliases["add"] = _add
 
     # The original failing case from the bug report.
-    pipeline: CommandPipeline = xonsh_session.execer.eval(
+    pipeline: CommandPipeline = pygwin_session.execer.eval(
         "!(echo -n 'hello ' | add snail)"
     )
     pipeline.end()
@@ -386,7 +386,7 @@ def test_pipe_into_callable_alias_no_bad_fd(xonsh_session, capsys):
     assert "Exception in thread" not in captured.err
 
     # Multiple input lines should also work.
-    pipeline = xonsh_session.execer.eval(r"!(printf 'a\nb\nc' | add X)")
+    pipeline = pygwin_session.execer.eval(r"!(printf 'a\nb\nc' | add X)")
     pipeline.end()
     captured = capsys.readouterr()
     assert pipeline.out == "A\nXB\nXCX"
@@ -396,7 +396,7 @@ def test_pipe_into_callable_alias_no_bad_fd(xonsh_session, capsys):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_pipe_into_callable_alias_user_exception(xonsh_session, capsys):
+def test_pipe_into_callable_alias_user_exception(pygwin_session, capsys):
     """A user exception inside a callable alias reading stdin must surface
     as the *user's* exception (e.g. ZeroDivisionError), not as the spurious
     "Bad file descriptor" caused by the race in _prev_procs_done.
@@ -404,10 +404,10 @@ def test_pipe_into_callable_alias_user_exception(xonsh_session, capsys):
     Also verifies:
     - output written before the exception is preserved (safe_flush);
     - the pipeline returns non-zero;
-    - the user's traceback is what xonsh prints (not an OSError);
+    - the user's traceback is what pygwin prints (not an OSError);
     - upstream is properly torn down.
     """
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     def _erradd(args, stdin, stdout, stderr):
         i = 0
@@ -417,9 +417,9 @@ def test_pipe_into_callable_alias_user_exception(xonsh_session, capsys):
             stdout.write("GOT:" + line)
             i += 1
 
-    xonsh_session.aliases["erradd"] = _erradd
+    pygwin_session.aliases["erradd"] = _erradd
 
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(seq 1 100 | erradd)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(seq 1 100 | erradd)")
     pipeline.end()
     captured = capsys.readouterr()
 
@@ -433,7 +433,7 @@ def test_pipe_into_callable_alias_user_exception(xonsh_session, capsys):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_pipe_into_callable_alias_repeated(xonsh_session, capsys):
+def test_pipe_into_callable_alias_repeated(pygwin_session, capsys):
     """Repeatedly piping a fast-exiting upstream into a callable alias.
 
     The race condition fixed in ``_prev_procs_done`` is timing-sensitive:
@@ -441,17 +441,17 @@ def test_pipe_into_callable_alias_repeated(xonsh_session, capsys):
     the downstream alias's stdin.  Run the same pipeline many times to make
     a regression unmissable on CI.
     """
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     def _upper(args, stdin, stdout, stderr):
         for line in stdin or []:
             stdout.write(line.upper())
 
-    xonsh_session.aliases["upperalias"] = _upper
+    pygwin_session.aliases["upperalias"] = _upper
 
     failures = []
     for i in range(20):
-        pipeline: CommandPipeline = xonsh_session.execer.eval(
+        pipeline: CommandPipeline = pygwin_session.execer.eval(
             "!(echo -n 'hello' | upperalias)"
         )
         pipeline.end()
@@ -467,7 +467,7 @@ def test_pipe_into_callable_alias_repeated(xonsh_session, capsys):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_pipe_into_silent_callable_alias(xonsh_session, capsys):
+def test_pipe_into_silent_callable_alias(pygwin_session, capsys):
     """Pipe into a callable alias that reads stdin but writes nothing.
 
     This is the *widest* race window for the `_prev_procs_done` bug:
@@ -478,7 +478,7 @@ def test_pipe_into_silent_callable_alias(xonsh_session, capsys):
     closed almost immediately after the upstream subprocess exits, while
     the alias is still draining stdin.
     """
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     received: list[str] = []
 
@@ -486,12 +486,12 @@ def test_pipe_into_silent_callable_alias(xonsh_session, capsys):
         for line in stdin or []:
             received.append(line)
 
-    xonsh_session.aliases["silentalias"] = _silent
+    pygwin_session.aliases["silentalias"] = _silent
 
     failures = []
     for i in range(20):
         received.clear()
-        pipeline: CommandPipeline = xonsh_session.execer.eval(
+        pipeline: CommandPipeline = pygwin_session.execer.eval(
             r"!(printf 'a\nb\nc' | silentalias)"
         )
         pipeline.end()
@@ -508,7 +508,7 @@ def test_pipe_into_silent_callable_alias(xonsh_session, capsys):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_pipe_into_callable_alias_readline_loop(xonsh_session, capsys):
+def test_pipe_into_callable_alias_readline_loop(pygwin_session, capsys):
     """Pipe into a callable alias that uses ``stdin.readline()`` in a loop.
 
     ``readline()`` follows the same code path as ``for line in stdin``
@@ -523,7 +523,7 @@ def test_pipe_into_callable_alias_readline_loop(xonsh_session, capsys):
     the pipe internally; the kernel returns EOF (not EBADF) if the fd is
     closed while a blocking ``os.read`` is in progress on macOS/Linux.
     """
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     def _rl(args, stdin, stdout, stderr):
         n = 0
@@ -535,11 +535,11 @@ def test_pipe_into_callable_alias_readline_loop(xonsh_session, capsys):
             stdout.write(line.upper())
         stdout.write(f"N={n}\n")
 
-    xonsh_session.aliases["rlalias"] = _rl
+    pygwin_session.aliases["rlalias"] = _rl
 
     failures = []
     for i in range(20):
-        pipeline: CommandPipeline = xonsh_session.execer.eval(
+        pipeline: CommandPipeline = pygwin_session.execer.eval(
             r"!(printf 'a\nb\nc' | rlalias)"
         )
         pipeline.end()
@@ -555,7 +555,7 @@ def test_pipe_into_callable_alias_readline_loop(xonsh_session, capsys):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_callable_alias_in_middle_of_pipeline(xonsh_session, capsys):
+def test_callable_alias_in_middle_of_pipeline(pygwin_session, capsys):
     """A callable alias as the *middle* stage of a 3+ stage pipeline.
 
     The pipe between the upstream subprocess and the middle alias is owned
@@ -574,19 +574,19 @@ def test_callable_alias_in_middle_of_pipeline(xonsh_session, capsys):
     presence of the sentinel reliably distinguishes "buggy completion"
     from "correct completion".
     """
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     def _midupper(args, stdin, stdout, stderr):
         for line in stdin or []:
             stdout.write(line.upper())
         stdout.write("DONE\n")
 
-    xonsh_session.aliases["midupper"] = _midupper
+    pygwin_session.aliases["midupper"] = _midupper
 
     failures = []
     for i in range(20):
         # subprocess | callable | subprocess
-        pipeline: CommandPipeline = xonsh_session.execer.eval(
+        pipeline: CommandPipeline = pygwin_session.execer.eval(
             "!(echo -n 'hi' | midupper | cat)"
         )
         pipeline.end()
@@ -594,7 +594,7 @@ def test_callable_alias_in_middle_of_pipeline(xonsh_session, capsys):
             failures.append(("sub|mid|sub", i, pipeline.out, pipeline.returncode))
 
         # subprocess | callable | callable
-        pipeline = xonsh_session.execer.eval("!(echo -n 'hi' | midupper | midupper)")
+        pipeline = pygwin_session.execer.eval("!(echo -n 'hi' | midupper | midupper)")
         pipeline.end()
         # First midupper writes "HI" + "DONE\n"; second midupper iterates
         # those two lines ("HI", "DONE\n"), uppercases them (still "HI",

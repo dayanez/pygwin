@@ -1,12 +1,12 @@
-"""Tests for the controlling-terminal startup handshake in xonsh.main.
+"""Tests for the controlling-terminal startup handshake in pygwin.main.
 
-Covers :func:`xonsh.main._acquire_controlling_terminal`,
-:func:`xonsh.main._release_controlling_terminal` and
-:func:`xonsh.main._setup_controlling_terminal`. These manipulate process
+Covers :func:`pygwin.main._acquire_controlling_terminal`,
+:func:`pygwin.main._release_controlling_terminal` and
+:func:`pygwin.main._setup_controlling_terminal`. These manipulate process
 group and TTY state, so most tests patch out the underlying OS primitives
 with a ``FakeOS`` helper instead of exercising them for real — the actual
 syscall behaviour is provided by the kernel and is tested at the libc
-level, we only care about the policy xonsh wraps around them.
+level, we only care about the policy pygwin wraps around them.
 """
 
 import signal
@@ -14,9 +14,9 @@ import sys
 
 import pytest
 
-import xonsh.main
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.pytest.tools import skip_if_on_windows
+import pygwin.main
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.pytest.tools import skip_if_on_windows
 
 skip_if_not_on_windows = pytest.mark.skipif(
     not ON_WINDOWS, reason="SIGBREAK / Ctrl+Break only exist on Windows"
@@ -33,26 +33,26 @@ def reset_fg_state():
     ``_ttin_ttou_counter`` is a module-level counter for
     :func:`_handle_sig_ttin_ttou` livelock escalation.
     """
-    original = dict(xonsh.main._fg_tty_state)
-    original_done = xonsh.main._tty_setup_done
-    original_counter = xonsh.main._ttin_ttou_counter[0]
-    xonsh.main._fg_tty_state["acquired"] = False
-    xonsh.main._fg_tty_state["tty_fd"] = -1
-    xonsh.main._fg_tty_state["old_fg"] = -1
-    xonsh.main._tty_setup_done = False
-    xonsh.main._ttin_ttou_counter[0] = 0
+    original = dict(pygwin.main._fg_tty_state)
+    original_done = pygwin.main._tty_setup_done
+    original_counter = pygwin.main._ttin_ttou_counter[0]
+    pygwin.main._fg_tty_state["acquired"] = False
+    pygwin.main._fg_tty_state["tty_fd"] = -1
+    pygwin.main._fg_tty_state["old_fg"] = -1
+    pygwin.main._tty_setup_done = False
+    pygwin.main._ttin_ttou_counter[0] = 0
     yield
-    xonsh.main._fg_tty_state.clear()
-    xonsh.main._fg_tty_state.update(original)
-    xonsh.main._tty_setup_done = original_done
-    xonsh.main._ttin_ttou_counter[0] = original_counter
+    pygwin.main._fg_tty_state.clear()
+    pygwin.main._fg_tty_state.update(original)
+    pygwin.main._tty_setup_done = original_done
+    pygwin.main._ttin_ttou_counter[0] = original_counter
 
 
 class FakeOS:
     """A tiny recorder for the OS primitives the handshake touches.
 
     Tests build a ``FakeOS`` with the desired initial state and then
-    monkeypatch the module-level ``os.*`` calls in :mod:`xonsh.main`
+    monkeypatch the module-level ``os.*`` calls in :mod:`pygwin.main`
     to its methods. Each method either returns the stored value,
     updates state, or raises a configured exception — nothing else.
     """
@@ -126,7 +126,7 @@ class FakeOS:
 
 @pytest.fixture
 def fake_tty(monkeypatch):
-    """Wire a ``FakeOS`` into ``xonsh.main`` and yield it.
+    """Wire a ``FakeOS`` into ``pygwin.main`` and yield it.
 
     Also patches ``signal.pthread_sigmask`` to a recording stub so we can
     assert that the handshake masks the right signals. We do NOT touch
@@ -141,7 +141,7 @@ def fake_tty(monkeypatch):
         mask_log.append((how, set(signals) if signals is not None else None))
         return set()
 
-    monkeypatch.setattr(xonsh.main.signal, "pthread_sigmask", fake_pthread_sigmask)
+    monkeypatch.setattr(pygwin.main.signal, "pthread_sigmask", fake_pthread_sigmask)
 
     try:
         expected_fd = sys.stderr.fileno()
@@ -152,33 +152,33 @@ def fake_tty(monkeypatch):
         pytest.skip("sys.stderr has no usable fileno() under this runner")
 
     def install(fake):
-        monkeypatch.setattr(xonsh.main.os, "getpid", fake.getpid)
-        monkeypatch.setattr(xonsh.main.os, "getpgrp", fake.getpgrp)
-        monkeypatch.setattr(xonsh.main.os, "getsid", fake.getsid)
-        monkeypatch.setattr(xonsh.main.os, "isatty", fake.isatty)
-        monkeypatch.setattr(xonsh.main.os, "tcgetpgrp", fake.tcgetpgrp)
-        monkeypatch.setattr(xonsh.main.os, "setpgid", fake.setpgid)
-        monkeypatch.setattr(xonsh.main.os, "tcsetpgrp", fake.tcsetpgrp)
+        monkeypatch.setattr(pygwin.main.os, "getpid", fake.getpid)
+        monkeypatch.setattr(pygwin.main.os, "getpgrp", fake.getpgrp)
+        monkeypatch.setattr(pygwin.main.os, "getsid", fake.getsid)
+        monkeypatch.setattr(pygwin.main.os, "isatty", fake.isatty)
+        monkeypatch.setattr(pygwin.main.os, "tcgetpgrp", fake.tcgetpgrp)
+        monkeypatch.setattr(pygwin.main.os, "setpgid", fake.setpgid)
+        monkeypatch.setattr(pygwin.main.os, "tcsetpgrp", fake.tcsetpgrp)
 
     yield install, mask_log, expected_fd
 
 
 @skip_if_on_windows
 def test_acquire_returns_false_when_env_disabled(monkeypatch, reset_fg_state):
-    """``XONSH_NO_FG_TAKEOVER`` short-circuits the whole handshake."""
-    monkeypatch.setenv("XONSH_NO_FG_TAKEOVER", "1")
-    assert xonsh.main._acquire_controlling_terminal() is False
-    assert xonsh.main._fg_tty_state["acquired"] is False
+    """``PYGWIN_NO_FG_TAKEOVER`` short-circuits the whole handshake."""
+    monkeypatch.setenv("PYGWIN_NO_FG_TAKEOVER", "1")
+    assert pygwin.main._acquire_controlling_terminal() is False
+    assert pygwin.main._fg_tty_state["acquired"] is False
 
 
 @skip_if_on_windows
 def test_acquire_returns_false_when_not_a_tty(monkeypatch, reset_fg_state, fake_tty):
     """Non-TTY stderr (script mode, piped I/O) is a clean no-op."""
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(is_tty=False)
     install(fake)
-    assert xonsh.main._acquire_controlling_terminal() is False
+    assert pygwin.main._acquire_controlling_terminal() is False
     # isatty must be called; we must NOT touch process group state.
     kinds = [c[0] for c in fake.calls]
     assert "isatty" in kinds
@@ -192,10 +192,10 @@ def test_acquire_returns_false_when_session_leader(
 ):
     """A session leader cannot setpgid itself — skip cleanly."""
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(pid=1000, sid=1000)  # sid == pid ⇒ session leader
     install(fake)
-    assert xonsh.main._acquire_controlling_terminal() is False
+    assert pygwin.main._acquire_controlling_terminal() is False
     kinds = [c[0] for c in fake.calls]
     # Must not try to change pgrp or TTY state.
     assert "setpgid" not in kinds
@@ -213,12 +213,12 @@ def test_acquire_fast_path_when_already_foreground(
     shell's own ``tcsetpgrp`` on exit.
     """
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(pid=1000, pgid=999, sid=500, fg_pgrp=999)
     install(fake)
-    assert xonsh.main._acquire_controlling_terminal() is True
+    assert pygwin.main._acquire_controlling_terminal() is True
     # State stays unacquired — nothing to release on shutdown.
-    assert xonsh.main._fg_tty_state["acquired"] is False
+    assert pygwin.main._fg_tty_state["acquired"] is False
     kinds = [c[0] for c in fake.calls]
     assert "tcgetpgrp" in kinds
     assert "setpgid" not in kinds
@@ -242,7 +242,7 @@ def test_acquire_pid_namespace_unrepresentable_pgid(
     ``termios.error: (5, 'Input/output error')`` from ptk.
     """
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     # Inside a PID namespace:
     #   - our visible pid is 2 (namespace-local)
     #   - our sid is e.g. 500 (some visible session leader)
@@ -252,11 +252,11 @@ def test_acquire_pid_namespace_unrepresentable_pgid(
     #     the namespace, i.e. the outer bash)
     fake = FakeOS(pid=2, pgid=0, sid=500, fg_pgrp=0)
     install(fake)
-    assert xonsh.main._acquire_controlling_terminal() is True
+    assert pygwin.main._acquire_controlling_terminal() is True
     # State IS recorded — we really did acquire foreground via
     # a full setpgid + tcsetpgrp, not via the fast path.
-    assert xonsh.main._fg_tty_state["acquired"] is True
-    assert xonsh.main._fg_tty_state["old_fg"] == 0
+    assert pygwin.main._fg_tty_state["acquired"] is True
+    assert pygwin.main._fg_tty_state["old_fg"] == 0
     # setpgid(0, 0) and tcsetpgrp must both have been called.
     kinds = [c[0] for c in fake.calls]
     assert "setpgid" in kinds
@@ -272,14 +272,14 @@ def test_acquire_pid_namespace_unrepresentable_pgid(
 def test_acquire_full_handshake_success(monkeypatch, reset_fg_state, fake_tty):
     """Full success path: setpgid then tcsetpgrp, state recorded."""
     install, mask_log, expected_fd = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(pid=1000, pgid=999, sid=500, fg_pgrp=42)
     install(fake)
-    assert xonsh.main._acquire_controlling_terminal() is True
+    assert pygwin.main._acquire_controlling_terminal() is True
     # State is recorded for the release step.
-    assert xonsh.main._fg_tty_state["acquired"] is True
-    assert xonsh.main._fg_tty_state["tty_fd"] == expected_fd
-    assert xonsh.main._fg_tty_state["old_fg"] == 42
+    assert pygwin.main._fg_tty_state["acquired"] is True
+    assert pygwin.main._fg_tty_state["tty_fd"] == expected_fd
+    assert pygwin.main._fg_tty_state["old_fg"] == 42
     # The fake kernel now reports us as the fg group.
     assert fake.fg_pgrp == 1000
     assert fake.pgid == 1000
@@ -300,10 +300,10 @@ def test_acquire_returns_false_on_tcgetpgrp_failure(
 ):
     """If tcgetpgrp fails, skip without touching setpgid/tcsetpgrp."""
     install, mask_log, expected_fd = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(tcgetpgrp_err=OSError("ENOTTY"))
     install(fake)
-    assert xonsh.main._acquire_controlling_terminal() is False
+    assert pygwin.main._acquire_controlling_terminal() is False
     kinds = [c[0] for c in fake.calls]
     assert "setpgid" not in kinds
     assert "tcsetpgrp" not in kinds
@@ -318,11 +318,11 @@ def test_acquire_returns_false_on_setpgid_failure(
 ):
     """A PermissionError from setpgid degrades cleanly."""
     install, mask_log, expected_fd = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(fg_pgrp=42, setpgid_err=PermissionError("EPERM"))
     install(fake)
-    assert xonsh.main._acquire_controlling_terminal() is False
-    assert xonsh.main._fg_tty_state["acquired"] is False
+    assert pygwin.main._acquire_controlling_terminal() is False
+    assert pygwin.main._fg_tty_state["acquired"] is False
     # Mask restored.
     assert mask_log[-1][0] == signal.SIG_SETMASK
 
@@ -336,11 +336,11 @@ def test_acquire_returns_false_on_tcsetpgrp_failure(
     restorer is a no-op.
     """
     install, mask_log, expected_fd = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(fg_pgrp=42, tcsetpgrp_err=OSError("EPERM"))
     install(fake)
-    assert xonsh.main._acquire_controlling_terminal() is False
-    assert xonsh.main._fg_tty_state["acquired"] is False
+    assert pygwin.main._acquire_controlling_terminal() is False
+    assert pygwin.main._fg_tty_state["acquired"] is False
     kinds = [c[0] for c in fake.calls]
     assert "setpgid" in kinds  # we did get this far
     assert "tcsetpgrp" in kinds  # and we did try the install
@@ -354,7 +354,7 @@ def test_release_is_noop_when_not_acquired(monkeypatch, reset_fg_state, fake_tty
     fake = FakeOS()
     install(fake)
     # state is clean from the fixture
-    xonsh.main._release_controlling_terminal()
+    pygwin.main._release_controlling_terminal()
     assert fake.calls == []  # no syscalls at all
 
 
@@ -364,16 +364,16 @@ def test_release_restores_previous_foreground(monkeypatch, reset_fg_state, fake_
     install, mask_log, expected_fd = fake_tty
     fake = FakeOS(fg_pgrp=1000)
     install(fake)
-    xonsh.main._fg_tty_state["acquired"] = True
-    xonsh.main._fg_tty_state["tty_fd"] = expected_fd
-    xonsh.main._fg_tty_state["old_fg"] = 77
-    xonsh.main._release_controlling_terminal()
+    pygwin.main._fg_tty_state["acquired"] = True
+    pygwin.main._fg_tty_state["tty_fd"] = expected_fd
+    pygwin.main._fg_tty_state["old_fg"] = 77
+    pygwin.main._release_controlling_terminal()
     # Old fg is back.
     assert ("tcsetpgrp", expected_fd, 77) in fake.calls
     # State was cleared so a second call is a no-op.
-    assert xonsh.main._fg_tty_state["acquired"] is False
-    assert xonsh.main._fg_tty_state["tty_fd"] == -1
-    assert xonsh.main._fg_tty_state["old_fg"] == -1
+    assert pygwin.main._fg_tty_state["acquired"] is False
+    assert pygwin.main._fg_tty_state["tty_fd"] == -1
+    assert pygwin.main._fg_tty_state["old_fg"] == -1
     # Mask blocked and restored.
     assert len(mask_log) == 2
     assert mask_log[-1][0] == signal.SIG_SETMASK
@@ -385,19 +385,19 @@ def test_release_swallows_tcsetpgrp_error(monkeypatch, reset_fg_state, fake_tty)
     install, _, expected_fd = fake_tty
     fake = FakeOS(tcsetpgrp_err=OSError("EPERM"))
     install(fake)
-    xonsh.main._fg_tty_state["acquired"] = True
-    xonsh.main._fg_tty_state["tty_fd"] = expected_fd
-    xonsh.main._fg_tty_state["old_fg"] = 77
+    pygwin.main._fg_tty_state["acquired"] = True
+    pygwin.main._fg_tty_state["tty_fd"] = expected_fd
+    pygwin.main._fg_tty_state["old_fg"] = 77
     # Must not raise despite tcsetpgrp failing.
-    xonsh.main._release_controlling_terminal()
+    pygwin.main._release_controlling_terminal()
     # State is still cleared.
-    assert xonsh.main._fg_tty_state["acquired"] is False
+    assert pygwin.main._fg_tty_state["acquired"] is False
 
 
 def test_acquire_returns_false_on_windows(monkeypatch, reset_fg_state):
     """POSIX concepts don't apply on Windows — fast no-op."""
-    monkeypatch.setattr(xonsh.main, "ON_WINDOWS", True)
-    assert xonsh.main._acquire_controlling_terminal() is False
+    monkeypatch.setattr(pygwin.main, "ON_WINDOWS", True)
+    assert pygwin.main._acquire_controlling_terminal() is False
 
 
 # ---------------------------------------------------------------------------
@@ -410,7 +410,7 @@ def test_handle_sig_ttin_ttou_no_op_under_threshold(monkeypatch, reset_fg_state)
     """Below threshold the handler is a pure no-op: counter increments
     but no signal disposition change happens.
 
-    Normal operation fires the handler zero times (xonsh is foreground),
+    Normal operation fires the handler zero times (pygwin is foreground),
     and legitimate transient bursts — a subprocess briefly stealing
     foreground during a pipeline, a mis-timed tcsetpgrp — should all
     recover well below the threshold without triggering the escalation.
@@ -421,13 +421,13 @@ def test_handle_sig_ttin_ttou_no_op_under_threshold(monkeypatch, reset_fg_state)
         calls.append((sig, handler))
         return signal.SIG_DFL
 
-    monkeypatch.setattr(xonsh.main.signal, "signal", fake_signal)
+    monkeypatch.setattr(pygwin.main.signal, "signal", fake_signal)
     # Fire the handler many times but below threshold.
-    threshold = xonsh.main._TTIN_TTOU_LIVELOCK_THRESHOLD
+    threshold = pygwin.main._TTIN_TTOU_LIVELOCK_THRESHOLD
     for _i in range(threshold):
-        xonsh.main._handle_sig_ttin_ttou(signal.SIGTTOU, None)
+        pygwin.main._handle_sig_ttin_ttou(signal.SIGTTOU, None)
     # Counter reflects all invocations.
-    assert xonsh.main._ttin_ttou_counter[0] == threshold
+    assert pygwin.main._ttin_ttou_counter[0] == threshold
     # But no escalation — signal.signal was never called.
     assert calls == []
 
@@ -438,7 +438,7 @@ def test_handle_sig_ttin_ttou_escalates_above_threshold(monkeypatch, reset_fg_st
 
     This is the livelock guard. If something has been hammering the
     handler (PEP 475 retry on SIGTTIN, PR #6192 application-level
-    retry on SIGTTOU), we assume xonsh has lost foreground ownership
+    retry on SIGTTOU), we assume pygwin has lost foreground ownership
     for a reason that won't self-resolve, and we fall back to letting
     the kernel discard the signals outright so the underlying
     syscalls can complete on their next retry.
@@ -449,11 +449,11 @@ def test_handle_sig_ttin_ttou_escalates_above_threshold(monkeypatch, reset_fg_st
         calls.append((sig, handler))
         return signal.SIG_DFL
 
-    monkeypatch.setattr(xonsh.main.signal, "signal", fake_signal)
+    monkeypatch.setattr(pygwin.main.signal, "signal", fake_signal)
     # One firing past the threshold triggers escalation.
-    threshold = xonsh.main._TTIN_TTOU_LIVELOCK_THRESHOLD
+    threshold = pygwin.main._TTIN_TTOU_LIVELOCK_THRESHOLD
     for _i in range(threshold + 1):
-        xonsh.main._handle_sig_ttin_ttou(signal.SIGTTOU, None)
+        pygwin.main._handle_sig_ttin_ttou(signal.SIGTTOU, None)
     # Two signal.signal calls — one for SIGTTIN, one for SIGTTOU.
     assert len(calls) == 2
     sigs = {sig for sig, _ in calls}
@@ -476,14 +476,14 @@ def test_handle_sig_ttin_ttou_counter_resets_on_setup(
     first signal instead of providing the full livelock guard.
     """
     # Simulate a prior run that left the counter above threshold.
-    xonsh.main._ttin_ttou_counter[0] = xonsh.main._TTIN_TTOU_LIVELOCK_THRESHOLD + 10
+    pygwin.main._ttin_ttou_counter[0] = pygwin.main._TTIN_TTOU_LIVELOCK_THRESHOLD + 10
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(pid=1000, pgid=999, sid=500, fg_pgrp=42)
     install(fake)
-    xonsh.main._setup_controlling_terminal()
+    pygwin.main._setup_controlling_terminal()
     # Counter was reset to 0 by _setup_controlling_terminal.
-    assert xonsh.main._ttin_ttou_counter[0] == 0
+    assert pygwin.main._ttin_ttou_counter[0] == 0
 
 
 # ---------------------------------------------------------------------------
@@ -493,7 +493,7 @@ def test_handle_sig_ttin_ttou_counter_resets_on_setup(
 
 @pytest.fixture
 def capture_signal_signal(monkeypatch):
-    """Record every ``signal.signal`` call made from ``xonsh.main``.
+    """Record every ``signal.signal`` call made from ``pygwin.main``.
 
     Returns the list of ``(sig, handler)`` tuples so tests can assert
     which handlers got installed (Python no-op vs ``SIG_IGN``) without
@@ -504,16 +504,16 @@ def capture_signal_signal(monkeypatch):
     def fake_signal(sig, handler):
         calls.append((sig, handler))
         # Return a stub "previous handler" — the real signal.signal
-        # returns this but callers in xonsh.main don't use it.
+        # returns this but callers in pygwin.main don't use it.
         return signal.SIG_DFL
 
-    monkeypatch.setattr(xonsh.main.signal, "signal", fake_signal)
+    monkeypatch.setattr(pygwin.main.signal, "signal", fake_signal)
     return calls
 
 
 @pytest.fixture
 def capture_atexit(monkeypatch):
-    """Record every ``atexit.register`` call made from ``xonsh.main``.
+    """Record every ``atexit.register`` call made from ``pygwin.main``.
 
     Tests use this to verify that the shutdown restorer is registered
     only in the acquire-success case, and not in the fast-path or
@@ -525,7 +525,7 @@ def capture_atexit(monkeypatch):
         registered.append(func)
         return func
 
-    monkeypatch.setattr(xonsh.main.atexit, "register", fake_register)
+    monkeypatch.setattr(pygwin.main.atexit, "register", fake_register)
     return registered
 
 
@@ -536,14 +536,14 @@ def test_setup_non_tty_installs_pyhandler_no_handshake(
     """Non-TTY stderr skips the handshake but still installs the
     historical Python no-op handlers for ``SIGTTIN`` / ``SIGTTOU``.
 
-    This matches xonsh's pre-handshake behavior: script mode, piped
+    This matches pygwin's pre-handshake behavior: script mode, piped
     input, redirected stderr and test runners (pytest captures stderr
     via a pipe) all land here, and scripts that indirectly touch TTY
     must not be stopped by default ``SIG_DFL``. The handshake and
     atexit restorer are *not* invoked.
     """
-    monkeypatch.setattr(xonsh.main.os, "isatty", lambda fd: False)
-    xonsh.main._setup_controlling_terminal()
+    monkeypatch.setattr(pygwin.main.os, "isatty", lambda fd: False)
+    pygwin.main._setup_controlling_terminal()
     # Exactly two signal.signal calls — Python no-op handler for each
     # signal, no SIG_IGN follow-up because the handshake never ran.
     assert len(capture_signal_signal) == 2
@@ -555,7 +555,7 @@ def test_setup_non_tty_installs_pyhandler_no_handshake(
     assert capture_atexit == []
     # Flag *is* set — we committed to signal handling for this
     # process, and a second call should be a no-op.
-    assert xonsh.main._tty_setup_done is True
+    assert pygwin.main._tty_setup_done is True
 
 
 @skip_if_on_windows
@@ -564,12 +564,12 @@ def test_setup_installs_pyhandler_on_acquire_success(
 ):
     """Successful acquire → Python no-op handler + atexit restorer."""
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(pid=1000, pgid=999, sid=500, fg_pgrp=42)
     install(fake)
-    xonsh.main._setup_controlling_terminal()
+    pygwin.main._setup_controlling_terminal()
     # Idempotency flag set.
-    assert xonsh.main._tty_setup_done is True
+    assert pygwin.main._tty_setup_done is True
     # Both signals got a Python callable handler (not SIG_IGN,
     # because we want children to inherit normal dispositions).
     assert len(capture_signal_signal) == 2
@@ -579,7 +579,7 @@ def test_setup_installs_pyhandler_on_acquire_success(
         assert handler is not signal.SIG_IGN
         assert callable(handler)
     # Shutdown restorer is registered.
-    assert xonsh.main._release_controlling_terminal in capture_atexit
+    assert pygwin.main._release_controlling_terminal in capture_atexit
 
 
 @skip_if_on_windows
@@ -591,16 +591,16 @@ def test_setup_installs_sigign_on_acquire_failure(
     This is the sandbox path. ``_setup_controlling_terminal`` first
     installs a Python no-op handler (step 1, unconditional) and then
     *replaces* it with ``SIG_IGN`` when the handshake cannot make
-    xonsh foreground. The replacement is what prevents asyncio from
+    pygwin foreground. The replacement is what prevents asyncio from
     drowning in ``SIGTT*`` wakeups — ``SIG_IGN`` drops the signals at
     the kernel boundary before they ever reach Python.
     """
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(fg_pgrp=42, tcsetpgrp_err=OSError("EPERM"))
     install(fake)
-    xonsh.main._setup_controlling_terminal()
-    assert xonsh.main._tty_setup_done is True
+    pygwin.main._setup_controlling_terminal()
+    assert pygwin.main._tty_setup_done is True
     # Four signal.signal calls total: two Python no-op handlers from
     # step 1, then two SIG_IGN replacements from the failure path.
     assert len(capture_signal_signal) == 4
@@ -633,16 +633,16 @@ def test_setup_does_not_register_atexit_on_fast_path(
 ):
     """Already-foreground fast path must not schedule a restorer.
 
-    If xonsh was launched by a well-behaved shell that already put it
+    If pygwin was launched by a well-behaved shell that already put it
     in the foreground group, the handshake short-circuits. Registering
     a restorer in that case would race with the parent shell's own
     ``tcsetpgrp`` on exit and is a bug.
     """
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(pid=1000, pgid=999, sid=500, fg_pgrp=999)  # already fg
     install(fake)
-    xonsh.main._setup_controlling_terminal()
+    pygwin.main._setup_controlling_terminal()
     # Python handler still installed as a safety net.
     assert len(capture_signal_signal) == 2
     for _, handler in capture_signal_signal:
@@ -657,16 +657,16 @@ def test_setup_is_idempotent(
     monkeypatch, reset_fg_state, fake_tty, capture_signal_signal, capture_atexit
 ):
     """A second call does nothing. This is what makes it safe to call
-    from both :func:`main` and :func:`main_xonsh`."""
+    from both :func:`main` and :func:`main_pygwin`."""
     install, _, _ = fake_tty
-    monkeypatch.delenv("XONSH_NO_FG_TAKEOVER", raising=False)
+    monkeypatch.delenv("PYGWIN_NO_FG_TAKEOVER", raising=False)
     fake = FakeOS(pid=1000, pgid=999, sid=500, fg_pgrp=42)
     install(fake)
-    xonsh.main._setup_controlling_terminal()
+    pygwin.main._setup_controlling_terminal()
     first_call_count = len(capture_signal_signal)
     first_atexit_count = len(capture_atexit)
     # Second call
-    xonsh.main._setup_controlling_terminal()
+    pygwin.main._setup_controlling_terminal()
     assert len(capture_signal_signal) == first_call_count
     assert len(capture_atexit) == first_atexit_count
 
@@ -678,17 +678,17 @@ def test_setup_delegates_to_ctrl_break_on_windows(
     signal work is delegated to :func:`_setup_ctrl_break` (Ctrl+Break /
     SIGBREAK, issue #4852). No SIGTTIN/SIGTTOU handlers, no atexit restorer.
     """
-    monkeypatch.setattr(xonsh.main, "ON_WINDOWS", True)
+    monkeypatch.setattr(pygwin.main, "ON_WINDOWS", True)
     called = []
-    monkeypatch.setattr(xonsh.main, "_setup_ctrl_break", lambda: called.append(True))
-    xonsh.main._setup_controlling_terminal()
+    monkeypatch.setattr(pygwin.main, "_setup_ctrl_break", lambda: called.append(True))
+    pygwin.main._setup_controlling_terminal()
     # The Ctrl+Break setup is delegated to (and only to) _setup_ctrl_break.
     assert called == [True]
     # No POSIX TTY signal handlers and no atexit restorer on the Windows path.
     assert capture_signal_signal == []
     assert capture_atexit == []
     # Idempotency flag is set so a second call is a cheap no-op.
-    assert xonsh.main._tty_setup_done is True
+    assert pygwin.main._tty_setup_done is True
 
 
 # ── _setup_ctrl_break: Windows Ctrl+Break / SIGBREAK (issue #4852) ─────────
@@ -697,11 +697,11 @@ def test_setup_delegates_to_ctrl_break_on_windows(
 @skip_if_not_on_windows
 def test_ctrl_break_installs_default_int_handler():
     """Ctrl+Break must raise a catchable KeyboardInterrupt instead of
-    terminating xonsh, so SIGBREAK gets the same handler as SIGINT."""
+    terminating pygwin, so SIGBREAK gets the same handler as SIGINT."""
     old = signal.getsignal(signal.SIGBREAK)
     try:
         signal.signal(signal.SIGBREAK, signal.SIG_DFL)
-        xonsh.main._setup_ctrl_break()
+        pygwin.main._setup_ctrl_break()
         assert signal.getsignal(signal.SIGBREAK) is signal.default_int_handler
     finally:
         signal.signal(signal.SIGBREAK, old)
@@ -712,7 +712,7 @@ def test_ctrl_break_handler_raises_keyboard_interrupt():
     """The installed handler turns the break into KeyboardInterrupt."""
     old = signal.getsignal(signal.SIGBREAK)
     try:
-        xonsh.main._setup_ctrl_break()
+        pygwin.main._setup_ctrl_break()
         handler = signal.getsignal(signal.SIGBREAK)
         with pytest.raises(KeyboardInterrupt):
             handler(int(signal.SIGBREAK), None)
@@ -727,9 +727,9 @@ def test_setup_controlling_terminal_installs_ctrl_break(reset_fg_state):
     old = signal.getsignal(signal.SIGBREAK)
     try:
         signal.signal(signal.SIGBREAK, signal.SIG_DFL)
-        xonsh.main._setup_controlling_terminal()
+        pygwin.main._setup_controlling_terminal()
         assert signal.getsignal(signal.SIGBREAK) is signal.default_int_handler
-        assert xonsh.main._tty_setup_done is True
+        assert pygwin.main._tty_setup_done is True
     finally:
         signal.signal(signal.SIGBREAK, old)
 
@@ -737,8 +737,8 @@ def test_setup_controlling_terminal_installs_ctrl_break(reset_fg_state):
 def test_ctrl_break_off_main_thread_is_noop(monkeypatch):
     """signal.signal only works on the main thread; _setup_ctrl_break must
     bail out quietly when called off-main (embedded host setup)."""
-    monkeypatch.setattr(xonsh.main, "on_main_thread", lambda: False)
+    monkeypatch.setattr(pygwin.main, "on_main_thread", lambda: False)
     recorded = []
-    monkeypatch.setattr(xonsh.main.signal, "signal", lambda *a: recorded.append(a))
-    xonsh.main._setup_ctrl_break()
+    monkeypatch.setattr(pygwin.main.signal, "signal", lambda *a: recorded.append(a))
+    pygwin.main._setup_ctrl_break()
     assert recorded == []

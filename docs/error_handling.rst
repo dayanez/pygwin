@@ -3,13 +3,13 @@
 Subprocess Error Handling
 =========================
 
-Xonsh treats shell commands as first-class code.  When a command fails,
+Pygwin treats shell commands as first-class code.  When a command fails,
 you usually want your script to **stop** instead of silently marching
 past the failure — the way a Python exception would — but you also want
 the flexibility of ``&&``/``||`` short-circuit logic that
 the shell is built around.
 
-This page walks through the rules xonsh uses to decide *when* a failing
+This page walks through the rules pygwin uses to decide *when* a failing
 subprocess raises a ``subprocess.CalledProcessError``, how those rules
 interact with pipes, logical operators, captured forms and per-command
 decorators, and how the interactive prompt displays (or hides) the
@@ -31,10 +31,10 @@ Statements separated by ``;`` or newlines are *independent* chains.
 For example, ``echo 1 && echo 2 ; echo 3 ; echo 1 | grep 1`` contains
 **three** chains.
 
-Xonsh decides whether to raise *per chain*, not per individual command,
+Pygwin decides whether to raise *per chain*, not per individual command,
 which is what gives ``||``/``&&`` their shell-like rescue semantics:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls /no || echo rescued            # one chain, rescued by ||
     ls: cannot access '/no': No such file or directory
@@ -54,15 +54,15 @@ which is what gives ``||``/``&&`` their shell-like rescue semantics:
 Environment variables
 ---------------------
 
-Xonsh exposes three knobs for error handling.  The first two control
+Pygwin exposes three knobs for error handling.  The first two control
 **whether** a subprocess failure raises; the third controls **display
 of the exception** at the interactive prompt.
 
-``$XONSH_SUBPROC_RAISE_ERROR`` — default ``True``
+``$PYGWIN_SUBPROC_RAISE_ERROR`` — default ``True``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Raises ``subprocess.CalledProcessError`` when the **final result of a
-chain** is a non-zero exit code.  This is the rule that makes xonsh
+chain** is a non-zero exit code.  This is the rule that makes pygwin
 scripts behave like Python: a failing command stops execution unless
 you explicitly rescue it with ``||`` or ``@error_ignore``.
 
@@ -73,7 +73,7 @@ you explicitly rescue it with ``||`` or ``@error_ignore``.
 * ``(echo 1 && ls /etc) || echo fb`` → no raise (outer ``||`` rescued
   by a successful inner chain)
 
-``$XONSH_SUBPROC_CMD_RAISE_ERROR`` — default ``False``
+``$PYGWIN_SUBPROC_CMD_RAISE_ERROR`` — default ``False``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Raises on **every** failing command regardless of chain context — any
@@ -83,13 +83,13 @@ fallback never runs.
 
 Reserved for scripts that really want "fail fast on anything".  The old
 name ``$RAISE_SUBPROC_ERROR`` is kept as a deprecated alias that syncs
-to ``XONSH_SUBPROC_CMD_RAISE_ERROR``.
+to ``PYGWIN_SUBPROC_CMD_RAISE_ERROR``.
 
-``$XONSH_PROMPT_SHOW_SUBPROC_ERROR`` — default ``False``
+``$PYGWIN_PROMPT_SHOW_SUBPROC_ERROR`` — default ``False``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is a **display** flag — it does not change whether an exception
-is raised, only whether the **interactive prompt** prints xonsh's
+is raised, only whether the **interactive prompt** prints pygwin's
 ``subprocess.CalledProcessError: ...`` line after the command's own
 ``stderr``.  The command's own ``stderr`` is always visible because
 the subprocess writes it directly to the terminal.
@@ -101,7 +101,7 @@ the subprocess writes it directly to the terminal.
   ``subprocess.CalledProcessError: Command '...' returned non-zero
   exit status N.`` under the command's own output.
 
-Non-interactive scripts (``./script.xsh``, ``xonsh -c``) are
+Non-interactive scripts (``./script.xsh``, ``pygwin -c``) are
 **unaffected** — they always show the exception, because in script
 mode you usually want to know which line blew up.
 
@@ -116,10 +116,10 @@ Captured subprocess ``!()`` is the only exemption
 Every subprocess form raises on a non-zero return code by default —
 bare commands, ``![...]``, ``$[...]``, ``$(...)``, ``@$(...)``.  The
 **only** exception is the full-capture form ``!(...)``: it returns a
-``CommandPipeline`` object and xonsh leaves error handling entirely
+``CommandPipeline`` object and pygwin leaves error handling entirely
 up to you.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls nofile            # exception
     @ $(ls nofile)         # exception
@@ -132,7 +132,7 @@ up to you.
 ``CommandPipeline`` is truthy when the command succeeded and falsy
 when it failed:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ if !(ls nofile):
           print("found")
@@ -144,7 +144,7 @@ If you want a specific ``!(...)`` call to raise anyway, use the
 ``@error_raise`` decorator inside it — the decorator wins over the
 ``!()`` exemption:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ if !(@error_raise ls nofile):
           print("found")
@@ -161,10 +161,10 @@ single command inside a larger chain.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Force ``subprocess.CalledProcessError`` on this command, regardless of
-``$XONSH_SUBPROC_RAISE_ERROR``, ``$XONSH_SUBPROC_CMD_RAISE_ERROR``, or
+``$PYGWIN_SUBPROC_RAISE_ERROR``, ``$PYGWIN_SUBPROC_CMD_RAISE_ERROR``, or
 whether the command sits inside a normally-rescuing chain:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @error_raise ls /no || echo fb
     # CalledProcessError — @error_raise wins over ||
@@ -173,7 +173,7 @@ whether the command sits inside a normally-rescuing chain:
     # CalledProcessError — @error_raise wins over !() exemption too
 
 It also **always** shows the exception at the interactive prompt,
-overriding ``$XONSH_PROMPT_SHOW_SUBPROC_ERROR = False``.
+overriding ``$PYGWIN_PROMPT_SHOW_SUBPROC_ERROR = False``.
 
 ``@error_ignore`` — never raise
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -181,7 +181,7 @@ overriding ``$XONSH_PROMPT_SHOW_SUBPROC_ERROR = False``.
 The inverse — the command *never* raises, no matter the environment
 settings or chain position:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @error_ignore ls /no
     ls: cannot access '/no': No such file or directory
@@ -198,7 +198,7 @@ settings or chain position:
 ``@error_ignore`` is especially handy when you want a command to
 contribute to the chain's return code but **not** its error behavior:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo 1 | @error_ignore grep pattern | wc -l
     0
@@ -212,7 +212,7 @@ Catching the exception
 The raised exception is a plain ``subprocess.CalledProcessError``, so
 the usual Python idioms work:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ import subprocess
     @ try:
@@ -226,33 +226,33 @@ the usual Python idioms work:
 
 For scoped overrides, ``env.swap`` is often cleaner than catching:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ with @.env.swap(XONSH_SUBPROC_RAISE_ERROR=False):
+    @ with @.env.swap(PYGWIN_SUBPROC_RAISE_ERROR=False):
           ls /no
     ls: cannot access '/no': No such file or directory
     # no exception, even though the default is True
 
 For **captured iteration** there is also ``CommandPipeline.itercheck()``
-which raises ``XonshCalledProcessError`` (a subclass of
+which raises ``PygwinCalledProcessError`` (a subclass of
 ``subprocess.CalledProcessError`` that additionally carries
 ``.completed_command`` and ``.stderr``):
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ try:
           for line in !(grep -R TODO src/).itercheck():
               print(line.strip())
-      except XonshCalledProcessError as e:
+      except PygwinCalledProcessError as e:
           print("grep failed with rc", e.returncode)
 
 
 Interactive prompt behavior in detail
 -------------------------------------
 
-With the default ``$XONSH_PROMPT_SHOW_SUBPROC_ERROR = False``:
+With the default ``$PYGWIN_PROMPT_SHOW_SUBPROC_ERROR = False``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ls /no
     ls: cannot access '/no': No such file or directory
@@ -264,11 +264,11 @@ With the default ``$XONSH_PROMPT_SHOW_SUBPROC_ERROR = False``:
     ls: cannot access '/no': No such file or directory
     @
 
-With ``$XONSH_PROMPT_SHOW_SUBPROC_ERROR = True``:
+With ``$PYGWIN_PROMPT_SHOW_SUBPROC_ERROR = True``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_PROMPT_SHOW_SUBPROC_ERROR = True
+    @ $PYGWIN_PROMPT_SHOW_SUBPROC_ERROR = True
     @ ls /no
     ls: cannot access '/no': No such file or directory
     subprocess.CalledProcessError: Command '['ls', '/no']' returned non-zero exit status 2.
@@ -276,7 +276,7 @@ With ``$XONSH_PROMPT_SHOW_SUBPROC_ERROR = True``:
 
 ``@error_raise`` always shows:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @error_raise ls /no
     ls: cannot access '/no': No such file or directory
@@ -287,7 +287,7 @@ See also
 --------
 
 * :ref:`tutorial` — the scripting section discusses
-  ``$XONSH_SUBPROC_RAISE_ERROR`` in the context of writing robust xonsh
+  ``$PYGWIN_SUBPROC_RAISE_ERROR`` in the context of writing robust pygwin
   scripts.
 * :ref:`aliases` — for ``@error_raise`` / ``@error_ignore`` and other
   decorator aliases.

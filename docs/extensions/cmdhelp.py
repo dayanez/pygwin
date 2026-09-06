@@ -1,9 +1,9 @@
 """This module adds a reST directive to sphinx that generates alias
 documentation. For example::
 
-    .. command-help:: xonsh.aliases.source_foreign
+    .. command-help:: pygwin.aliases.source_foreign
 
-    .. command-help:: xonsh.aliases.source_foreign -h
+    .. command-help:: pygwin.aliases.source_foreign -h
 
 will create help for aliases.
 """
@@ -28,7 +28,7 @@ from docutils.statemachine import ViewList
 
 from sphinx.util.nodes import nested_parse_with_titles
 
-from xonsh.tools import redirect_stdout, redirect_stderr
+from pygwin.tools import redirect_stdout, redirect_stderr
 
 
 class CommandHelp(Directive):

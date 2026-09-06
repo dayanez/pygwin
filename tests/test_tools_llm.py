@@ -1,12 +1,12 @@
-"""LLM-generated regression coverage for ``xonsh.tools`` parsing helpers.
+"""LLM-generated regression coverage for ``pygwin.tools`` parsing helpers.
 
 GH-6386 — ``subproc_toks`` against already-wrapped lines
 ========================================================
 
 ``subproc_toks`` called on a line that has already been partially wrapped
-by an earlier parse pass (e.g. xonsh phase 1 turning ``echo && echo hi``
+by an earlier parse pass (e.g. pygwin phase 1 turning ``echo && echo hi``
 into ``echo && ![echo hi]``) used to re-wrap the existing ``![…]`` block,
-producing ``![![…]]`` — which is not valid xonsh, since neither ``![…]``
+producing ``![![…]]`` — which is not valid pygwin, since neither ``![…]``
 nor ``&&``/``||`` may appear inside ``![…]``.  The bug surfaced in
 xontribs that force ``CtxAwareTransformer.mode = "eval"`` to compensate
 for shifted column numbers in their compiled output (the ``coconut``
@@ -37,10 +37,10 @@ string.
 f-string conversion ``!r``/``!s``/``!a`` inside ``{…}``
 ========================================================
 
-In subproc mode the xonsh lexer emits ``BANG`` for ``!``, regardless of
+In subproc mode the pygwin lexer emits ``BANG`` for ``!``, regardless of
 whether it sits inside an f-string replacement field (where ``!r``,
 ``!s``, ``!a`` are *conversion specifiers* — purely textual, with no
-relation to xonsh macros) or at top level (where ``!`` is the macro
+relation to pygwin macros) or at top level (where ``!`` is the macro
 operator).  Without f-string awareness, ``subproc_toks`` and
 ``find_next_break`` treated any ``BANG`` as macro-start: the former
 swallowed the rest of the line into a single wrap that then failed to
@@ -84,8 +84,8 @@ three independent components, all pinned by tests below:
 
 import pytest
 
-from xonsh.parsers.lexer import Lexer
-from xonsh.tools import (
+from pygwin.parsers.lexer import Lexer
+from pygwin.tools import (
     _have_open_triple_quotes,
     find_next_break,
     get_logical_line,
@@ -218,10 +218,10 @@ def test_subproc_toks_already_wrapped_chain(line, expected):
 def test_strip_continuation_comments(src, exp, xession):
     # Pin the line-continuation marker to ``\\`` so expectations stay
     # platform-agnostic. On Windows, ``get_line_continuation()`` returns
-    # ``" \\"`` whenever ``XONSH_INTERACTIVE`` is true, which the preprocessor
+    # ``" \\"`` whenever ``PYGWIN_INTERACTIVE`` is true, which the preprocessor
     # would faithfully use as the replacement marker — but the unit-test
     # expectations encode the non-interactive shape.
-    xession.env["XONSH_INTERACTIVE"] = False
+    xession.env["PYGWIN_INTERACTIVE"] = False
     assert strip_continuation_comments(src) == exp
 
 
@@ -325,7 +325,7 @@ def test_find_next_break_fstring_conversion(line, expected_maxcol):
 )
 def test_subproc_toks_macro_outside_fstring_still_works(line):
     """Pin the inverse: ``BANG`` outside an f-string replacement field
-    is still the xonsh macro operator and ``subproc_toks`` must accept
+    is still the pygwin macro operator and ``subproc_toks`` must accept
     it (i.e., not decline by mistake after the f-string-conversion
     guard).
     """

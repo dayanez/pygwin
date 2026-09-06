@@ -2,7 +2,7 @@
 
 import threading
 
-from xonsh.lib.lazyasd import LazyDict, LazyObject
+from pygwin.lib.lazyasd import LazyDict, LazyObject
 
 #
 # LazyObject Tests

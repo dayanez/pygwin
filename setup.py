@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Note: Do not embed any non-ASCII characters in this file until pip has been
-# fixed. See https://github.com/xonsh/xonsh/issues/487.
+# fixed. See https://github.com/pygwin/pygwin/issues/487.
 import os
 import subprocess
 import sys
@@ -14,9 +14,9 @@ from setuptools.command.sdist import sdist
 from wheel.bdist_wheel import bdist_wheel
 
 TABLES = [
-    "xonsh/lexer_table.py",
-    "xonsh/parser_table.py",
-    "xonsh/completion_parser_table.py",
+    "pygwin/lexer_table.py",
+    "pygwin/parser_table.py",
+    "pygwin/completion_parser_table.py",
 ]
 
 
@@ -41,17 +41,17 @@ def build_tables():
     print("Building lexer and parser tables.", file=sys.stderr)
     root_dir = os.path.abspath(os.path.dirname(__file__))
     sys.path.insert(0, root_dir)
-    from xonsh.parser import Parser
-    from xonsh.parsers.completion_context import CompletionContextParser
+    from pygwin.parser import Parser
+    from pygwin.parsers.completion_context import CompletionContextParser
 
     Parser(
         yacc_table="parser_table",
-        outputdir=os.path.join(root_dir, "xonsh"),
+        outputdir=os.path.join(root_dir, "pygwin"),
         yacc_debug=True,
     )
     CompletionContextParser(
         yacc_table="completion_parser_table",
-        outputdir=os.path.join(root_dir, "xonsh"),
+        outputdir=os.path.join(root_dir, "pygwin"),
         debug=True,
     )
     sys.path.pop(0)
@@ -86,7 +86,7 @@ def dirty_version():
     except Exception:
         _date = ""
         print("failed to get commit date", file=sys.stderr)
-    with open("xonsh/dev.githash", "w") as f:
+    with open("pygwin/dev.githash", "w") as f:
         f.write(f"{sha}|{_date}")
     print("wrote git version: " + sha, file=sys.stderr)
     return True
@@ -98,7 +98,7 @@ ORIGINAL_VERSION_LINE = None
 def replace_version(N):
     """Replace version in `__init__.py` with devN suffix"""
     global ORIGINAL_VERSION_LINE
-    with open("xonsh/__init__.py") as f:
+    with open("pygwin/__init__.py") as f:
         raw = f.read()
     lines = raw.splitlines()
     msg_assert = "__version__ must be the first line of the __init__.py"
@@ -106,7 +106,7 @@ def replace_version(N):
     ORIGINAL_VERSION_LINE = lines[0]
     lines[0] = lines[0].rstrip(' "') + f'.dev{N}"'
     upd = "\n".join(lines) + "\n"
-    with open("xonsh/__init__.py", "w") as f:
+    with open("pygwin/__init__.py", "w") as f:
         f.write(upd)
 
 
@@ -114,17 +114,17 @@ def restore_version():
     """If we touch the version in __init__.py discard changes after install."""
     if ORIGINAL_VERSION_LINE is None:
         return
-    with open("xonsh/__init__.py") as f:
+    with open("pygwin/__init__.py") as f:
         raw = f.read()
     lines = raw.splitlines()
     lines[0] = ORIGINAL_VERSION_LINE
     upd = "\n".join(lines) + "\n"
-    with open("xonsh/__init__.py", "w") as f:
+    with open("pygwin/__init__.py", "w") as f:
         f.write(upd)
 
 
 class xbuild_py(build_py):
-    """Xonsh specialization of setuptools build_py class."""
+    """pygwin specialization of setuptools build_py class."""
 
     def run(self):
         clean_tables()
@@ -139,12 +139,12 @@ class xbuild_py(build_py):
 class xbdist(bdist_wheel):
     def initialize_options(self):
         super().initialize_options()
-        # because XonshParser will be build for each minor python version, we need separate builds
+        # because PygwinParser will be build for each minor python version, we need separate builds
         self.python_tag = python_tag()
 
 
 class xinstall(install):
-    """Xonsh specialization of setuptools install class.
+    """pygwin specialization of setuptools install class.
     For production, let setuptools generate the
     startup script, e.g: `pip installl .' rather than
     relying on 'python setup.py install'."""
@@ -161,7 +161,7 @@ class xinstall(install):
 
 
 class xsdist(sdist):
-    """Xonsh specialization of setuptools sdist class."""
+    """pygwin specialization of setuptools sdist class."""
 
     def make_release_tree(self, basedir, files):
         clean_tables()
@@ -194,13 +194,13 @@ class install_scripts_quoted_shebang(install_scripts):
 
 
 class install_scripts_rewrite(install_scripts):
-    """Change default python3 to the concrete python binary used to install/develop inside xon.sh script"""
+    """Change default python3 to the concrete python binary used to install/develop inside pygwin.sh script"""
 
     def run(self):
         super().run()
         if not self.dry_run:
             for file in self.get_outputs():
-                if file.endswith("xon.sh"):
+                if file.endswith("pygwin.sh"):
                     # this is the value distutils use on its shebang translation
                     bs_cmd = self.get_finalized_command("build_scripts")
                     exec_param = getattr(bs_cmd, "executable", None)
@@ -215,7 +215,7 @@ class install_scripts_rewrite(install_scripts):
 
 
 class xdevelop(develop):
-    """Xonsh specialization of setuptools develop class."""
+    """pygwin specialization of setuptools develop class."""
 
     def run(self):
         clean_tables()
@@ -226,8 +226,8 @@ class xdevelop(develop):
             restore_version()
 
     def install_script(self, dist, script_name, script_text, dev_path=None):
-        if script_name == "xon.sh":
-            # change default python3 to the concrete python binary used to install/develop inside xon.sh script
+        if script_name == "pygwin.sh":
+            # change default python3 to the concrete python binary used to install/develop inside pygwin.sh script
             script_text = script_text.replace(" python3 ", f' "{sys.executable}" ')
         super().install_script(dist, script_name, script_text, dev_path)
 

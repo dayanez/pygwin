@@ -3,7 +3,7 @@
 ******************
 Keyboard Shortcuts
 ******************
-Xonsh comes pre-baked with a few keyboard shortcuts. The following is only available under the prompt-toolkit shell.
+Pygwin comes pre-baked with a few keyboard shortcuts. The following is only available under the prompt-toolkit shell.
 
 Editing
 -------
@@ -77,7 +77,7 @@ Execution
 Exit
 ----
 
-Press ``Ctrl-D`` to exit xonsh and return to original terminal.
+Press ``Ctrl-D`` to exit pygwin and return to original terminal.
 If not called by another terminal, then exit current terminal window.
 Similar to ``exit``.
 

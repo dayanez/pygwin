@@ -8,16 +8,16 @@ import warnings
 
 import pytest
 
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.pytest.tools import skip_if_on_windows
 
 
 @skip_if_on_windows
 @pytest.mark.skipif(not shutil.which("bash"), reason="bash is not available")
 def test_foreign_function_alias_streams_to_caller_stdout(xession):
     """Issue #5043: in streaming mode the foreign shell must write to the
-    ``stdout`` argument supplied by the caller (e.g. xonsh's ``$()`` pipe),
-    not inherit xonsh's own terminal fd."""
-    from xonsh.foreign_shells import ForeignShellFunctionAlias
+    ``stdout`` argument supplied by the caller (e.g. pygwin's ``$()`` pipe),
+    not inherit pygwin's own terminal fd."""
+    from pygwin.foreign_shells import ForeignShellFunctionAlias
 
     with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as bashrc:
         bashrc.write("function printstuff() { echo printing stuff; }\n")
@@ -39,22 +39,22 @@ def test_foreign_function_alias_streams_to_caller_stdout(xession):
 
 
 def test_foreign_shell_nostream_flag_is_deprecated():
-    """``--xonsh-nostream`` is a legacy opt-out from the streaming mode.
+    """``--pygwin-nostream`` is a legacy opt-out from the streaming mode.
     Streaming now captures correctly via $(...) / !(...), so the flag is
     redundant and should warn on use."""
-    from xonsh.foreign_shells import ForeignShellBaseAlias
+    from pygwin.foreign_shells import ForeignShellBaseAlias
 
-    with pytest.warns(DeprecationWarning, match="xonsh-nostream"):
+    with pytest.warns(DeprecationWarning, match="pygwin-nostream"):
         args, streaming = ForeignShellBaseAlias._is_streaming(
-            ["foo", "--xonsh-nostream", "bar"]
+            ["foo", "--pygwin-nostream", "bar"]
         )
     assert streaming is False
     assert args == ["foo", "bar"]
 
 
 def test_foreign_shell_streaming_default_does_not_warn():
-    """No ``--xonsh-nostream`` → no warning, streaming stays the default."""
-    from xonsh.foreign_shells import ForeignShellBaseAlias
+    """No ``--pygwin-nostream`` → no warning, streaming stays the default."""
+    from pygwin.foreign_shells import ForeignShellBaseAlias
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")  # any warning would raise
@@ -64,29 +64,29 @@ def test_foreign_shell_streaming_default_does_not_warn():
 
 
 def test_emit_foreign_script_output_strips_marker(capsys):
-    """The helper must drop everything from the first xonsh marker onward
+    """The helper must drop everything from the first pygwin marker onward
     when forwarding the script's stdout."""
-    from xonsh.foreign_shells import _emit_foreign_script_output
+    from pygwin.foreign_shells import _emit_foreign_script_output
 
     captured_stdout = (
         "user-line-1\nuser-line-2\n"
-        "__XONSH_ENV_BEG__\nFOO=bar\n__XONSH_ENV_END__\n"
-        "__XONSH_ALIAS_BEG__\n__XONSH_ALIAS_END__\n"
-        "__XONSH_FUNCS_BEG__\n__XONSH_FUNCS_END__\n"
+        "__PYGWIN_ENV_BEG__\nFOO=bar\n__PYGWIN_ENV_END__\n"
+        "__PYGWIN_ALIAS_BEG__\n__PYGWIN_ALIAS_END__\n"
+        "__PYGWIN_FUNCS_BEG__\n__PYGWIN_FUNCS_END__\n"
     )
     _emit_foreign_script_output(captured_stdout, "warning-on-stderr\n")
 
     out = capsys.readouterr()
     assert out.out == "user-line-1\nuser-line-2\n"
-    assert "__XONSH_ENV_BEG__" not in out.out
+    assert "__PYGWIN_ENV_BEG__" not in out.out
     assert out.err == "warning-on-stderr\n"
 
 
 def test_emit_foreign_script_output_handles_empty_prefix(capsys):
     """No script output (marker is at position 0) → nothing on stdout."""
-    from xonsh.foreign_shells import _emit_foreign_script_output
+    from pygwin.foreign_shells import _emit_foreign_script_output
 
-    _emit_foreign_script_output("__XONSH_ENV_BEG__\nFOO=bar\n", "")
+    _emit_foreign_script_output("__PYGWIN_ENV_BEG__\nFOO=bar\n", "")
     out = capsys.readouterr()
     assert out.out == ""
     assert out.err == ""
@@ -95,7 +95,7 @@ def test_emit_foreign_script_output_handles_empty_prefix(capsys):
 def test_emit_foreign_script_output_no_marker_passthrough(capsys):
     """If the marker is missing (e.g. shell crashed), the entire captured
     stdout is the script's — forward it whole instead of swallowing it."""
-    from xonsh.foreign_shells import _emit_foreign_script_output
+    from pygwin.foreign_shells import _emit_foreign_script_output
 
     _emit_foreign_script_output("crashed before marker\n", "stderr msg\n")
     out = capsys.readouterr()
@@ -107,8 +107,8 @@ def test_emit_foreign_script_output_no_marker_passthrough(capsys):
 @pytest.mark.skipif(not shutil.which("bash"), reason="bash is not available")
 def test_foreign_shell_data_show_output_forwards_script_stdout(capfd, xession):
     """Issue #4070: with ``show_output=True`` the sourced script's own
-    ``echo`` lines must appear on the xonsh terminal."""
-    from xonsh.foreign_shells import foreign_shell_data
+    ``echo`` lines must appear on the pygwin terminal."""
+    from pygwin.foreign_shells import foreign_shell_data
 
     foreign_shell_data.cache_clear()
     with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as script:
@@ -140,7 +140,7 @@ def test_foreign_shell_data_show_output_forwards_script_stdout(capfd, xession):
     assert env.get("VAR_4070") == "ok"
     assert "banner-stdout" in captured.out
     # marker output must never leak to the user
-    assert "__XONSH_ENV_BEG__" not in captured.out
+    assert "__PYGWIN_ENV_BEG__" not in captured.out
     assert "banner-stderr" in captured.err
 
 
@@ -149,7 +149,7 @@ def test_foreign_shell_data_show_output_forwards_script_stdout(capfd, xession):
 def test_foreign_shell_data_default_silently_swallows_script_output(capfd, xession):
     """Without ``show_output`` (the historical default), the script's own
     output is not forwarded — preserves backward compatibility."""
-    from xonsh.foreign_shells import foreign_shell_data
+    from pygwin.foreign_shells import foreign_shell_data
 
     foreign_shell_data.cache_clear()
     with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as script:
@@ -193,11 +193,11 @@ def test_foreign_shell_data_forwards_stderr_on_failure_without_show_output(
 ):
     """Issue #4977: a non-zero exit from the foreign shell must surface its
     stderr to the user even when ``show_output`` is left at its default."""
-    from xonsh.foreign_shells import foreign_shell_data
+    from pygwin.foreign_shells import foreign_shell_data
 
     foreign_shell_data.cache_clear()
     with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as script:
-        # ``set -e`` is prepended by xonsh; ``return 1`` exits the sourced
+        # ``set -e`` is prepended by pygwin; ``return 1`` exits the sourced
         # script (and therefore the whole subprocess) with code 1, exactly
         # like a real-world rc-file early-exit guard.
         script.write("echo why-it-failed 1>&2\nreturn 1\n")
@@ -229,7 +229,7 @@ def test_foreign_shell_data_missing_binary_emits_named_error(
     """Issue #4977: when the foreign shell binary itself isn't on PATH the
     user gets a concrete "foreign shell not found" message naming the
     binary, instead of the caller's generic "failed to source"."""
-    from xonsh import foreign_shells
+    from pygwin import foreign_shells
 
     def fake_run(*args, **kwargs):
         raise FileNotFoundError(2, "No such file or directory", "bash")
@@ -299,7 +299,7 @@ def test_sh_canonicalizes_to_posix_defaults(shell_name):
     """All POSIX-sh spellings (sh/dash/ash/ksh/mksh/pdksh, bare and
     absolute) resolve to the same canon key and pull in POSIX-safe
     defaults (no bash/zsh-specific syntax)."""
-    from xonsh.foreign_shells import (
+    from pygwin.foreign_shells import (
         CANON_SHELL_NAMES,
         DEFAULT_ALIASCMDS,
         DEFAULT_FUNCSCMDS,
@@ -330,7 +330,7 @@ def test_sh_canonicalizes_to_posix_defaults(shell_name):
 def test_foreign_shell_data_sources_via_bin_sh(capfd, xession):
     """End-to-end: sourcing a real script through ``/bin/sh`` populates
     env (and crucially does not crash, fixing issue #5894)."""
-    from xonsh.foreign_shells import foreign_shell_data
+    from pygwin.foreign_shells import foreign_shell_data
 
     foreign_shell_data.cache_clear()
     with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as script:
@@ -359,7 +359,7 @@ def test_foreign_shell_data_unknown_shell_safe_returns_none(capfd, xession):
     unknown shell name — it should print a clean message and return
     ``(None, None)`` so the source-foreign caller's friendly error
     takes over instead of a raw traceback."""
-    from xonsh.foreign_shells import foreign_shell_data
+    from pygwin.foreign_shells import foreign_shell_data
 
     foreign_shell_data.cache_clear()
     try:
@@ -387,7 +387,7 @@ def test_foreign_shell_data_unknown_shell_unsafe_raises(xession):
     """With ``safe=False`` the historical KeyError behavior is preserved
     for callers that explicitly opted out of safe handling (so existing
     integrations don't silently start swallowing errors)."""
-    from xonsh.foreign_shells import foreign_shell_data
+    from pygwin.foreign_shells import foreign_shell_data
 
     foreign_shell_data.cache_clear()
     with pytest.raises(KeyError, match="Unknown foreign shell"):

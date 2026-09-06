@@ -13,8 +13,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from xonsh.procs.proxies import ProcProxy, parse_proxy_return
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.procs.proxies import ProcProxy, parse_proxy_return
+from pygwin.pytest.tools import skip_if_on_windows
 
 
 def test_parse_proxy_return_writes_str_once():
@@ -24,7 +24,7 @@ def test_parse_proxy_return_writes_str_once():
     assert buf.getvalue() == "ok"
 
 
-def test_proc_proxy_wait_not_idempotent(xonsh_session):
+def test_proc_proxy_wait_not_idempotent(pygwin_session):
     """ProcProxy.wait() re-runs parse_proxy_return — double call duplicates output."""
     stdout = io.StringIO()
     proc = ProcProxy(
@@ -55,7 +55,7 @@ def test_close_proc_skips_non_thread_procs():
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_exec_alias_with_inner_pipe_in_outer_pipe(xonsh_session):
+def test_exec_alias_with_inner_pipe_in_outer_pipe(pygwin_session):
     """ExecAlias whose source already contains a pipe, used inside an outer
     pipeline, must not deadlock.
 
@@ -72,19 +72,19 @@ def test_exec_alias_with_inner_pipe_in_outer_pipe(xonsh_session):
     flipped it True, leaving the parent's copy of the inner pipe writer
     open and preventing the inner downstream from ever observing EOF.
     """
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
     # ``--color=never``: on FreeBSD (and Linux distros that ship grep as an
     # alias to ``grep --color=auto``) the BSD grep auto-detects an
     # interactive context inside the test PTY and wraps matches in ANSI
     # escapes, breaking the equality assertion below.
-    xonsh_session.aliases["aaa"] = "seq 1 100000 | grep --color=never 5"
+    pygwin_session.aliases["aaa"] = "seq 1 100000 | grep --color=never 5"
 
     # Early-close downstream
-    out = xonsh_session.execer.eval("$(aaa | head -3)")
+    out = pygwin_session.execer.eval("$(aaa | head -3)")
     assert out.strip().splitlines() == ["5", "15", "25"]
 
     # Full-drain downstream — would also hang under the bug because the
     # inner pipeline never reaches its own _close_prev_procs() while the
     # parent still holds the seq→grep write fd.
-    out = xonsh_session.execer.eval("$(aaa | wc -l)")
+    out = pygwin_session.execer.eval("$(aaa | wc -l)")
     assert out.strip() == "40951"  # count of numbers 1..100000 containing '5'

@@ -1,14 +1,14 @@
-"""Testing for ``xonsh.shells.Shell``"""
+"""Testing for ``pygwin.shells.Shell``"""
 
 import os
 
-from xonsh.history.dummy import DummyHistory
-from xonsh.history.json import JsonHistory
-from xonsh.history.sqlite import SqliteHistory
-from xonsh.shell import Shell
+from pygwin.history.dummy import DummyHistory
+from pygwin.history.json import JsonHistory
+from pygwin.history.sqlite import SqliteHistory
+from pygwin.shell import Shell
 
 
-def test_shell_with_json_history(xession, xonsh_execer, tmpdir_factory):
+def test_shell_with_json_history(xession, pygwin_execer, tmpdir_factory):
     """
     Check that shell successfully load JSON history from file.
     """
@@ -34,20 +34,20 @@ def test_shell_with_json_history(xession, xonsh_execer, tmpdir_factory):
 
     xession.env.update(
         dict(
-            XONSH_DATA_DIR=tempdir,
-            XONSH_INTERACTIVE=True,
-            XONSH_HISTORY_BACKEND="json",
-            XONSH_HISTORY_FILE=history_file,
-            # XONSH_DEBUG=1  # to show errors
+            PYGWIN_DATA_DIR=tempdir,
+            PYGWIN_INTERACTIVE=True,
+            PYGWIN_HISTORY_BACKEND="json",
+            PYGWIN_HISTORY_FILE=history_file,
+            # PYGWIN_DEBUG=1  # to show errors
         )
     )
 
-    Shell(xonsh_execer, shell_type="none")
+    Shell(pygwin_execer, shell_type="none")
 
     assert len([i for i in xession.history.all_items()]) == 2
 
 
-def test_shell_with_sqlite_history(xession, xonsh_execer, tmpdir_factory):
+def test_shell_with_sqlite_history(xession, pygwin_execer, tmpdir_factory):
     """
     Check that shell successfully load SQLite history from file.
     """
@@ -73,24 +73,24 @@ def test_shell_with_sqlite_history(xession, xonsh_execer, tmpdir_factory):
 
     xession.env.update(
         dict(
-            XONSH_DATA_DIR=tempdir,
-            XONSH_INTERACTIVE=True,
-            XONSH_HISTORY_BACKEND="sqlite",
-            XONSH_HISTORY_FILE=history_file,
-            # XONSH_DEBUG=1  # to show errors
+            PYGWIN_DATA_DIR=tempdir,
+            PYGWIN_INTERACTIVE=True,
+            PYGWIN_HISTORY_BACKEND="sqlite",
+            PYGWIN_HISTORY_FILE=history_file,
+            # PYGWIN_DEBUG=1  # to show errors
         )
     )
 
-    Shell(xonsh_execer, shell_type="none")
+    Shell(pygwin_execer, shell_type="none")
 
     assert len([i for i in xession.history.all_items()]) == 2
 
 
-def test_shell_with_dummy_history_in_not_interactive(xession, xonsh_execer):
+def test_shell_with_dummy_history_in_not_interactive(xession, pygwin_execer):
     """
     Check that shell use Dummy history in not interactive mode.
     """
-    xession.env["XONSH_INTERACTIVE"] = False
+    xession.env["PYGWIN_INTERACTIVE"] = False
     xession.history = None
-    Shell(xonsh_execer, shell_type="none")
+    Shell(pygwin_execer, shell_type="none")
     assert isinstance(xession.history, DummyHistory)

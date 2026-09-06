@@ -4,8 +4,8 @@ import ast
 
 import pytest
 
-from xonsh.parser import Parser
-from xonsh.pytest.tools import nodes_equal
+from pygwin.parser import Parser
+from pygwin.pytest.tools import nodes_equal
 
 
 @pytest.fixture(scope="module")
@@ -25,11 +25,11 @@ def check_ast(parser, xsh):
         __tracebackhide__ = True
         # expect a Python AST
         exp = ast.parse(inp, mode=mode)
-        # observe something from xonsh
+        # observe something from pygwin
         obs = parser.parse(inp, debug_level=debug_level)
         # Check that they are equal
         assert nodes_equal(exp, obs)
-        # round trip by running xonsh AST via Python
+        # round trip by running pygwin AST via Python
         if run:
             exec(compile(obs, "<test-ast>", mode))
 
@@ -48,7 +48,7 @@ def check_stmts(check_ast):
 
 
 @pytest.fixture
-def check_xonsh_ast(xsh, parser):
+def check_pygwin_ast(xsh, parser):
     def factory(
         xenv,
         inp,
@@ -63,7 +63,7 @@ def check_xonsh_ast(xsh, parser):
         obs = parser.parse(inp, debug_level=debug_level)
         if obs is None:
             return  # comment only
-        bytecode = compile(obs, "<test-xonsh-ast>", mode)
+        bytecode = compile(obs, "<test-pygwin-ast>", mode)
         if run:
             exec(bytecode, globals, locals)
         return obs if return_obs else True

@@ -1,4 +1,4 @@
-"""Tests for the xonsh formatter engine (``xonsh.formatter.core``)."""
+"""Tests for the pygwin formatter engine (``pygwin.formatter.core``)."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ import io
 
 import pytest
 
-from xonsh.formatter import format_source
-from xonsh.formatter.core import FormatError
-from xonsh.parsers.tokenize import (
+from pygwin.formatter import format_source
+from pygwin.formatter.core import FormatError
+from pygwin.parsers.tokenize import (
     DEDENT,
     ENCODING,
     ENDMARKER,
@@ -58,10 +58,10 @@ def _token_skeleton(src: str) -> list[tuple[int, str]]:
 )
 def test_assignment_and_comparison_get_spaces(src, expected):
     # ``a>=b`` / ``a<=b`` without surrounding whitespace are *not*
-    # in this list: the xonsh tokenizer treats ``name>`` as an
+    # in this list: the pygwin tokenizer treats ``name>`` as an
     # IO-redirect token (think ``2>err``), so a bare ``a>=b`` cannot
     # be losslessly distinguished from a redirect at the token level.
-    # When the user writes proper xonsh comparisons (with at least one
+    # When the user writes proper pygwin comparisons (with at least one
     # space — ``a >= b``) the operator arrives as a single OP token
     # and the formatter handles it; that case is exercised by
     # :func:`test_comparison_with_whitespace_kept` below.
@@ -166,7 +166,7 @@ def test_comment_body_preserved_verbatim(src):
 
 
 def test_shebang_preserved():
-    src = "#!/usr/bin/env xonsh\nx = 1\n"
+    src = "#!/usr/bin/env pygwin\nx = 1\n"
     assert format_source(src) == src
 
 
@@ -298,7 +298,7 @@ def test_trailing_whitespace_stripped():
 
 
 # ---------------------------------------------------------------------
-# xonsh-specific syntax preservation
+# pygwin-specific syntax preservation
 # ---------------------------------------------------------------------
 
 
@@ -321,8 +321,8 @@ def test_trailing_whitespace_stripped():
         "cmd 2>&1\n",
     ],
 )
-def test_xonsh_subprocess_syntax_preserved(src):
-    """xonsh-specific tokens must round-trip unchanged."""
+def test_pygwin_subprocess_syntax_preserved(src):
+    """pygwin-specific tokens must round-trip unchanged."""
     assert format_source(src) == src
 
 
@@ -509,16 +509,16 @@ def test_python_backslash_continuation_alignment_preserved(src, expected):
 
 def test_subproc_line_with_triple_quoted_fstring_arg_preserved():
     """A subprocess line that takes a multi-line triple-quoted f-string
-    as one of its arguments must round-trip: the xonsh tokenizer
+    as one of its arguments must round-trip: the pygwin tokenizer
     reports inverted positions for multi-line ``FSTRING_MIDDLE`` tokens
     (start col > end col), and previously the verbatim ``_raw_between``
     mode in subprocess context would synthesize a fake "gap" out of
     those positions and end up duplicating the entire f-string body.
     Now the f-string-segment glue rule wins over any verbatim mode."""
     src = (
-        'docker run --rm -it -h @(host) xonsh/xonsh bash -lc @(f"""\n'
+        'docker run --rm -it -h @(host) pygwin/pygwin bash -lc @(f"""\n'
         "    set -e\n"
-        "    git clone --depth 1 --branch {branch} {url} /tmp/xonsh\n"
+        "    git clone --depth 1 --branch {branch} {url} /tmp/pygwin\n"
         "    exec bash\n"
         '    """)\n'
     )
@@ -619,7 +619,7 @@ def test_inline_comment_after_opener_keeps_padding():
 
 
 def test_inline_comment_after_dollar_capture_in_string():
-    """Regression: xonsh's tokenizer can emit a ``COMMENT`` token whose
+    """Regression: pygwin's tokenizer can emit a ``COMMENT`` token whose
     value carries a stray leading space when a ``$(...)`` capture
     appeared earlier inside a string literal. The formatter must not
     double-count that into the inter-token padding."""
@@ -638,7 +638,7 @@ def f():
 
 def test_triple_quoted_fstring_with_brace_escapes_preserved():
     # Multi-line triple-quoted f-strings with literal-brace escapes
-    # must not lose content. The xonsh tokenizer reports bogus end
+    # must not lose content. The pygwin tokenizer reports bogus end
     # positions for these tokens, so the formatter relies on a
     # fallback that re-escapes braces on the decoded value.
     src = 'WIZARD = f"""\n  {{TITLE}} hi {name}\n  {{END}}\n"""\n'
@@ -648,7 +648,7 @@ def test_triple_quoted_fstring_with_brace_escapes_preserved():
     assert "{{END}}" in out
     assert "hi {name}" in out
     # And the result must remain a valid f-string (re-tokenize cleanly).
-    from xonsh.formatter.core import _Formatter
+    from pygwin.formatter.core import _Formatter
 
     _Formatter(out).run()  # raises FormatError if it became unparseable
 

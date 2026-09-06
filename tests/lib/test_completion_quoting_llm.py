@@ -1,7 +1,7 @@
-"""Tests for :func:`xonsh.lib.completion_quoting.name_needs_quotes`.
+"""Tests for :func:`pygwin.lib.completion_quoting.name_needs_quotes`.
 
 Pins down *which* characters force quoting in completions, verified
-against the xonsh completion-context parser (i.e. "does feeding
+against the pygwin completion-context parser (i.e. "does feeding
 ``ls fi<ch>le`` through the parser keep the token whole?"). Regressions
 here mean broken completions for files whose names contain shell
 metacharacters.
@@ -11,7 +11,7 @@ import os
 
 import pytest
 
-from xonsh.lib.completion_quoting import name_needs_quotes
+from pygwin.lib.completion_quoting import name_needs_quotes
 
 
 @pytest.mark.parametrize(
@@ -42,15 +42,15 @@ from xonsh.lib.completion_quoting import name_needs_quotes
     ids=lambda c: f"char={c!r}",
 )
 def test_special_char_forces_quoting(ch):
-    """Every xonsh metacharacter must force quoting when present in a
+    """Every pygwin metacharacter must force quoting when present in a
     completion candidate, otherwise the parser will split the token.
     """
     assert name_needs_quotes(f"fi{ch}le") is True
 
 
 @pytest.mark.parametrize("word", ["and", "or"])
-def test_xonsh_keywords_force_quoting(word):
-    """``and`` / ``or`` are xonsh operator keywords — a bare ``name and
+def test_pygwin_keywords_force_quoting(word):
+    """``and`` / ``or`` are pygwin operator keywords — a bare ``name and
     other`` would be parsed as a boolean expression, not two args.
     """
     assert name_needs_quotes(word) is True
@@ -84,7 +84,7 @@ def test_xonsh_keywords_force_quoting(word):
     ids=lambda n: f"name={n!r}",
 )
 def test_plain_names_do_not_force_quoting(name):
-    """Names whose characters are all safe in xonsh's subprocess-arg
+    """Names whose characters are all safe in pygwin's subprocess-arg
     context must NOT be quoted — otherwise every completion ends up
     wrapped in quotes for no reason.
     """
@@ -104,7 +104,7 @@ def test_backslash_requires_mismatched_sep():
 
 def test_default_sep_is_os_sep():
     """When ``sep`` is omitted the helper falls back to ``os.sep`` —
-    callers that don't know the xonsh-configured separator still get
+    callers that don't know the pygwin-configured separator still get
     sensible answers for the current platform.
     """
     # Use a name that's backslash-only-special, so the answer depends

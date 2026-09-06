@@ -1,8 +1,8 @@
-"""Tests for ``xonsh.xontribs.find_xontrib`` lookup pipeline.
+"""Tests for ``pygwin.xontribs.find_xontrib`` lookup pipeline.
 
 Regression coverage for the ``--no-rc`` / ``$XONTRIBS_AUTOLOAD_DISABLED``
 case: a xontrib whose only Python-visible mapping is a setuptools
-entry point in the ``xonsh.xontribs`` group (the wheel ships **no**
+entry point in the ``pygwin.xontribs`` group (the wheel ships **no**
 ``xontrib/<name>.py`` and no top-level ``<name>._load_xontrib_``) used
 to be unreachable from ``xontrib load <name>`` whenever autoload had
 not populated ``XSH.builtins.autoloaded_xontribs``.  The canonical
@@ -19,8 +19,8 @@ import sys
 
 import pytest
 
-from xonsh import xontribs
-from xonsh.xontribs import find_xontrib, xontribs_load
+from pygwin import xontribs
+from pygwin.xontribs import find_xontrib, xontribs_load
 
 
 @pytest.fixture
@@ -139,7 +139,7 @@ def test_find_xontrib_missing_returns_none(tmpmod, monkeypatch):
 def test_xontribs_load_via_entry_point_without_autoload(tmpmod, monkeypatch):
     """End-to-end: ``xontrib load <name>`` succeeds even when autoload
     did not run, provided the name has an entry point.  This is the
-    exact symptom from the GH-6386 follow-up: ``xonsh --no-rc`` +
+    exact symptom from the GH-6386 follow-up: ``pygwin --no-rc`` +
     ``xontrib load coconut`` used to fail with «not installed» despite
     coconut being correctly installed.
     """

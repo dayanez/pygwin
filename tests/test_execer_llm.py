@@ -8,7 +8,7 @@ forced to ``"eval"`` so the whole stripped logical line is fed to
 ``subproc_toks``.  When phase 1 has already wrapped part of the line as
 ``![…]`` (e.g. for ``echo && echo hi`` → ``echo && ![echo hi]``), the
 eval-mode wrap of the remaining bare ``Name`` used to produce
-``![![echo hi]]`` (invalid xonsh), the parser raised ``SyntaxError``,
+``![![echo hi]]`` (invalid pygwin), the parser raised ``SyntaxError``,
 ``try_subproc_toks`` swallowed it, and the bare ``Name('echo')``
 survived to runtime as a ``NameError``.  A second variant silently
 miscompiled ``cmd1 && cmd2`` (both bare, both single-token) into
@@ -58,14 +58,14 @@ import pytest
 )
 def test_andor_chain_eval_mode(line, xession):
     """Phase-2 eval-mode wrap must produce the same AST as exec-mode for
-    plain xonsh subproc chains.  Coconut forces eval-mode for every
+    plain pygwin subproc chains.  Coconut forces eval-mode for every
     call to ``try_subproc_toks``; without the GH-6386 fix the bare
     ``Name`` on the left of ``&&``/``||`` is left untransformed (loud
     ``NameError``) or silently replaced with the wrong subproc wrap
     (silent miscompile).
     """
     execer = xession.execer
-    ctx = {"__xonsh__": object()}
+    ctx = {"__pygwin__": object()}
     src = line + "\n"
     exec_tree = execer.parse(src, ctx=ctx, mode="single")
     exec_unparsed = pyast.unparse(exec_tree)
@@ -116,18 +116,18 @@ def test_andor_chain_eval_mode(line, xession):
         "x = $(echo 1 \\\n    # 2 \\\n    3)\n",
     ],
 )
-def test_line_cont_with_comment(code, xonsh_execer_parse):
-    assert xonsh_execer_parse(code)
+def test_line_cont_with_comment(code, pygwin_execer_parse):
+    assert pygwin_execer_parse(code)
 
 
 # --- f-string conversion (``{x!r}``/``{x!s}``/``{x!a}``) -----------------
 #
-# In subproc mode the xonsh lexer emits ``BANG`` for ``!``.  Without
+# In subproc mode the pygwin lexer emits ``BANG`` for ``!``.  Without
 # f-string awareness, ``subproc_toks`` and ``find_next_break`` treat
 # any ``BANG`` as the start of a macro call, swallowing the rest of
 # the line into a single ``![…]`` wrap that then fails to re-parse
 # (``code: @(``).  ``f"{name!r}"`` and friends use ``!`` as a
-# *conversion specifier* — purely textual, with no relation to xonsh
+# *conversion specifier* — purely textual, with no relation to pygwin
 # macros — so the fix tracks f-string nesting (``FSTRING_START`` /
 # ``FSTRING_END``) and replacement-field depth (``LBRACE`` /
 # ``RBRACE``) and ignores ``BANG`` while ``fstring_expr_depth > 0``.
@@ -161,7 +161,7 @@ def test_fstring_conversion_in_pyeval(src, xession):
     ``BANG`` while inside a replacement field.
     """
     execer = xession.execer
-    ctx = {"__xonsh__": object()}
+    ctx = {"__pygwin__": object()}
     tree = execer.parse(src, ctx=ctx, mode="exec")
     assert tree is not None
     assert tree.body, f"expected non-empty AST for {src!r}"
@@ -187,7 +187,7 @@ def test_macro_still_works_after_fstring_fix(src, xession):
     must continue to be recognised.
     """
     execer = xession.execer
-    ctx = {"__xonsh__": object()}
+    ctx = {"__pygwin__": object()}
     tree = execer.parse(src, ctx=ctx, mode="exec")
     assert tree is not None
     assert tree.body, f"expected non-empty AST for {src!r}"
@@ -244,7 +244,7 @@ def test_multiline_pyeval_with_combinator(src, xession):
     argument that spans multiple physical lines (issue #6011).
     """
     execer = xession.execer
-    ctx = {"__xonsh__": object()}
+    ctx = {"__pygwin__": object()}
     tree = execer.parse(src, ctx=ctx, mode="single")
     assert tree is not None
     assert tree.body, f"expected non-empty AST for {src!r}"
@@ -288,7 +288,7 @@ def test_multiline_pyeval_with_hash_inside(src, xession):
        absolute offset in the joined logical line.
     """
     execer = xession.execer
-    ctx = {"__xonsh__": object()}
+    ctx = {"__pygwin__": object()}
     tree = execer.parse(src, ctx=ctx, mode="single")
     assert tree is not None
     assert tree.body
@@ -296,16 +296,16 @@ def test_multiline_pyeval_with_hash_inside(src, xession):
     assert "subproc" in unparsed
 
 
-def test_multiline_pyeval_plain_assignment(xonsh_execer_parse):
+def test_multiline_pyeval_plain_assignment(pygwin_execer_parse):
     """A bare assignment from a triple-quoted string is plain Python and
     has nothing to do with subproc recovery — but if ``_have_open_triple_quotes``
     is broken, the recovery loop kicks in anyway and corrupts the line.
     Pin that case so the helper is regression-tested via the front door.
     """
-    assert xonsh_execer_parse('x = """a\nb"""\n')
-    assert xonsh_execer_parse("x = '''a\nb'''\n")
+    assert pygwin_execer_parse('x = """a\nb"""\n')
+    assert pygwin_execer_parse("x = '''a\nb'''\n")
     # raw triple
-    assert xonsh_execer_parse('x = r"""a\\nb"""\n')
+    assert pygwin_execer_parse('x = r"""a\\nb"""\n')
 
 
 @pytest.mark.parametrize(
@@ -338,7 +338,7 @@ def test_multiline_fstring_in_pyeval(src, xession):
     (GH-6011 follow-up).
     """
     execer = xession.execer
-    ctx = {"__xonsh__": object()}
+    ctx = {"__pygwin__": object()}
     tree = execer.parse(src, ctx=ctx, mode="exec")
     assert tree is not None
     assert tree.body, f"expected non-empty AST for {src!r}"

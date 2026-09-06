@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from xonsh.xontribs import (
+from pygwin.xontribs import (
     xontrib_context,
     xontribs_load,
     xontribs_loaded,

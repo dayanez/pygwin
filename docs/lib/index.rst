@@ -1,7 +1,7 @@
 .. _lib:
 
 =================
-Xonsh Library
+Pygwin Library
 =================
 For those of you who want the gritty details.
 
@@ -13,12 +13,12 @@ For those of you who want the gritty details.
     :template: api-summary-module.rst
     :recursive:
 
-    xonsh.parsers.lexer
-    xonsh.parser
-    xonsh.parsers.ast
-    xonsh.execer
-    xonsh.imphooks
-    xonsh.shell
+    pygwin.parsers.lexer
+    pygwin.parser
+    pygwin.parsers.ast
+    pygwin.execer
+    pygwin.imphooks
+    pygwin.shell
 
 
 **Command Prompt:**
@@ -28,23 +28,23 @@ For those of you who want the gritty details.
     :template: api-summary-module.rst
     :recursive:
 
-    xonsh.built_ins
-    xonsh.environ
-    xonsh.aliases
-    xonsh.dirstack
-    xonsh.procs
-    xonsh.lib.inspectors
-    xonsh.history
-    xonsh.completer
-    xonsh.completers
-    xonsh.prompt
-    xonsh.shells
-    xonsh.shells.base_shell
-    xonsh.shells.readline_shell
-    xonsh.shells.ptk_shell
-    xonsh.lib.pretty
-    xonsh.history.diff_history
-    xonsh.xoreutils
+    pygwin.built_ins
+    pygwin.environ
+    pygwin.aliases
+    pygwin.dirstack
+    pygwin.procs
+    pygwin.lib.inspectors
+    pygwin.history
+    pygwin.completer
+    pygwin.completers
+    pygwin.prompt
+    pygwin.shells
+    pygwin.shells.base_shell
+    pygwin.shells.readline_shell
+    pygwin.shells.ptk_shell
+    pygwin.lib.pretty
+    pygwin.history.diff_history
+    pygwin.xoreutils
 
 
 **Helpers:**
@@ -54,32 +54,32 @@ For those of you who want the gritty details.
     :template: api-summary-module.rst
     :recursive:
 
-    xonsh.events
-    xonsh.lib
-    xonsh.tools
-    xonsh.platform_info
-    xonsh.lib.lazyjson
-    xonsh.lib.lazyasd
-    xonsh.lib.openpy
-    xonsh.foreign_shells
-    xonsh.commands_cache
-    xonsh.tracer
-    xonsh.main
-    xonsh.color_tools
-    xonsh.pyghooks
-    xonsh.shells.dumb_shell
-    xonsh.wizard
-    xonsh.xonfig
-    xonsh.xontribs
-    xonsh.codecache
-    xonsh.contexts
-    xonsh.ansi_colors
-    xonsh.style_tools
-    xonsh.cli_utils
-    xonsh.timings
-    xonsh.pygments_cache
-    xonsh.platforms
-    xonsh.webconfig
+    pygwin.events
+    pygwin.lib
+    pygwin.tools
+    pygwin.platform_info
+    pygwin.lib.lazyjson
+    pygwin.lib.lazyasd
+    pygwin.lib.openpy
+    pygwin.foreign_shells
+    pygwin.commands_cache
+    pygwin.tracer
+    pygwin.main
+    pygwin.color_tools
+    pygwin.pyghooks
+    pygwin.shells.dumb_shell
+    pygwin.wizard
+    pygwin.xonfig
+    pygwin.xontribs
+    pygwin.codecache
+    pygwin.contexts
+    pygwin.ansi_colors
+    pygwin.style_tools
+    pygwin.cli_utils
+    pygwin.timings
+    pygwin.pygments_cache
+    pygwin.platforms
+    pygwin.webconfig
 
 **Xompletions:**
 

@@ -6,11 +6,11 @@ Extensions
 
 Overview
 ========
-xonsh is an extensible, user-patchable platform: third-party developers can
-build and distribute their own extensions without going through the xonsh
+pygwin is an extensible, user-patchable platform: third-party developers can
+build and distribute their own extensions without going through the pygwin
 release cycle, and end users can reshape any subsystem directly from their
-:doc:`xonsh RC <xonshrc>` because every part of xonsh is a Python module.
-In the xonsh ecosystem these extensions are called *xontribs*.
+:doc:`pygwin RC <pygwinrc>` because every part of pygwin is a Python module.
+In the pygwin ecosystem these extensions are called *xontribs*.
 
 A xontrib can be:
 
@@ -19,7 +19,7 @@ A xontrib can be:
 * a prompt field (e.g. battery, container, version-control, kubernetes)
 * a handler for session events such as ``on_chdir``, ``on_postcommand``,
   or ``on_pre_prompt``
-* a new environment variable or ``$XONSH_*`` setting
+* a new environment variable or ``$PYGWIN_*`` setting
 * a full subsystem — syntax-highlighting tokens, a history backend, an
   integration with an external tool, and so on
 
@@ -39,63 +39,63 @@ The ``xontrib`` command allows you to list the installed xontribs.
 This command will report if they are loaded in the current session. To display this
 information, pass the ``list`` action to the ``xontrib`` command:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ xontrib list
-    abbrevs             not-loaded          Expand command abbreviations while typing in the Xonsh shell.
+    abbrevs             not-loaded          Expand command abbreviations while typing in the Pygwin shell.
     clp                 not-loaded          Copy output to clipboard. Cross-platform.
     cmd_done            not-loaded          Show long running commands durations in prompt with option to send notification when terminal is not focused.
-    jedi                not-loaded          Use Jedi as xonsh's python completer.
-    output_search       not-loaded          Get identifiers, paths, URLs and words from the previous command output and use them for the next command in xonsh shell
-    pipeliner           not-loaded          Let your pipe lines flow thru the Python code in xonsh.
-    prompt_starship     not-loaded          Starship cross-shell prompt in xonsh shell.
-    sh                  not-loaded          Paste and run commands from bash, zsh, fish, tcsh in xonsh shell.
+    jedi                not-loaded          Use Jedi as pygwin's python completer.
+    output_search       not-loaded          Get identifiers, paths, URLs and words from the previous command output and use them for the next command in pygwin shell
+    pipeliner           not-loaded          Let your pipe lines flow thru the Python code in pygwin.
+    prompt_starship     not-loaded          Starship cross-shell prompt in pygwin shell.
+    sh                  not-loaded          Paste and run commands from bash, zsh, fish, tcsh in pygwin shell.
 
     @ xontrib info sh
     Name: sh
-    Source: xontrib.sh at /Users/snail/.local/xonsh-env/lib/python3.14/site-packages/xontrib/sh.py
-    Description: Paste and run commands from bash, zsh, fish, tcsh in xonsh shell.
+    Source: xontrib.sh at /Users/snail/.local/pygwin-env/lib/python3.14/site-packages/xontrib/sh.py
+    Description: Paste and run commands from bash, zsh, fish, tcsh in pygwin shell.
     Loaded: no
 
 For programmatic access, you may also have this command print a JSON formatted
 string:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $(@json xontrib list --json)['abbrevs']
     {'name': 'abbrevs',
      'loaded': False,
      'auto': False,
      'module': 'xontrib.abbrevs',
-     'description': 'Expand command abbreviations while typing in the Xonsh shell.'}
+     'description': 'Expand command abbreviations while typing in the Pygwin shell.'}
 
 Loading Xontribs
 ================
-Xontribs may be loaded in a few different ways: from your :doc:`xonsh RC <xonshrc>`,
+Xontribs may be loaded in a few different ways: from your :doc:`pygwin RC <pygwinrc>`,
 dynamically at runtime with the ``xontrib`` command, or its Python API.
 
 Extensions are loaded via the ``xontrib load`` command.
-This command may be run from anywhere in your :doc:`xonsh RC <xonshrc>` or at any point
-after xonsh has started up.
+This command may be run from anywhere in your :doc:`pygwin RC <pygwinrc>` or at any point
+after pygwin has started up.
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     xontrib load myext mpl mypkg.show
 
 Pass ``-s`` (``--suppress-warnings``) to load every xontrib that is installed and
-silently skip any name that isn't. Useful in a :doc:`xonsh RC <xonshrc>` that is shared across machines
+silently skip any name that isn't. Useful in a :doc:`pygwin RC <pygwinrc>` that is shared across machines
 where only a subset of xontribs is installed.
 
 The same can be done in Python as well
 
 .. code-block:: python
 
-    from xonsh.xontribs import xontribs_load
+    from pygwin.xontribs import xontribs_load
     xontribs_load(['myext', 'mpl', 'mypkg.show'])
 
 A xontrib can be unloaded from the current session using ``xontrib unload``
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     xontrib unload myext mpl mypkg.show
 
@@ -105,7 +105,7 @@ to mark themselves available for autoloading using the below format.
 .. code-block:: ini
 
     [options.entry_points]
-    xonsh.xontribs =
+    pygwin.xontribs =
         xontrib_name = path.to.the.module
 
 Here the module should contain ``_load_xontrib_`` function as described above.
@@ -126,27 +126,27 @@ a ready-to-publish skeleton, packaging metadata, and the entry point pre-wired f
 Structure
 ================
 Xontribs are modules with some special functions written
-in either xonsh (``*.xsh``) or Python (``*.py``).
+in either pygwin (``*.xsh``) or Python (``*.py``).
 
 Here is a template:
 
 .. code-block:: python
 
-    from xonsh.built_ins import XonshSession
+    from pygwin.built_ins import PygwinSession
 
-    def _load_xontrib_(xsh: XonshSession, **kwargs) -> dict:
+    def _load_xontrib_(xsh: PygwinSession, **kwargs) -> dict:
         """
         this function will be called when loading/reloading the xontrib.
 
         Args:
-            xsh: the current xonsh session instance, serves as the interface to manipulate the session.
+            xsh: the current pygwin session instance, serves as the interface to manipulate the session.
                  This allows you to register new aliases, history backends, event listeners ...
             **kwargs: it is empty as of now. Kept for future proofing.
         Returns:
             dict: this will get loaded into the current execution context
         """
 
-    def _unload_xontrib_(xsh: XonshSession, **kwargs) -> dict:
+    def _unload_xontrib_(xsh: PygwinSession, **kwargs) -> dict:
         """If you want your extension to be unloadable, put that logic here"""
 
 .. warning::
@@ -156,7 +156,7 @@ Here is a template:
     aliases, and completers will remain active after ``xontribs unload/reload``.
 
 This _load_xontrib_() function is called after your extension is imported,
-and the currently active :py:class:`xonsh.built_ins.XonshSession` instance is passed as the argument.
+and the currently active :py:class:`pygwin.built_ins.PygwinSession` instance is passed as the argument.
 
 .. note::
 
@@ -206,7 +206,7 @@ Tell Us About Your Xontrib!
 To register a xontrib, create a ``PullRequest`` at
 `awesome-xontribs <https://github.com/xonsh/awesome-xontribs>`_
 repository. Also, if you use Github to host your code,
-please add `xonsh <https://github.com/topics/xonsh>`_ and `xontrib <https://github.com/topics/xontrib>`_
+please add `pygwin <https://github.com/topics/xonsh>`_ and `xontrib <https://github.com/topics/xontrib>`_
 to the topics.
 
 All of this let's users know that your xontrib is out there, ready to be used.

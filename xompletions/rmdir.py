@@ -1,10 +1,10 @@
 """Completion for "rmdir", includes only valid directory names."""
 
-from xonsh.completers.path import complete_dir
-from xonsh.parsers.completion_context import CommandContext
+from pygwin.completers.path import complete_dir
+from pygwin.parsers.completion_context import CommandContext
 
 
-def xonsh_complete(ctx: CommandContext):
+def pygwin_complete(ctx: CommandContext):
     """
     Completion for "rmdir", includes only valid directory names.
     """

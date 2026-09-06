@@ -1,11 +1,11 @@
-#!/usr/bin/env xonsh
+#!/usr/bin/env pygwin
 import sys
 import subprocess
 from typing import List
 
-import xonsh.cli_utils as xcli
+import pygwin.cli_utils as xcli
 
-from xonsh.tools import print_color
+from pygwin.tools import print_color
 import itertools
 
 
@@ -41,7 +41,7 @@ def test(
 
     Examples
     --------
-    `xonsh run-tests.xsh -- --junitxml=junit/test-results.%%d.xml`
+    `pygwin run-tests.xsh -- --junitxml=junit/test-results.%%d.xml`
     """
 
     if report_cov:

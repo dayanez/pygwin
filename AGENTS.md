@@ -1,23 +1,59 @@
 # pygwin Agent Development Guide
 
 A file for guiding coding agents working on pygwin, a Windows-first daily-driver shell
-built as a light fork of [xonsh](https://github.com/xonsh/xonsh) (a full-featured,
-cross-platform, Python-powered shell). pygwin is not a hard fork: it tracks upstream
-xonsh deliberately rather than diverging from it by accident. Read SYNCING.md before
-touching anything. It is the single source of truth for what has ever diverged from
-upstream, and why.
+built as a fork of [xonsh](https://github.com/xonsh/xonsh) (a full-featured,
+cross-platform, Python-powered shell). pygwin started as a light rebrand that kept
+xonsh's internal package name for low-conflict upstream merges, but that design was
+deliberately abandoned early on: the whole codebase, including the Python package
+itself, the `__xonsh__` runtime global, environment variable names, and internal class
+names, was renamed from xonsh to pygwin throughout. Read SYNCING.md before touching
+anything. It is the single source of truth for what has ever diverged from upstream,
+and why, including this rename and what it costs going forward.
 
-## The one rule that matters most
+## What the full rename means for you
+
+Because the rename went all the way down, pygwin is now a real fork in the "diverges
+from upstream" sense, not just a rebrand sitting on top of unmodified xonsh source.
+Concretely:
+
+- The package is `pygwin`, not `xonsh`. `import pygwin.foo`, not `import xonsh.foo`.
+- The runtime magic global the parser compiles subprocess mode, path literals, and
+  macros down to is `__pygwin__`, not `__xonsh__`. If you are touching
+  `pygwin/parsers/base.py` or anything that does `getattr`/`hasattr` against that
+  global, get this exactly right. A mismatch here does not fail loudly at import time
+  the way a missing regular import does; it fails at the first subprocess call, path
+  literal, or macro a user runs, with a bare `NameError` on `__pygwin__`.
+- Environment variables are `$PYGWIN_*`, not `$XONSH_*` (`$PYGWIN_INTERACTIVE`,
+  `$PYGWIN_DATA_DIR`, and so on). The run control file is `~/.pygwinrc`, falling back
+  to `~/.xonshrc` if a pygwinrc doesn't exist but a xonshrc does.
+- Internal classes are `Pygwin*`, not `Xonsh*` (`PygwinSession`, `PygwinError`,
+  `PygwinLexer`, and so on).
+- Third-party xontribs and scripts written for real xonsh (importing `xonsh.*`,
+  reading `$XONSH_*`, checking `__xonsh_threadable__`-style attributes) are not
+  automatically compatible. Two exceptions were kept on purpose for compatibility:
+  the callable-alias protocol attributes `__xonsh_threadable__` and
+  `__xonsh_capturable__` (a documented convention from the wider xonsh ecosystem;
+  see `pygwin/aliases.py` and `pygwin/procs/specs.py`), and shebang/interpreter
+  recognition of the literal word `xonsh` alongside `pygwin` (see
+  `pygwin/procs/specs.py`'s `_un_shebang`), so a `#!/usr/bin/env xonsh` script still
+  runs. Everything else is pygwin-only now.
+
+This is now a genuinely large diff against upstream. A future `git merge
+upstream/main` (see SYNCING.md) will conflict on nearly every file that changed on
+either side, and resolving those conflicts means re-applying the pygwin naming to
+whatever upstream changed, not a clean three-way merge. That is the tradeoff this
+project's owner chose deliberately, with the cost explained up front. Don't try to
+quietly walk it back by leaving new code under the `xonsh` name "for compatibility."
+
+## The one rule that still matters
 
 New behavior goes in new files, following xonsh's own `_load_xontrib_(xsh, **_)` plugin
-pattern (see any file under `xontrib/` for the shape), never as edits to existing xonsh
-source. The internal Python package name deliberately stays `xonsh`, not `pygwin`. Only
-the CLI entry point, the `--version` string, and the interactive welcome banner text say
-"pygwin". This is intentional, not an oversight: it is what keeps future upstream merges
-low-conflict.
-
-Before editing any existing file outside the small, already-documented list in
-SYNCING.md, stop and check whether the same change could be a new file instead.
+pattern (see any file under `xontrib/` for the shape), rather than as edits to existing
+core files, whenever that is a real option. This is no longer about keeping upstream
+merges clean (see above); it is just good practice, minimizing the surface area where a
+change to core shell/parser/execer logic can introduce an execution-safety bug. Before
+editing an existing file outside the small, already-documented list in SYNCING.md, stop
+and check whether the same change could be a new file instead.
 
 ## Commands
 
@@ -44,7 +80,7 @@ ruff check .
 Format (matches the args `.pre-commit-config.yaml` uses):
 
 ```
-ruff format xonsh xontrib tests xompletions
+ruff format pygwin xontrib tests xompletions
 ```
 
 `.pre-commit-config.yaml` also runs mypy and a couple of housekeeping hooks.
@@ -58,7 +94,7 @@ python -m pytest --import-mode=importlib
 ```
 
 Both flags matter. Plain `pytest` (not invoked via `python -m`) fails to find the
-`xonsh.pytest.plugin` entry point in an editable install; `--import-mode=importlib` is
+`pygwin.pytest.plugin` entry point in an editable install; `--import-mode=importlib` is
 needed because several files under `tests/parsers/` and `tests/xintegration/` do
 absolute `from tests.parsers.x import *`-style imports, and `tests/` has no
 `__init__.py` files, so pytest's default import mode cannot resolve them and silently
@@ -67,31 +103,30 @@ collects everything correctly; without it you will see roughly two thirds of the
 suite pass, and the errors will look like a collection failure, not a test failure.
 
 Picks up `tests/` per `setup.cfg`'s `testpaths`. CI-gated: `.github/workflows/ci.yml`
-runs it on every push and pull request to `main`. That is the only workflow this fork
-keeps enabled for verification purposes; everything upstream xonsh ships around
-release automation, nix, and its own docs pipeline does not apply to pygwin's model
-and was removed rather than disabled. See SYNCING.md for the full list.
+runs it on every push and pull request to `main`. That is the only test workflow this
+fork keeps enabled; everything upstream xonsh ships around release automation, nix, and
+its own docs pipeline does not apply to pygwin's model and was removed rather than
+disabled. See SYNCING.md for the full list.
 
-`run-tests.xsh` also exists as a coverage-reporting wrapper around pytest, but its
-shebang calls `xonsh`, which is not the registered command name in this fork (the
-entry point is `pygwin`). Run it as `pygwin run-tests.xsh test`, or just use plain
-`pytest` above.
+`run-tests.xsh` also exists as a coverage-reporting wrapper around pytest. Run it as
+`pygwin run-tests.xsh test`, or just use plain `pytest` above.
 
 ## Directory structure
 
-- `xonsh/`: the core shell engine, parser, and built-in shells. This is upstream's
-  code. Changes here should be rare and are exactly the merge-conflict risk SYNCING.md
-  tracks.
+- `pygwin/`: the shell engine, parser, and built-in shells. Forked from xonsh's
+  `xonsh/` directory and fully renamed. Changes here are no longer a special
+  merge-conflict risk beyond the general fact that this is core interpreter code; see
+  the Security-sensitive areas note below.
 - `xontrib/`: plugin extensions loaded via `_load_xontrib_(xsh, **_)`. This is where
   new pygwin-only features belong.
 - `xompletions/`: completion providers for external commands.
 - `tests/`: the pytest suite (see Tests above).
-- `docs/`: upstream's Sphinx documentation source, plus pygwin's own `docs/index.html`,
-  a plain, unrelated static page served as the GitHub Pages site. Do not confuse the
-  two; `xonsh/webconfig/` also has its own unrelated `index.html` (the `xonfig` web
-  wizard's page).
+- `docs/`: upstream's Sphinx documentation source (not built by anything in this
+  repo), plus pygwin's own `docs/index.html`, a plain, unrelated static page served as
+  the GitHub Pages site. Do not confuse the two; `pygwin/webconfig/` also has its own
+  unrelated `index.html` (the `xonfig` web wizard's page).
 - `SYNCING.md`: read this first. The record of what has ever diverged from xonsh,
-  and why.
+  and why, including the full rename.
 - `ROADMAP.md`: the actual performance and observability work pygwin exists to do,
   tracked in this file instead of GitHub issues.
 - `CREDITS.md`: attribution to xonsh and its developers, and to the license terms
@@ -99,19 +134,23 @@ entry point is `pygwin`). Run it as `pygwin run-tests.xsh test`, or just use pla
 
 ## Security-sensitive areas
 
-There is no dedicated SECURITY.md yet, so use judgment: `xonsh/execer.py` and
-`xonsh/procs/` are the core of how user input becomes executed code and subprocesses.
+There is no dedicated SECURITY.md yet, so use judgment: `pygwin/execer.py` and
+`pygwin/procs/` are the core of how user input becomes executed code and subprocesses.
 That is inherent to being a shell, but a mistake here is an execution-safety bug, not
-just a feature bug, and deserves the corresponding extra care. `xonsh/webconfig/`
-starts a local web server for the `xonfig` web wizard; changes there should be held to
-the bar of "this binds a port on the user's machine," not just "this renders a form."
+just a feature bug, and deserves the corresponding extra care. `pygwin/parsers/base.py`
+and `pygwin/parsers/ast.py` generate the `__pygwin__.*` calls that subprocess mode,
+path literals, and macros compile down to; a typo in that magic name breaks those
+features at runtime, not at import time, so changes there need to actually be run, not
+just read. `pygwin/webconfig/` starts a local web server for the `xonfig` web wizard;
+changes there should be held to the bar of "this binds a port on the user's machine,"
+not just "this renders a form."
 
 ## Writing style
 
 No em dashes, en dashes, or hyphen-surrounded parenthetical asides ("word - word -
-word") in prose, comments, or user-facing strings (banner text, README, `xonfig`
-prompts, plugin descriptions). Write plain sentences instead: split into two
-sentences, or use a comma, colon, or parentheses.
+word") in prose, comments, or user-facing strings (README, `xonfig` prompts, plugin
+descriptions). Write plain sentences instead: split into two sentences, or use a
+comma, colon, or parentheses.
 
 ## Commit and sync guidelines
 

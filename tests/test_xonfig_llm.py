@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.xonfig``.
+"""Smoke tests for ``pygwin.xonfig``.
 
 The xonfig command exposes ``info``, ``styles``, ``colors``, ``wizard``, and
 ``web`` subcommands. The wizard / web ones require an interactive shell and
@@ -10,7 +10,7 @@ import json
 
 import pytest
 
-from xonsh.xonfig import (
+from pygwin.xonfig import (
     STRIP_COLOR_RE,
     TAGLINES,
     WELCOME_MSG,
@@ -185,14 +185,14 @@ def test_info_returns_string(xession):
     """``_info()`` returns a formatted human-readable table."""
     out = _info()
     assert isinstance(out, str)
-    assert "xonsh" in out
+    assert "pygwin" in out
     assert "Python" in out
 
 
 def test_info_to_json_returns_valid_json(xession):
     out = _info(to_json=True)
     parsed = json.loads(out)
-    assert "xonsh" in parsed
+    assert "pygwin" in parsed
     assert "Python" in parsed
 
 
@@ -201,12 +201,12 @@ def test_info_to_json_returns_valid_json(xession):
 
 def test_make_envvar_returns_two_node_tuple_for_known_var(xession):
     """Configurable env vars produce a (Message, StoreNonEmpty) tuple."""
-    result = make_envvar("XONSH_DEBUG")
+    result = make_envvar("PYGWIN_DEBUG")
     if result is None:
-        pytest.skip("XONSH_DEBUG not configurable in this env")
+        pytest.skip("PYGWIN_DEBUG not configurable in this env")
     msg, prompt = result
     assert msg.message
-    assert prompt.path == "/env/XONSH_DEBUG"
+    assert prompt.path == "/env/PYGWIN_DEBUG"
 
 
 def test_make_envvar_returns_none_for_non_configurable(xession):
@@ -226,7 +226,7 @@ def test_make_envvar_returns_none_for_non_configurable(xession):
 
 def test_make_flat_wiz_filters_none_results():
     """``_make_flat_wiz`` skips ``None`` returns from kidfunc."""
-    from xonsh import wizard as wiz
+    from pygwin import wizard as wiz
 
     def maker(x):
         if x % 2 == 0:
@@ -281,7 +281,7 @@ def test_xonfig_alias_extra_commands_added(xession):
 
 
 def test_make_xonfig_wizard_returns_wizard_node():
-    from xonsh import wizard as wiz
+    from pygwin import wizard as wiz
 
     w = make_xonfig_wizard(default_file="/tmp/x.json", confirm=False)
     assert isinstance(w, wiz.Wizard)
@@ -290,7 +290,7 @@ def test_make_xonfig_wizard_returns_wizard_node():
 
 
 def test_make_xonfig_wizard_with_confirm_returns_question():
-    from xonsh import wizard as wiz
+    from pygwin import wizard as wiz
 
     w = make_xonfig_wizard(default_file="/tmp/x.json", confirm=True)
     assert isinstance(w, wiz.Question)

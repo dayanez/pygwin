@@ -1,6 +1,6 @@
-"""Tests for ``xonsh lint`` and the lint rules.
+"""Tests for ``pygwin lint`` and the lint rules.
 
-The linter runs over the transformed xonsh AST (no execution) and ships four
+The linter runs over the transformed pygwin AST (no execution) and ships four
 MVP rules: XSH001 (env-var typo), XSH002 (bad env-var literal), XSH003
 (deprecated env var), XSH101 (unused import).
 """
@@ -12,7 +12,7 @@ import sys
 
 import pytest
 
-from xonsh.linter import cli as lcli
+from pygwin.linter import cli as lcli
 
 
 def codes(src):
@@ -33,15 +33,15 @@ def _run(argv, capsys, monkeypatch, stdin_text=None):
 
 
 def test_xsh001_typo_read():
-    fs = lcli.lint_source("x = $XONSH_COLOR_STYL")
+    fs = lcli.lint_source("x = $PYGWIN_COLOR_STYL")
     assert [f.code for f in fs] == ["XSH001"]
-    assert "XONSH_COLOR_STYLE" in fs[0].message
+    assert "PYGWIN_COLOR_STYLE" in fs[0].message
 
 
 def test_xsh001_typo_write():
-    fs = lcli.lint_source('$XONSH_HISTROY_BACKEND = "json"')
+    fs = lcli.lint_source('$PYGWIN_HISTROY_BACKEND = "json"')
     assert [f.code for f in fs] == ["XSH001"]
-    assert "XONSH_HISTORY_BACKEND" in fs[0].message
+    assert "PYGWIN_HISTORY_BACKEND" in fs[0].message
 
 
 def test_xsh001_custom_var_silent():
@@ -55,13 +55,13 @@ def test_xsh001_custom_var_silent():
 
 
 def test_xsh002_quoted_bool():
-    fs = lcli.lint_source('$XONSH_STORE_STDOUT = "yes"')
+    fs = lcli.lint_source('$PYGWIN_STORE_STDOUT = "yes"')
     assert [f.code for f in fs] == ["XSH002"]
-    assert "XONSH_STORE_STDOUT" in fs[0].message
+    assert "PYGWIN_STORE_STDOUT" in fs[0].message
 
 
 def test_xsh002_valid_value_silent():
-    assert codes("$XONSH_STORE_STDOUT = True") == []
+    assert codes("$PYGWIN_STORE_STDOUT = True") == []
 
 
 def test_xsh002_string_var_silent():
@@ -147,7 +147,7 @@ def test_ignore_filters_codes():
 
 
 # ---------------------------------------------------------------------
-# CLI: xonsh lint FILE...
+# CLI: pygwin lint FILE...
 # ---------------------------------------------------------------------
 
 
@@ -209,20 +209,20 @@ def test_cli_stdin(capsys, monkeypatch):
 
 
 def test_main_dispatches_lint(tmp_path):
-    import xonsh.main
+    import pygwin.main
 
     f = tmp_path / "a.xsh"
     f.write_text("x = 1\n")
     with pytest.raises(SystemExit) as ei:
-        xonsh.main.main(["lint", str(f), "-q"])
+        pygwin.main.main(["lint", str(f), "-q"])
     assert ei.value.code == lcli.EXIT_OK
 
 
 def test_main_dispatches_lint_findings(tmp_path):
-    import xonsh.main
+    import pygwin.main
 
     f = tmp_path / "imp.xsh"
     f.write_text("import os\n")
     with pytest.raises(SystemExit) as ei:
-        xonsh.main.main(["lint", str(f)])
+        pygwin.main.main(["lint", str(f)])
     assert ei.value.code == lcli.EXIT_LINT

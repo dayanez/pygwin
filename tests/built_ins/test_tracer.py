@@ -7,8 +7,8 @@ from textwrap import dedent
 
 import pytest
 
-from xonsh.procs.specs import cmds_to_specs
-from xonsh.tracer import tracermain
+from pygwin.procs.specs import cmds_to_specs
+from pygwin.tracer import tracermain
 
 # Minimum set of environment variables on Windows
 W_ENV = "SYSTEMDRIVE SYSTEMROOT ALLUSERSPROFILE HOMEDRIVE HOMEPATH APPDATA LOCALAPPDATA"
@@ -29,9 +29,9 @@ def test_tracer_help(capsys, xsh_with_aliases):
 
 def test_trace_in_script():
     CURRENT_DIR = Path(__file__).parent
-    cmd = [sys.executable, "-m", "xonsh", str(CURRENT_DIR / "tracer" / "example.xsh")]
-    env = os.environ  # We need to use real env or xonsh.platform_info.PATH_DEFAULT to have NixOS coreutils support.
-    env["XONSH_SHOW_TRACEBACK"] = "1"
+    cmd = [sys.executable, "-m", "pygwin", str(CURRENT_DIR / "tracer" / "example.xsh")]
+    env = os.environ  # We need to use real env or pygwin.platform_info.PATH_DEFAULT to have NixOS coreutils support.
+    env["PYGWIN_SHOW_TRACEBACK"] = "1"
     if sys.platform == "win32":
         # required for an empty environment on Windows. see python/cpython#120836
         for ev in W_ENV.split():
@@ -57,12 +57,12 @@ def test_trace_in_script():
     assert proc.stderr == ""
     # Trace lines must precede subprocess output: the tracer flushes stdout
     # after each line, so trace output cannot be reordered with respect to
-    # subprocesses spawned on the same line. See xonsh/xonsh#3291.
+    # subprocesses spawned on the same line. See pygwin/pygwin#3291.
     assert stdout == expected + "\n" + output
 
 
 def test_trace_in_script_with_logging_handler():
-    """Regression for xonsh/xonsh#4924: a `logging.Handler` weakref callback
+    """Regression for pygwin/pygwin#4924: a `logging.Handler` weakref callback
     must not blow up at interpreter shutdown while `trace on` is active. The
     assertion is `proc.stderr == ""` — any "Exception ignored in..." traceback
     from `_removeHandlerRef` would land there.
@@ -76,11 +76,11 @@ def test_trace_in_script_with_logging_handler():
     cmd = [
         sys.executable,
         "-m",
-        "xonsh",
+        "pygwin",
         str(CURRENT_DIR / "tracer" / "example_logging.xsh"),
     ]
     env = os.environ.copy()
-    env["XONSH_SHOW_TRACEBACK"] = "1"
+    env["PYGWIN_SHOW_TRACEBACK"] = "1"
     if sys.platform == "win32":
         for ev in W_ENV.split():
             env[ev] = os.environ[ev]
@@ -91,7 +91,7 @@ def test_trace_in_script_with_logging_handler():
 
 
 def test_tracer_skips_untraced_frames():
-    """Regression for xonsh/xonsh#3063: when the global trace function fires
+    """Regression for pygwin/pygwin#3063: when the global trace function fires
     on a 'call' event for a frame whose file is not in ``self.files``,
     ``trace()`` must return ``None`` so Python skips installing the per-frame
     tracer. Without this, line events fire for every line of every imported
@@ -100,7 +100,7 @@ def test_tracer_skips_untraced_frames():
     """
     import inspect
 
-    import xonsh.tracer as tm
+    import pygwin.tracer as tm
 
     t = tm.TracerType()
     t.files = set()
@@ -120,7 +120,7 @@ def test_tracer_caches_filename_per_code_object():
     """
     import inspect
 
-    import xonsh.tracer as tm
+    import pygwin.tracer as tm
 
     t = tm.TracerType()
     t._fname_cache.clear()
@@ -131,8 +131,8 @@ def test_tracer_caches_filename_per_code_object():
 
 
 def test_tracer_survives_module_finalization():
-    """Regression for xonsh/xonsh#4924: when CPython tears down modules at
-    interpreter exit, `xonsh.tracer`'s globals can be wiped while `trace` is
+    """Regression for pygwin/pygwin#4924: when CPython tears down modules at
+    interpreter exit, `pygwin.tracer`'s globals can be wiped while `trace` is
     still installed via `sys.settrace`. Weakref callbacks (e.g.
     `logging._removeHandlerRef`) firing in that window re-enter `trace`,
     which must still resolve its cross-module imports. The fix in #5806 (and
@@ -142,7 +142,7 @@ def test_tracer_survives_module_finalization():
     """
     import inspect
 
-    import xonsh.tracer as tm
+    import pygwin.tracer as tm
 
     fragile = ["find_file", "print_color", "linecache", "sys"]
     saved = {name: tm.__dict__.get(name) for name in fragile}

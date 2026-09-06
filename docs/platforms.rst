@@ -1,16 +1,16 @@
 Cross-platform
 ==============
 
-.. _cross_platform_xonshrc:
+.. _cross_platform_pygwinrc:
 
-Cross-platform Xonsh RC
+Cross-platform Pygwin RC
 -----------------------
 
-First of all because a :doc:`Xonsh RC <xonshrc>` is plain Xonsh code, you can ship a single
+First of all because a :doc:`Pygwin RC <pygwinrc>` is plain Pygwin code, you can ship a single
 file across Linux, macOS, and Windows and gate snippets on platform and
 execution-mode flags.
 
-Platform flags are lazy booleans exposed by :mod:`xonsh.platform_info`:
+Platform flags are lazy booleans exposed by :mod:`pygwin.platform_info`:
 
 * ``ON_LINUX`` — Linux
 * ``ON_DARWIN`` — macOS
@@ -30,25 +30,25 @@ Platform flags are lazy booleans exposed by :mod:`xonsh.platform_info`:
 
 Execution-mode flags live in the environment:
 
-* ``$XONSH_INTERACTIVE`` — ``True`` when Xonsh is running an interactive
+* ``$PYGWIN_INTERACTIVE`` — ``True`` when Pygwin is running an interactive
   shell. Use it to gate anything that only makes sense with a live terminal
   (aliases you type, key bindings, prompt colors, xontribs that hook the
   REPL). Safe to use inside an RC that is ``source``-d at runtime, because
   it reflects the current session.
-* ``$XONSH_MODE`` — the startup mode as a string: ``interactive``,
+* ``$PYGWIN_MODE`` — the startup mode as a string: ``interactive``,
   ``script_from_file``, ``source``, ``single_command``, ``script_from_stdin``.
   Useful to distinguish "started as a shell" from "invoked to run one
   command" or "executed as a script". For gating logic inside an RC,
-  prefer ``$XONSH_INTERACTIVE`` — ``$XONSH_MODE`` reflects the original
+  prefer ``$PYGWIN_INTERACTIVE`` — ``$PYGWIN_MODE`` reflects the original
   startup mode, not the context the RC is currently running in.
 
 Typical pattern:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
-    from xonsh.platform_info import ON_LINUX, ON_DARWIN, ON_WINDOWS
+    from pygwin.platform_info import ON_LINUX, ON_DARWIN, ON_WINDOWS
 
-    if $XONSH_INTERACTIVE:
+    if $PYGWIN_INTERACTIVE:
         # Only in a live terminal — skipped when the RC is run as a script
         aliases['ll'] = 'ls -la'
         $PROMPT = $PROMPT.replace('{prompt_end}', 'myproject {prompt_end}')
@@ -61,8 +61,8 @@ Typical pattern:
             $PATHEXT.append('.PY')
     else:
         # Script / non-interactive mode — fail fast
-        $XONSH_SHOW_TRACEBACK = True
-        $XONSH_SUBPROC_CMD_RAISE_ERROR = True
+        $PYGWIN_SHOW_TRACEBACK = True
+        $PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
 
 \*nix
 -----
@@ -73,7 +73,7 @@ Platform-specific notes live in their own sections below.
 Tab completion
 ^^^^^^^^^^^^^^
 
-Xonsh has support for using bash completion files on the shell. To use it
+Pygwin has support for using bash completion files on the shell. To use it
 you need to install the bash-completion package. The regular bash-completion
 package uses v1 which mostly works, but we recommend using
 `bash-completion v2 <https://github.com/xonsh/xonsh/issues/2111>`_.
@@ -81,7 +81,7 @@ package uses v1 which mostly works, but we recommend using
 Bash completion comes from the
 `bash-completion project <https://github.com/scop/bash-completion>`_ which
 suggests you use a package manager to install it. The package manager will
-also install a new version of bash without affecting ``/bin/bash``. Xonsh
+also install a new version of bash without affecting ``/bin/bash``. Pygwin
 also needs to be told where the bash completion file is — add it to
 ``$BASH_COMPLETIONS``. The package includes completions for many Unix
 commands.
@@ -90,25 +90,25 @@ Common packaging systems for macOS:
 
 - **Homebrew** — install the ``bash-completion2`` package:
 
-  .. code-block:: xonshcon
+  .. code-block:: pygwincon
 
      @ brew install bash-completion2
 
   This will install the completion file to
   ``/usr/local/share/bash-completion/bash_completion`` (Intel Mac) or
   ``/opt/homebrew/share/bash-completion/bash_completion`` (Apple Silicon)
-  — both are in the default Xonsh search path and should just work.
+  — both are in the default Pygwin search path and should just work.
 
 - **MacPorts** — install the ``bash-completion`` port
   (`docs <https://trac.macports.org/wiki/howto/bash-completion>`_):
 
-  .. code-block:: xonshcon
+  .. code-block:: pygwincon
 
      @ sudo port install bash-completion
 
   This includes a completion file that needs to be added to the environment:
 
-  .. code-block:: xonshcon
+  .. code-block:: pygwincon
 
      @ $BASH_COMPLETIONS.insert(0, '/opt/local/share/bash-completion/bash_completion')
 
@@ -131,7 +131,7 @@ Colored man pages
 You can add `man page color support`_ using ``less`` environment variables —
 these work on any POSIX system with ``less`` as the pager:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     # format is '\E[<brightness>;<colour>m'
     $LESS_TERMCAP_mb = "\033[01;31m"     # begin blinking
@@ -151,9 +151,9 @@ these work on any POSIX system with ``less`` as the pager:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 On certain (mostly older or stripped) Linux distributions you may
-occasionally see this error when starting Xonsh:
+occasionally see this error when starting Pygwin:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    libgcc_s.so.1 must be installed for pthread_cancel to work
    Aborted (core dumped)
@@ -163,7 +163,7 @@ time a thread is cancelled. Preloading it fixes the crash:
 
 .. code-block:: bash
 
-   $ env LD_PRELOAD=libgcc_s.so.1 xonsh
+   $ env LD_PRELOAD=libgcc_s.so.1 pygwin
 
 .. _unicode_troubles:
 
@@ -179,8 +179,8 @@ your process locale is not UTF-8. Usually seen in minimal containers,
 stripped SSH sessions, systemd units, or cron jobs where ``LANG`` / ``LC_ALL``
 are set to ``C`` or ``POSIX``.
 
-The locale must be set **before** Xonsh starts — setting ``$LC_ALL`` from
-your :doc:`xonsh RC <xonshrc>` is too late for subprocesses that already
+The locale must be set **before** Pygwin starts — setting ``$LC_ALL`` from
+your :doc:`pygwin RC <pygwinrc>` is too late for subprocesses that already
 inherited the broken environment. Fix it at the OS level (``~/.pam_environment``,
 ``/etc/locale.conf``, the container image's base layer, or the systemd unit's
 ``Environment=`` directive). As a temporary workaround, ``PYTHONUTF8=1``
@@ -189,9 +189,9 @@ forces Python into UTF-8 mode regardless of locale.
 Bash module warnings on startup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Depending on how your installation of Bash is configured, Xonsh may show
+Depending on how your installation of Bash is configured, Pygwin may show
 warnings when loading certain shell modules. If you see errors similar to
-this when launching Xonsh:
+this when launching Pygwin:
 
 .. code-block:: console
 
@@ -214,11 +214,11 @@ Unset the affected functions in your ``~/.bashrc``:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you use Thunar and the "Open Terminal Here" action does not work with
-xonsh, you can replace the command for this action:
+pygwin, you can replace the command for this action:
 
 .. code-block:: sh
 
-    exo-open --working-directory %f --launch TerminalEmulator xonsh --shell-type=best
+    exo-open --working-directory %f --launch TerminalEmulator pygwin --shell-type=best
 
 Open ``Edit > Configure custom actions...``, select ``Open Terminal Here``,
 and click ``Edit currently selected action``.
@@ -235,16 +235,16 @@ macOS provides a `path helper
 which by default configures paths in bash and other POSIX or C  shells. Without
 including these paths, common tools including those installed by Homebrew
 may be unavailable. See ``/etc/profile`` for details on how it is done.
-To ensure the path helper is invoked on Xonsh (for all users), add the
-following to ``/etc/xonsh/xonshrc``:
+To ensure the path helper is invoked on Pygwin (for all users), add the
+following to ``/etc/pygwin/pygwinrc``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     source-bash $(/usr/libexec/path_helper -s)
 
 To incorporate the whole functionality of ``/etc/profile``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     source-bash --seterrprevcmd "" /etc/profile
 
@@ -258,13 +258,13 @@ etc.) which have different flags and behaviour compared to the GNU versions
 found on Linux. If you work across both platforms or prefer GNU behaviour,
 install GNU coreutils and grep via Homebrew:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ brew install coreutils grep findutils gnu-sed gnu-tar gawk
 
 Homebrew installs GNU tools with a ``g`` prefix (e.g. ``gls``, ``ggrep``).
 To use them without the prefix, add the GNU paths to your ``$PATH`` in
-your :doc:`xonsh RC <xonshrc>`:
+your :doc:`pygwin RC <pygwinrc>`:
 
 .. code-block:: python
 
@@ -286,7 +286,7 @@ After this, ``ls``, ``grep``, ``sed``, etc. will be the GNU versions.
 Android / Termux
 ----------------
 
-Xonsh runs on Android via `Termux <https://termux.dev>`_ and similar
+Pygwin runs on Android via `Termux <https://termux.dev>`_ and similar
 sandboxes (UserLAnd, proot-distro, Linux Deploy). The Android userland
 is Linux-kernel-based but uses bionic libc, a non-FHS layout under
 ``$PREFIX``, and the per-app filesystem sandbox — a few quirks follow
@@ -295,16 +295,16 @@ from that.
 Installing
 ^^^^^^^^^^
 
-In a fresh Termux install, set up Xonsh and a working bash completion
+In a fresh Termux install, set up Pygwin and a working bash completion
 framework:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ pkg install python git bash-completion man
-    @ pip install 'xonsh[full]'
-    @ xonsh
+    @ pip install 'pygwin[full]'
+    @ pygwin
 
-:doc:`xonsh RC <xonshrc>` lives at the usual ``~/.xonshrc``; everything
+:doc:`pygwin RC <pygwinrc>` lives at the usual ``~/.pygwinrc``; everything
 else (history, data dir, completions cache) lands under
 ``$XDG_DATA_HOME`` inside ``$PREFIX``.
 
@@ -317,24 +317,24 @@ Android disallows a few syscalls that desktop Linux takes for granted:
   root return empty (e.g. ``ls /e<TAB>`` will not find ``/etc/``).
   Locate items by absolute literal path (``/data/data/com.termux/...``)
   or relative paths under ``$HOME`` / ``$PREFIX`` instead.
-* ``os.tcsetpgrp`` — restricted, returns ``EACCES``. xonsh's pipeline
+* ``os.tcsetpgrp`` — restricted, returns ``EACCES``. pygwin's pipeline
   manager handles this gracefully (no controlling terminal handover),
   so subprocesses still work; you just don't get bash-style job
   control on Android-only sessions.
-* ``os.link`` — not exposed in Python on bionic. Xonsh xoreutils
+* ``os.link`` — not exposed in Python on bionic. Pygwin xoreutils
   ``cp -l`` and similar features fall back to copying.
 
-Detecting Android in Xonsh RC
+Detecting Android in Pygwin RC
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
-    from xonsh.platform_info import ON_ANDROID, ON_TERMUX
+    from pygwin.platform_info import ON_ANDROID, ON_TERMUX
 
     if ON_ANDROID:
         # Anything that should be tweaked for the Android sandbox in
         # general — runs in Termux, UserLAnd, proot-distro alike.
-        $XONSH_HISTORY_BACKEND = 'json'   # sqlite is fine but json
+        $PYGWIN_HISTORY_BACKEND = 'json'   # sqlite is fine but json
                                           # avoids the WAL lock on /sdcard
 
     if ON_TERMUX:
@@ -350,10 +350,10 @@ Tab completion
 ^^^^^^^^^^^^^^
 
 After ``pkg install bash-completion``, completions for git, pip, ssh,
-``--`` long options, and so on work out of the box — Xonsh probes
+``--`` long options, and so on work out of the box — Pygwin probes
 ``$PREFIX/share/bash-completion/bash_completion`` by default.
 
-For commands Xonsh itself provides (``cd``, ``rmdir``, …) and
+For commands Pygwin itself provides (``cd``, ``rmdir``, …) and
 filesystem path completion, the same case-insensitive, subsequence- and
 fuzzy-tier behaviour described in :doc:`completers <completers>`
 applies on Android.
@@ -368,28 +368,28 @@ Coreutils
 Windows ships none of the familiar Unix command-line utilities (``ls``,
 ``grep``, ``cat``, ``cp``, ``find``, ``sed``, …) by default. The options
 below give you a working set, ordered roughly from most lightweight and
-xonsh-native to most comprehensive.
+pygwin-native to most comprehensive.
 
-- **xonsh built-in coreutils.** A pure-Python xontrib that ships with
-  Xonsh registers ``cat``, ``echo``, ``pwd``, ``tee``, ``tty``,
+- **pygwin built-in coreutils.** A pure-Python xontrib that ships with
+  Pygwin registers ``cat``, ``echo``, ``pwd``, ``tee``, ``tty``,
   ``umask``, ``uname``, ``uptime``, ``yes`` as aliases — no install,
   identical behaviour on every platform:
 
-  .. code-block:: xonshcon
+  .. code-block:: pygwincon
 
       @ xontrib load coreutils
 
   ``which`` is already wired by default. Add the line above to your
-  :doc:`xonsh RC <xonshrc>` to load it on every session.
+  :doc:`pygwin RC <pygwinrc>` to load it on every session.
 
 - `cmdix <https://pypi.org/project/cmdix>`_ — pure-Python implementation
   of a much larger GNU-style set: ``ls``, ``cp``, ``mv``, ``rm``,
   ``find``, ``grep``, ``head``, ``tail``, ``wc``, ``sort``, ``uniq``,
   ``du``, ``df``, ``date``, ``base64``, and many more. Because it's
-  Python it installs into the same interpreter as Xonsh and behaves
+  Python it installs into the same interpreter as Pygwin and behaves
   identically across Windows, macOS, and Linux:
 
-  .. code-block:: xonshcon
+  .. code-block:: pygwincon
 
       @ xpip install cmdix
 
@@ -398,7 +398,7 @@ xonsh-native to most comprehensive.
   (``coreutils.exe``) plus per-command shims. Stays very close to the
   GNU originals, including locale and Unicode handling:
 
-  .. code-block:: xonshcon
+  .. code-block:: pygwincon
 
       @ winget install uutils.coreutils
 
@@ -408,7 +408,7 @@ xonsh-native to most comprehensive.
   for Windows (currently in preview). Same commands, flags, and
   pipelines as on Linux/macOS/WSL:
 
-  .. code-block:: xonshcon
+  .. code-block:: pygwincon
 
       @ winget install Microsoft.Coreutils
 
@@ -417,7 +417,7 @@ xonsh-native to most comprehensive.
   make, gcc/clang, and thousands of other packages. The most
   comprehensive option. After the base install, add the relevant
   ``usr/bin`` directory (e.g. ``C:\msys64\usr\bin``) to ``$PATH`` in your
-  :doc:`xonsh RC <xonshrc>`.
+  :doc:`pygwin RC <pygwinrc>`.
 
 - `Git for Windows <https://gitforwindows.org>`_ ``usr/bin``. If Git is
   already installed, ``C:\Program Files\Git\usr\bin`` already contains a
@@ -426,7 +426,7 @@ xonsh-native to most comprehensive.
   fastest way to get a working Unix toolchain without installing
   anything extra:
 
-  .. code-block:: xonsh
+  .. code-block:: pygwin
 
       git_usr_bin = r'C:\Program Files\Git\usr\bin'
       if @.imp.os.path.isdir(git_usr_bin):
@@ -450,8 +450,8 @@ from the terminal application in other platforms.
 You can install it from the `Microsoft Store <https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701>`_
 or from `Github <https://github.com/microsoft/terminal>`_.
 
-By default Windows Terminal runs Powershell, but you can add a profile tab to run Xonsh and even configure it
-to open automatically in Xonsh. Here is a sample settings.json:
+By default Windows Terminal runs Powershell, but you can add a profile tab to run Pygwin and even configure it
+to open automatically in Pygwin. Here is a sample settings.json:
 
 .. code-block::
 
@@ -473,8 +473,8 @@ to open automatically in Xonsh. Here is a sample settings.json:
                 {
                     // Guid from https://guidgen.com
                     "guid": "{02639f1c-9437-4b34-a383-2df49b5ed5c5}",
-                    "name": "Xonsh",
-                    "commandline": "c:\\users\\bobhy\\src\\xonsh\\.venv\\scripts\\xonsh.exe",
+                    "name": "Pygwin",
+                    "commandline": "c:\\users\\bobhy\\src\\pygwin\\.venv\\scripts\\pygwin.exe",
                     "hidden": false
                 },
                 {
@@ -490,10 +490,10 @@ to open automatically in Xonsh. Here is a sample settings.json:
         . . .
 
 
-How to add Xonsh into the context menu for Windows?
+How to add Pygwin into the context menu for Windows?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In Windows, there's a context menu support for opening a folder in a shell, such as `Open PowerShell window here`. You might want to have a similar menu that opens a folder in Xonsh:
+In Windows, there's a context menu support for opening a folder in a shell, such as `Open PowerShell window here`. You might want to have a similar menu that opens a folder in Pygwin:
 
 .. image:: _static/context_menu_windows.png
    :width: 80 %
@@ -502,15 +502,15 @@ In Windows, there's a context menu support for opening a folder in a shell, such
 
 Usually it involves modifying registry to get it, but `a contributed script <https://gist.github.com/nedsociety/91041691d0ac18bc8fd9e937ad21b055>`_ can be used for automating chores for you.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    # Open Xonsh and copy-paste the following line:
+    # Open Pygwin and copy-paste the following line:
     @ exec(@.imp.urllib.request.urlopen(r'https://gist.githubusercontent.com/nedsociety/91041691d0ac18bc8fd9e937ad21b055/raw/xonsh_context_menu.py').read()) \
-       && xonsh_register_right_click()
+       && pygwin_register_right_click()
 
     # To remove the menu, use following line instead:
     @ exec(@.imp.urllib.request.urlopen(r'https://gist.githubusercontent.com/nedsociety/91041691d0ac18bc8fd9e937ad21b055/raw/xonsh_context_menu.py').read()) \
-       && xonsh_unregister_right_click()
+       && pygwin_unregister_right_click()
 
 
 Nice colors
@@ -523,7 +523,7 @@ The dark red and blue colors are completely unreadable in `cmd.exe`.
    :alt: intensify-colors-win-false
    :align: center
 
-Xonsh has some tricks to fix colors. This is controlled by the
+Pygwin has some tricks to fix colors. This is controlled by the
 :ref:`$INTENSIFY_COLORS_ON_WIN <intensify_colors_on_win>`
 environment variable which is ``True`` by default.
 
@@ -531,11 +531,11 @@ environment variable which is ``True`` by default.
 :ref:`$INTENSIFY_COLORS_ON_WIN <intensify_colors_on_win>` has the following effect:b
 
 On Windows 10:
-    Windows 10 supports true color in the terminal, so on Windows 10 Xonsh will use
+    Windows 10 supports true color in the terminal, so on Windows 10 Pygwin will use
     a style with hard coded colors instead of the terminal colors.
 
 On older Windows:
-    Xonsh replaces some of the unreadable dark colors with more readable
+    Pygwin replaces some of the unreadable dark colors with more readable
     alternatives (e.g. blue becomes cyan).
 
 
@@ -546,18 +546,18 @@ Python (like other processes on Windows) locks the current working directory so
 it can't be deleted or renamed. ``cmd.exe`` has this behaviour as well, but it
 is quite annoying for a shell.
 
-The :ref:`free_cwd <free_cwd>` xontrib (add-on) for Xonsh solves some of this problem. It
+The :ref:`free_cwd <free_cwd>` xontrib (add-on) for Pygwin solves some of this problem. It
 works by hooking the prompt to reset the current working directory to the root
 drive folder whenever the shell is idle. It only works with the prompt-toolkit
 back-end. To enable that behaviour run the following:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ xpip install xontrib-free-cwd
 
-Add this line to your :doc:`xonsh RC <xonshrc>` to have it always enabled.
+Add this line to your :doc:`pygwin RC <pygwinrc>` to have it always enabled.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ xontrib load free_cwd
 
@@ -567,25 +567,25 @@ Name space shadowing
 
 Due to ambiguity with the Python ``dir`` builtin, to list the current directory
 you must explicitly request the ``dir .``, create an alias
-or set `$XONSH_BUILTINS_TO_CMD <envvars.html#XONSH_BUILTINS_TO_CMD>`_.
+or set `$PYGWIN_BUILTINS_TO_CMD <envvars.html#PYGWIN_BUILTINS_TO_CMD>`_.
 
 Many people create a ``d`` alias for the ``dir`` command to save
 typing and avoid the ambiguity altogether:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ aliases['d'] = ['cmd', '/c', 'dir']
 
-You can add aliases to your :doc:`xonsh RC <xonshrc>` to have it always
-available when xonsh starts.
+You can add aliases to your :doc:`pygwin RC <pygwinrc>` to have it always
+available when pygwin starts.
 
-Alternatively, the experimental ``$XONSH_BUILTINS_TO_CMD`` setting makes bare
+Alternatively, the experimental ``$PYGWIN_BUILTINS_TO_CMD`` setting makes bare
 Python builtin names (``dir``, ``zip``, ``type``, etc.) run as subprocess
 commands when a matching alias or executable exists:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_BUILTINS_TO_CMD = True
+    @ $PYGWIN_BUILTINS_TO_CMD = True
     @ dir
      Volume in drive C is Windows
      ...
@@ -598,49 +598,49 @@ Windows users, particularly those coming from the ``cmd.exe`` shell,
 might be accustomed to being able to run executables from the current
 directory by simply typing the program name.
 
-Since version 0.16, ``xonsh`` follows the more secure and modern
+Since version 0.16, ``pygwin`` follows the more secure and modern
 approach of not including the current working directory in the search
 path, similar to Powershell and popular Unix shells. To invoke commands
 in the current directory on any platform, include the current directory
 explicitly:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ./my-program
 
 Although not recommended, to restore the behavior found in the
 ``cmd.exe`` shell, simply append ``.`` to the ``PATH``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $PATH.append('.')
 
-Add that to your :doc:`xonsh RC <xonshrc>` to enable that as the default behavior.
+Add that to your :doc:`pygwin RC <pygwinrc>` to enable that as the default behavior.
 
 
-Updating Xonsh
+Updating Pygwin
 ^^^^^^^^^^^^^^
 
-On Windows the running ``xonsh.exe`` is locked by the OS, so pip cannot
-replace it from inside Xonsh itself. Use
+On Windows the running ``pygwin.exe`` is locked by the OS, so pip cannot
+replace it from inside Pygwin itself. Use
 :ref:`xcontext <aliases-xcontext>` to find the interpreter path, exit
 the shell, then run pip from another terminal (``cmd``, PowerShell, or
 Windows Terminal):
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ xcontext            # note the "xpython" path
-   @ exit                # release the lock on xonsh.exe
+   @ exit                # release the lock on pygwin.exe
 
 .. code-block:: doscon
 
-   > <xpython> -m pip install --upgrade xonsh
+   > <xpython> -m pip install --upgrade pygwin
 
-If you installed Xonsh via the
+If you installed Pygwin via the
 `WinGet installer <https://github.com/xonsh/xonsh-winget/releases>`_,
 download the latest installer and run it — it will upgrade in place.
 
-See also :ref:`Updating Xonsh <updating_xonsh>` in the installation guide
+See also :ref:`Updating Pygwin <updating_pygwin>` in the installation guide
 for more details.
 
 
@@ -648,28 +648,28 @@ Commands Cache
 ^^^^^^^^^^^^^^
 
 Windows filesystem access can be slow, especially on network drives or
-directories like ``C:\Windows\System32`` with thousands of executables. Xonsh
+directories like ``C:\Windows\System32`` with thousands of executables. Pygwin
 scans ``$PATH`` directories to resolve commands, which may cause noticeable
 lag.
 
-The ``$XONSH_COMMANDS_CACHE_READ_DIR_ONCE`` variable tells Xonsh to cache
+The ``$PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE`` variable tells Pygwin to cache
 directory listings on first access and never re-read them within the session.
 On Windows it defaults to ``C:\Windows`` (via ``%WINDIR%``), meaning
 ``C:\Windows\System32`` and all other subdirectories are scanned once and
 cached for the rest of the session. You can extend it with additional slow
 directories:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_COMMANDS_CACHE_READ_DIR_ONCE += ['C:\\Program Files', 'C:\\Program Files (x86)']
+    @ $PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE += ['C:\\Program Files', 'C:\\Program Files (x86)']
 
-On WSL, Xonsh auto-detects ``/mnt/*/Windows`` directories.
+On WSL, Pygwin auto-detects ``/mnt/*/Windows`` directories.
 
 To debug command resolution, enable:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_COMMANDS_CACHE_TRACE = True
+    @ $PYGWIN_COMMANDS_CACHE_TRACE = True
 
 
 Drive letter shortcut for path completion
@@ -678,7 +678,7 @@ Drive letter shortcut for path completion
 Windows paths are long. You can define a short environment variable for a
 drive root and use it with tab completion to navigate quickly:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     # Simple assignment
     $C = 'c:\\'
@@ -691,7 +691,7 @@ the same way ``cd ~/`` completes paths in the home directory.
 
 To register all drives present on the system at once:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     for letter in @.imp.string.ascii_uppercase:
         root = f'{letter}:\\'
@@ -699,17 +699,17 @@ To register all drives present on the system at once:
             @.env.register(letter, type='str', default=root,
                            doc=f'Drive {letter} root')
 
-Add this to your :doc:`xonsh RC <xonshrc>` to have drive shortcuts available
+Add this to your :doc:`pygwin RC <pygwinrc>` to have drive shortcuts available
 in every session.
 
 
 Forward-slash paths (``$FORCE_POSIX_PATHS``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Set ``$FORCE_POSIX_PATHS = True`` to make Xonsh display and complete paths
+Set ``$FORCE_POSIX_PATHS = True`` to make Pygwin display and complete paths
 with forward slashes (``/``) instead of backslashes (``\``):
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     $FORCE_POSIX_PATHS = True
     cd ~/Documents
@@ -734,7 +734,7 @@ the same query returns the same columns on Linux, macOS, and Windows. Its
 ``osqueryi`` shell runs a single query and exits when you pass the SQL as an
 argument:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ osqueryi! SELECT platform FROM os_version
     +----------+
@@ -747,7 +747,7 @@ Because ``osqueryi --json`` prints a table as a JSON array, the ``@json``
 :doc:`output decorator <aliases>` hands it back as a list of dicts you can loop
 over directly:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     for proc in $(@json osqueryi --json "SELECT pid, name FROM processes ORDER BY pid LIMIT 5"):
         print(proc['pid'], proc['name'])
@@ -756,4 +756,4 @@ over directly:
 See Also
 -----------
 
-- `Bash to Xonsh <bash_to_xsh.html>`_
+- `Bash to Pygwin <bash_to_xsh.html>`_

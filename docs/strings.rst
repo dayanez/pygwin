@@ -4,9 +4,9 @@
 ************************************
 Subprocess Strings
 ************************************
-Strings in xonsh follow two simple rules:
+Strings in pygwin follow two simple rules:
 
-1. Strings in xonsh are always parsed in the same way, and
+1. Strings in pygwin are always parsed in the same way, and
 2. Python always wins!
 
 Together these rules mean that **even strings in subprocess mode are treated
@@ -14,7 +14,7 @@ like Python strings!** This will (help) preserve your sanity.
 
 No Escape
 =========
-Xonsh strings are exactly like Python strings everywhere. Xonsh uses
+Pygwin strings are exactly like Python strings everywhere. Pygwin uses
 exactly the same escape characters that Python does; no more and no less.
 
 **bash**
@@ -25,21 +25,21 @@ exactly the same escape characters that Python does; no more and no less.
     A Single Argument
 
 In the above example, since the spaces are escaped, the ``echo`` command
-only receves a single argument. Xonsh does not allow this. If you were
-to try this in xonsh, you'd see:
+only receves a single argument. Pygwin does not allow this. If you were
+to try this in pygwin, you'd see:
 
-**xonsh**
+**pygwin**
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo Actually\ Three\ Arguments
     Actually\ Three\ Arguments
 
 In this example, echo recives three arguments:: ``"Actually\\"``, ``"Three\\"``,
-and ``"Arguments"``. Instead, xonsh requires you to use quotes in order to
+and ``"Arguments"``. Instead, pygwin requires you to use quotes in order to
 pass in a single argument:
 
-**xonsh** or **bash**
+**pygwin** or **bash**
 
 .. code-block:: bash
 
@@ -67,9 +67,9 @@ On this last point, if you don't already know about
 these allow all input following an ``!`` to be treated as a single argument.
 For example,
 
-**xonsh**
+**pygwin**
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo! A  Single     Argument
     A  Single     Argument
@@ -88,14 +88,14 @@ In sh-langs, internal quote characters are removed. For instance:
     $ echo --key="value"
     --key=value
 
-Xonsh considers this behavior suboptimal. Instead, xonsh treats these
+Pygwin considers this behavior suboptimal. Instead, pygwin treats these
 arguments as if they were surrounded in another, outer level of
-quotation (``'foo"bar"baz'``). Xonsh will keep the quotation marks
+quotation (``'foo"bar"baz'``). Pygwin will keep the quotation marks
 when leading and trailing quotes are not matched.
 
-**xonsh**
+**pygwin**
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo foo"bar"baz
     foo"bar"baz
@@ -106,9 +106,9 @@ when leading and trailing quotes are not matched.
 You can think of these being equivalent to,
 
 
-**xonsh**
+**pygwin**
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo 'foo"bar"baz'
     foo"bar"baz
@@ -116,8 +116,8 @@ You can think of these being equivalent to,
     @ echo '--key="value"'
     --key="value"
 
-This is yet another major point of departure for xonsh from traditional
-shells. However, the xonsh subprocess string handling is
+This is yet another major point of departure for pygwin from traditional
+shells. However, the pygwin subprocess string handling is
 consistent and predictable.
 
 Environment Variable Substitution
@@ -127,7 +127,7 @@ In subprocess mode, ``$NAME`` inside strings is replaced with the value
 of the environment variable. This happens automatically for regular and
 f-strings, but **not** for raw strings:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     echo $HOME
     # /home/snail
@@ -151,7 +151,7 @@ String Literal Prefixes
 =======================
 
 For fine control of environment variable substitutions, brace substitutions,
-and backslash escapes, xonsh supports an extended set of string literal
+and backslash escapes, pygwin supports an extended set of string literal
 prefixes:
 
 - ``""`` — regular string: backslash escapes. Envvar substitutions in subprocess mode.
@@ -188,7 +188,7 @@ Triple Quotes
 To avoid escape characters (e.g. ``echo "\"hello\""``), use triple
 quotes:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     echo """{"hello":'world'}"""
     # {"hello":'world'}
@@ -199,7 +199,7 @@ Creating Files with Multiline Strings
 Combine triple quotes with ``@()`` and a redirect to create files
 without heredoc syntax:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     echo @("""
     line 1
@@ -213,7 +213,7 @@ Multiline Arguments
 Use ``@()`` with triple quotes to pass a multiline string as a single
 argument:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     python -c @("""
     import sys
@@ -227,7 +227,7 @@ f-strings in Commands
 You can use ``@()`` to inject an f-string, but f-strings also work
 directly in subprocess mode:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     echo @(f'Hello {$HOME}')
     # Hello /home/snail
@@ -240,14 +240,14 @@ directly in subprocess mode:
 Splitting Strings Like the Shell
 ---------------------------------
 
-Xonsh's :meth:`Lexer.split() <xonsh.parsers.lexer.Lexer.split>` can
+Pygwin's :meth:`Lexer.split() <pygwin.parsers.lexer.Lexer.split>` can
 split a string into tokens the same way the shell does -- respecting
 quoting, escapes, and operators.  This is the function used internally
 by the ``@$()`` operator:
 
 .. code-block:: python
 
-    from xonsh.parsers.lexer import Lexer
+    from pygwin.parsers.lexer import Lexer
     Lexer().split('echo "hello world" file.txt')
     # ['echo', '"hello world"', 'file.txt']
 

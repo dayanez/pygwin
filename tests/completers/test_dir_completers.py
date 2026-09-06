@@ -3,17 +3,17 @@ from os import sep
 
 import pytest
 
-from xonsh.completers.tools import RichCompletion
-from xonsh.pytest.tools import ON_WINDOWS
+from pygwin.completers.tools import RichCompletion
+from pygwin.pytest.tools import ON_WINDOWS
 
 CUR_DIR = "." if ON_WINDOWS else "./"
 PARENT_DIR = ".." if ON_WINDOWS else "../"
 
 
 @pytest.fixture(autouse=True)
-def setup(xession, xonsh_execer):
+def setup(xession, pygwin_execer):
     with tempfile.TemporaryDirectory() as tmp:
-        xession.env["XONSH_DATA_DIR"] = tmp
+        xession.env["PYGWIN_DATA_DIR"] = tmp
         xession.env["CDPATH"] = set()
 
 

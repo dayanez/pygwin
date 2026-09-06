@@ -1,4 +1,4 @@
-from xonsh.prompt.cwd import _replace_home_cwd
+from pygwin.prompt.cwd import _replace_home_cwd
 
 
 def test_cwd_escapes_curly_brackets_with_more_curly_brackets(xession, tmpdir):

@@ -2,8 +2,8 @@
 
 import os
 
-from xonsh.completers.tools import complete_from_sub_proc
-from xonsh.parsers.completion_context import CommandArg, CommandContext
+from pygwin.completers.tools import complete_from_sub_proc
+from pygwin.parsers.completion_context import CommandArg, CommandContext
 
 
 def _complete_pip(ctx, module_arg_index):
@@ -12,7 +12,7 @@ def _complete_pip(ctx, module_arg_index):
 
     args = (CommandArg("pip"),) + ctx.args[module_arg_index + 1 :]
     pip_ctx = ctx._replace(args=args, arg_index=ctx.arg_index - module_arg_index)
-    return _pip.xonsh_complete(pip_ctx)
+    return _pip.pygwin_complete(pip_ctx)
 
 
 def _complete_argcomplete(ctx, module_arg_index):
@@ -39,7 +39,7 @@ def _complete_argcomplete(ctx, module_arg_index):
 
 
 # Map module names to their completer functions.
-# Extend from xonshrc: ``from xompletions.python import PYTHON_MODULE_COMPLETERS``
+# Extend from pygwinrc: ``from xompletions.python import PYTHON_MODULE_COMPLETERS``
 #
 # Available helpers:
 #   _complete_pip          — pip's PIP_AUTO_COMPLETE protocol
@@ -49,7 +49,7 @@ PYTHON_MODULE_COMPLETERS = {
 }
 
 
-def xonsh_complete(ctx: CommandContext):
+def pygwin_complete(ctx: CommandContext):
     """Completes ``python -m <module>`` by delegating to the module's completer."""
 
     if (

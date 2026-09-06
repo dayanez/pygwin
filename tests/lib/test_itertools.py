@@ -1,4 +1,4 @@
-from xonsh.lib.itertools import as_iterable
+from pygwin.lib.itertools import as_iterable
 
 
 def test_single():

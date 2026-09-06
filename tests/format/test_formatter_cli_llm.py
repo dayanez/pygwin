@@ -1,4 +1,4 @@
-"""Tests for ``xonsh format`` CLI behaviour.
+"""Tests for ``pygwin format`` CLI behaviour.
 
 Mirrors Black's CLI conventions: in-place by default, ``--check`` for
 non-zero exit on would-be reformat, ``--diff`` for unified-diff output,
@@ -12,7 +12,7 @@ import sys
 
 import pytest
 
-from xonsh.formatter import cli as fcli
+from pygwin.formatter import cli as fcli
 
 
 def _run(argv, capsys, monkeypatch, stdin_text=None):

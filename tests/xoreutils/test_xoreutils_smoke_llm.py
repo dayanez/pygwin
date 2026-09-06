@@ -1,4 +1,4 @@
-"""Smoke tests for the small ``xonsh.xoreutils`` commands.
+"""Smoke tests for the small ``pygwin.xoreutils`` commands.
 
 Covers ``echo``, ``pwd``, ``tee``, ``tty``, ``yes`` — the trivial cross-platform
 coreutils. Tests follow the ``args, stdin, stdout, stderr`` callable-alias
@@ -10,7 +10,7 @@ import os
 
 import pytest
 
-from xonsh.xoreutils import echo, pwd, tee, tty, yes
+from pygwin.xoreutils import echo, pwd, tee, tty, yes
 
 # --- echo -------------------------------------------------------------------
 

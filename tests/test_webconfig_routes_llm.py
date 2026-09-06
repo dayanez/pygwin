@@ -1,6 +1,6 @@
-"""Smoke tests for ``xonsh.webconfig.routes``.
+"""Smoke tests for ``pygwin.webconfig.routes``.
 
-The route classes back individual pages of the browser-based xonsh config
+The route classes back individual pages of the browser-based pygwin config
 UI. Each tests instantiates a route and exercises the ``get`` / ``post``
 methods through their pure HTML-rendering paths — without ever spinning up
 the SocketServer.
@@ -10,9 +10,9 @@ from urllib import parse
 
 import pytest
 
-from xonsh.webconfig import file_writes
-from xonsh.webconfig import routes as r
-from xonsh.webconfig import tags as t
+from pygwin.webconfig import file_writes
+from pygwin.webconfig import routes as r
+from pygwin.webconfig import tags as t
 
 
 def _url(path):
@@ -24,9 +24,9 @@ def rc_file(tmp_path, monkeypatch):
     """Redirect webconfig RC writes to a temp path.
 
     Without this, ``ColorsPage.post`` / ``PromptsPage.post`` / ``XontribsPage.post``
-    write to the user's real ``~/.xonshrc`` via ``insert_into_xonshrc``.
+    write to the user's real ``~/.pygwinrc`` via ``insert_into_pygwinrc``.
     """
-    file = tmp_path / "xonshrc"
+    file = tmp_path / "pygwinrc"
     monkeypatch.setattr(file_writes, "RC_FILE", str(file))
     return file
 
@@ -35,9 +35,9 @@ def rc_file(tmp_path, monkeypatch):
 def make_route(xession):
     """Factory that constructs a route instance with the right deps.
 
-    On Windows, ``xonsh.pyghooks`` reads ``XSH.shell.shell_type`` while
-    constructing a ``XonshStyle`` (used by the prompt renderer). The
-    ``DummyShell`` from ``xonsh.pytest`` does not set that attribute, so
+    On Windows, ``pygwin.pyghooks`` reads ``XSH.shell.shell_type`` while
+    constructing a ``PygwinStyle`` (used by the prompt renderer). The
+    ``DummyShell`` from ``pygwin.pytest`` does not set that attribute, so
     we set a sane default here to keep the route renderers working
     cross-platform.
     """
@@ -90,15 +90,15 @@ def test_colors_page_renders_html(make_route):
 def test_colors_page_post_updates_env_var(xession, make_route):
     page = make_route(r.ColorsPage, params={"selected": ["monokai"]})
     page.post(None)
-    assert xession.env.get("XONSH_COLOR_STYLE") == "monokai"
+    assert xession.env.get("PYGWIN_COLOR_STYLE") == "monokai"
 
 
 def test_colors_page_post_no_selection_is_noop(xession, make_route):
     """When no ``selected`` param is provided, post() does nothing."""
-    original = xession.env.get("XONSH_COLOR_STYLE")
+    original = xession.env.get("PYGWIN_COLOR_STYLE")
     page = make_route(r.ColorsPage)
     page.post(None)
-    assert xession.env.get("XONSH_COLOR_STYLE") == original
+    assert xession.env.get("PYGWIN_COLOR_STYLE") == original
 
 
 def test_colors_page_get_selected_returns_tag(make_route):

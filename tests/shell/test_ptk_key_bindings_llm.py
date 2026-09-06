@@ -17,7 +17,7 @@ from prompt_toolkit.keys import Keys
 
 @pytest.fixture
 def ptk_app(ptk_shell):
-    """The shell's ptk application with xonsh key bindings installed.
+    """The shell's ptk application with pygwin key bindings installed.
 
     ``singleline()`` passes the merged key bindings to ``prompt()`` on
     every prompt; install them on the session the same way so the key
@@ -117,12 +117,12 @@ def test_singleline_applies_default_key_timeouts(ptk_shell):
 
 @pytest.mark.parametrize("value", [0.123, "0.123"], ids=["float", "str"])
 def test_singleline_applies_key_timeouts_from_env(ptk_shell, xession, value):
-    """$XONSH_PTK_TTIMEOUTLEN / $XONSH_PTK_TIMEOUTLEN are not registered
+    """$PYGWIN_PTK_TTIMEOUTLEN / $PYGWIN_PTK_TIMEOUTLEN are not registered
     in environ.py, so values inherited from os.environ (or set with -D)
     are strings — singleline() must coerce them to float."""
     _, _, shell = ptk_shell
-    xession.env["XONSH_PTK_TTIMEOUTLEN"] = value
-    xession.env["XONSH_PTK_TIMEOUTLEN"] = value
+    xession.env["PYGWIN_PTK_TTIMEOUTLEN"] = value
+    xession.env["PYGWIN_PTK_TIMEOUTLEN"] = value
     shell.prompter.prompt = lambda **kwargs: "echo ok"
     assert shell.singleline() == "echo ok"
     assert shell.prompter.app.ttimeoutlen == 0.123

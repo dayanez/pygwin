@@ -3,8 +3,8 @@ import subprocess
 
 import pytest
 
-from xonsh.completers.commands import complete_xompletions
-from xonsh.completers.tools import _shlex_split_safe
+from pygwin.completers.commands import complete_xompletions
+from pygwin.completers.tools import _shlex_split_safe
 
 regex_cases = [
     "pip",
@@ -58,8 +58,8 @@ def pip_installed():
 def test_completions(line, prefix, exp, check_completer, xsh_with_env):
     # The root conftest prepends the source tree to PYTHONPATH, and the completer
     # passes the session env straight to the `pip` subprocess. That puts the repo
-    # root (with its build-time xonsh.egg-info) on pip's own sys.path, where it
-    # shadows the really-installed xonsh distribution. When pip runs from a venv
+    # root (with its build-time pygwin.egg-info) on pip's own sys.path, where it
+    # shadows the really-installed pygwin distribution. When pip runs from a venv
     # it lists only distributions local to that venv, so the shadowed one drops
     # out and `pip show <TAB>` falls back to option flags. No real shell sets
     # PYTHONPATH this way, so drop it before completing.

@@ -1,9 +1,9 @@
 import os
 
-from xonsh.environ import Env
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.procs import executables as executables_mod
-from xonsh.procs.executables import (
+from pygwin.environ import Env
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.procs import executables as executables_mod
+from pygwin.procs.executables import (
     _cached_dir_contains,
     _stable_dir_cache,
     get_paths,
@@ -12,7 +12,7 @@ from xonsh.procs.executables import (
     locate_file,
     locate_relative_path,
 )
-from xonsh.tools import chdir
+from pygwin.tools import chdir
 
 
 def test_get_possible_names():
@@ -125,7 +125,7 @@ def test_locate_file(tmpdir, xession):
 
 
 def test_stable_dir_cache(tmpdir, xession):
-    """Directories in $XONSH_COMMANDS_CACHE_READ_DIR_ONCE are scanned once
+    """Directories in $PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE are scanned once
     and subsequent lookups use the cached frozenset instead of stat()."""
     stable = tmpdir.mkdir("stable")
     (f := stable / "runme.EXE").write_text("binary", encoding="utf8")
@@ -144,7 +144,7 @@ def test_stable_dir_cache(tmpdir, xession):
     with xession.env.swap(
         PATH=[stable_str],
         PATHEXT=pathext,
-        XONSH_COMMANDS_CACHE_READ_DIR_ONCE=[],
+        PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE=[],
     ):
         result = locate_executable("runme.EXE")
         assert result is not None
@@ -157,7 +157,7 @@ def test_stable_dir_cache(tmpdir, xession):
     with xession.env.swap(
         PATH=[stable_str],
         PATHEXT=pathext,
-        XONSH_COMMANDS_CACHE_READ_DIR_ONCE=[stable_str],
+        PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE=[stable_str],
     ):
         result = locate_executable("runme.EXE")
         assert result is not None
@@ -198,7 +198,7 @@ def test_stable_dir_cache_skips_directories(tmpdir, xession):
     with xession.env.swap(
         PATH=[stable_str],
         PATHEXT=pathext,
-        XONSH_COMMANDS_CACHE_READ_DIR_ONCE=[stable_str],
+        PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE=[stable_str],
     ):
         # "man" is a directory — must not be found
         assert locate_executable("man") is None

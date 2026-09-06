@@ -5,10 +5,10 @@ import sys
 import pyte
 import pytest
 
-from xonsh.platform_info import minimum_required_ptk_version
-from xonsh.shell import Shell
-from xonsh.shells.ptk_shell import tokenize_ansi
-from xonsh.shells.ptk_shell.history import PromptToolkitHistory
+from pygwin.platform_info import minimum_required_ptk_version
+from pygwin.shell import Shell
+from pygwin.shells.ptk_shell import tokenize_ansi
+from pygwin.shells.ptk_shell.history import PromptToolkitHistory
 
 # verify error if ptk not installed or below min
 
@@ -52,16 +52,16 @@ def test_prompt_toolkit_version_checks(
         return ptk_ver is not None
 
     monkeypatch.setattr(
-        "xonsh.shell.warnings.warn", mock_warning
+        "pygwin.shell.warnings.warn", mock_warning
     )  # hardwon: patch the caller!
     monkeypatch.setattr(
-        "xonsh.shell.ptk_above_min_supported", mock_ptk_above_min_supported
+        "pygwin.shell.ptk_above_min_supported", mock_ptk_above_min_supported
     )  # have to patch both callers
     monkeypatch.setattr(
-        "xonsh.shell.ptk_above_min_supported", mock_ptk_above_min_supported
+        "pygwin.shell.ptk_above_min_supported", mock_ptk_above_min_supported
     )
     monkeypatch.setattr(
-        "xonsh.platform_info.has_prompt_toolkit", mock_has_prompt_toolkit
+        "pygwin.platform_info.has_prompt_toolkit", mock_has_prompt_toolkit
     )
 
     old_syspath = sys.path.copy()
@@ -113,7 +113,7 @@ def test_ptk_prompt(line, exp, ptk_shell, capsys):
     inp, out, shell = ptk_shell
     inp.send_text(f"{line}\nexit\n")  # note: terminate with '\n'
     # ``exit`` now propagates SystemExit out of the loop (issue #6426); in
-    # production ``main_xonsh`` catches it.
+    # production ``main_pygwin`` catches it.
     with pytest.raises(SystemExit):
         shell.cmdloop()
     screen = pyte.Screen(80, 24)
@@ -144,7 +144,7 @@ def test_ptk_default_append_history(cmd, exp_append_history, ptk_shell, monkeypa
     append_history_calls = []
 
     monkeypatch.setattr(
-        "xonsh.built_ins.XSH.history.append", append_history_calls.append
+        "pygwin.built_ins.XSH.history.append", append_history_calls.append
     )
     shell.default(cmd)
     if exp_append_history:
@@ -199,7 +199,7 @@ def test_ptk_push_compiles_multiline_indented_block(ptk_shell):
 
 def test_ptk_combine_history(monkeypatch):
     """Test that consecutive identical history items are combined into a single item
-    when loading xonsh history items into prompt-toolkit history."""
+    when loading pygwin history items into prompt-toolkit history."""
 
     def all_items(*args, **kwargs):
         lines = [
@@ -211,7 +211,7 @@ def test_ptk_combine_history(monkeypatch):
         for line in lines:
             yield {"inp": line}
 
-    monkeypatch.setattr("xonsh.built_ins.XSH.history.all_items", all_items)
+    monkeypatch.setattr("pygwin.built_ins.XSH.history.all_items", all_items)
 
     shell_hist = PromptToolkitHistory()
     hist_strs = list(shell_hist.load_history_strings())

@@ -6,12 +6,12 @@ import sys
 
 import pytest
 
-from xonsh.procs.readers import (
+from pygwin.procs.readers import (
     BufferedFDParallelReader,
     NonBlockingFDReader,
     safe_fdclose,
 )
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.pytest.tools import skip_if_on_windows
 
 
 class TestNonBlockingFDReader:

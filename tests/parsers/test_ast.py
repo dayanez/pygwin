@@ -1,17 +1,17 @@
-"""Xonsh AST tests."""
+"""Pygwin AST tests."""
 
 import ast as pyast
 
 import pytest
 
-from xonsh.parsers import ast
-from xonsh.parsers.ast import BinOp, Call, Name, Store, Tuple, isexpression, min_line
-from xonsh.pytest.tools import nodes_equal
+from pygwin.parsers import ast
+from pygwin.parsers.ast import BinOp, Call, Name, Store, Tuple, isexpression, min_line
+from pygwin.pytest.tools import nodes_equal
 
 
 @pytest.fixture(autouse=True)
-def xonsh_execer_autouse(xonsh_execer):
-    return xonsh_execer
+def pygwin_execer_autouse(pygwin_execer):
+    return pygwin_execer
 
 
 def test_gather_names_name():
@@ -45,20 +45,20 @@ def test_gather_load_store_names_tuple():
         "l = 1",  # ls remains undefined.
     ],
 )
-def test_multilline_num(xonsh_execer_parse, line1):
+def test_multilline_num(pygwin_execer_parse, line1):
     # Subprocess transformation happens on the second line,
     # because not all variables are known.
     code = line1 + "\nls -l\n"
-    tree = xonsh_execer_parse(code)
+    tree = pygwin_execer_parse(code)
     lsnode = tree.body[1]
     assert 2 == min_line(lsnode)
     assert isinstance(lsnode.value, Call)
 
 
-def test_multilline_no_transform(xonsh_execer_parse):
+def test_multilline_no_transform(pygwin_execer_parse):
     # No subprocess transformations happen here, since all variables are known.
     code = "ls = 1\nl = 1\nls -l\n"
-    tree = xonsh_execer_parse(code)
+    tree = pygwin_execer_parse(code)
     lsnode = tree.body[2]
     assert 3 == min_line(lsnode)
     assert isinstance(lsnode.value, BinOp)
@@ -114,10 +114,10 @@ for root, dirs, files in os.walk(path):
     """,
     ],
 )
-def test_unmodified(inp, xonsh_execer_parse):
+def test_unmodified(inp, pygwin_execer_parse):
     # Context sensitive parsing should not modify AST
     exp = pyast.parse(inp)
-    obs = xonsh_execer_parse(inp)
+    obs = pygwin_execer_parse(inp)
 
     assert nodes_equal(exp, obs)
 
@@ -126,27 +126,27 @@ def test_unmodified(inp, xonsh_execer_parse):
     "test_input",
     ["echo; echo && echo\n", "echo; echo && echo a\n", "true && false && true\n"],
 )
-def test_whitespace_subproc(test_input, xonsh_execer_parse):
-    assert xonsh_execer_parse(test_input)
+def test_whitespace_subproc(test_input, pygwin_execer_parse):
+    assert pygwin_execer_parse(test_input)
 
 
-def test_paren_boolop_no_subshell(xonsh_execer):
+def test_paren_boolop_no_subshell(pygwin_execer):
     """``(cd subdir && ls)`` must not create a subshell that duplicates ``cd``.
 
     Regression: the non-greedy ``subproc_toks`` result for ``ls`` was falsely
     rejected by the consistency check because ``maxcol`` captured the closing
     ``)``. This caused a greedy fallback that wrapped the entire line into
-    ``xonsh -c`` subshell, executing ``cd`` twice.
+    ``pygwin -c`` subshell, executing ``cd`` twice.
     """
     import builtins
 
     ctx = set(dir(builtins))
-    tree = xonsh_execer.parse("(cd subdir && ls)\n", ctx=ctx)
+    tree = pygwin_execer.parse("(cd subdir && ls)\n", ctx=ctx)
     assert tree is not None
-    # The AST should not contain 'xonsh' or '-c' strings (no subshell)
+    # The AST should not contain 'pygwin' or '-c' strings (no subshell)
     for node in pyast.walk(tree):
-        if isinstance(node, pyast.Constant) and node.value == "xonsh":
-            pytest.fail("Found subshell 'xonsh -c' in AST — cd would run twice")
+        if isinstance(node, pyast.Constant) and node.value == "pygwin":
+            pytest.fail("Found subshell 'pygwin -c' in AST, cd would run twice")
 
 
 @pytest.mark.parametrize(
@@ -157,12 +157,12 @@ def test_paren_boolop_no_subshell(xonsh_execer):
         "cd /tmp/123 || ls\n",
     ],
 )
-def test_subproc_with_numeric_path_and_boolop(test_input, xonsh_execer_parse):
+def test_subproc_with_numeric_path_and_boolop(test_input, pygwin_execer_parse):
     """Paths with numeric components like /tmp/123 must not be parsed as Python division.
 
     See https://github.com/xonsh/xonsh/issues/5253
     """
-    tree = xonsh_execer_parse(test_input)
+    tree = pygwin_execer_parse(test_input)
     assert tree is not None
     # The AST should NOT contain BinOp(Div) — that would mean /tmp/123 was parsed as division
     for node in pyast.walk(tree):
@@ -185,7 +185,7 @@ def test_subproc_with_numeric_path_and_boolop(test_input, xonsh_execer_parse):
         ("x = 42", False),
     ],
 )
-def test_isexpression(xonsh_execer, inp, exp):
+def test_isexpression(pygwin_execer, inp, exp):
     obs = isexpression(inp)
     assert exp is obs
 

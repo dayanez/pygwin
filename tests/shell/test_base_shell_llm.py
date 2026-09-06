@@ -1,12 +1,12 @@
-"""LLM-generated tests for ``xonsh.shells.base_shell``."""
+"""LLM-generated tests for ``pygwin.shells.base_shell``."""
 
 import errno
 import os
 
 import pytest
 
-from xonsh.built_ins import XSH
-from xonsh.shells.base_shell import BaseShell
+from pygwin.built_ins import XSH
+from pygwin.shells.base_shell import BaseShell
 
 
 def _raiser(exc):
@@ -27,27 +27,27 @@ def _raiser(exc):
     ids=["enoent", "eperm", "eacces", "eio"],
 )
 def test_precmd_survives_unreachable_cwd(
-    exc, xession, xonsh_execer, monkeypatch, tmpdir
+    exc, xession, pygwin_execer, monkeypatch, tmpdir
 ):
     """``os.getcwd()`` fails for more reasons than a plain deletion: an
     ancestor that stopped being readable, an unmounted volume, or a macOS
     sandbox/TCC denial all arrive as ``PermissionError``. None of them may
-    escape ``precmd()`` -- an exception here reaches ``xonsh.main`` and gets
+    escape ``precmd()`` -- an exception here reaches ``pygwin.main`` and gets
     the whole interactive session replaced by another shell.
     """
-    shell = BaseShell(xonsh_execer, None)
+    shell = BaseShell(pygwin_execer, None)
     xession.env["PWD"] = str(tmpdir)
     monkeypatch.setattr(os, "getcwd", _raiser(exc))
 
     assert shell.precmd("echo test") == "echo test"
-    # $PWD is xonsh's own record of where the session is, so it beats
+    # $PWD is pygwin's own record of where the session is, so it beats
     # pretending the command ran in the home directory.
     assert shell.precwd == str(tmpdir)
 
 
-def test_precmd_falls_back_to_home_without_pwd(xession, xonsh_execer, monkeypatch):
+def test_precmd_falls_back_to_home_without_pwd(xession, pygwin_execer, monkeypatch):
     """With no usable ``$PWD`` left there is nothing better than ``~``."""
-    shell = BaseShell(xonsh_execer, None)
+    shell = BaseShell(pygwin_execer, None)
     xession.env["PWD"] = ""
     monkeypatch.setattr(os, "getcwd", _raiser(PermissionError(errno.EPERM, "nope")))
 
@@ -56,9 +56,9 @@ def test_precmd_falls_back_to_home_without_pwd(xession, xonsh_execer, monkeypatc
     assert shell.precwd == os.path.expanduser("~")
 
 
-def test_precmd_falls_back_to_home_without_env(xession, xonsh_execer, monkeypatch):
+def test_precmd_falls_back_to_home_without_env(xession, pygwin_execer, monkeypatch):
     """The session may not carry an ``env`` at all (bare ``XSH``)."""
-    shell = BaseShell(xonsh_execer, None)
+    shell = BaseShell(pygwin_execer, None)
     monkeypatch.setattr(os, "getcwd", _raiser(PermissionError(errno.EPERM, "nope")))
     monkeypatch.setattr(XSH, "env", None)
 

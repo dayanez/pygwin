@@ -8,8 +8,8 @@ the alias object, and ``complete_command`` surfaces it as the
 
 import pytest
 
-from xonsh.aliases import Aliases
-from xonsh.completers.commands import (
+from pygwin.aliases import Aliases
+from pygwin.completers.commands import (
     _alias_completion_description,
     complete_command,
 )

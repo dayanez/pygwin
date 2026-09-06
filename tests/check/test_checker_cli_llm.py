@@ -1,8 +1,8 @@
-"""Tests for ``xonsh check`` and the ``xonsh -n`` / ``--no-execute`` flag.
+"""Tests for ``pygwin check`` and the ``pygwin -n`` / ``--no-execute`` flag.
 
-The checker parses + compiles xonsh source down to a code object but never
+The checker parses + compiles pygwin source down to a code object but never
 runs it (the analogue of ``bash -n`` / ``nu --no-execute``). Both the
-subcommand and the flag share one engine, :func:`xonsh.checker.cli.check_source`.
+subcommand and the flag share one engine, :func:`pygwin.checker.cli.check_source`.
 """
 
 from __future__ import annotations
@@ -13,11 +13,11 @@ import types
 
 import pytest
 
-from xonsh.checker import cli as ccli
+from pygwin.checker import cli as ccli
 
 
 def _run(argv, capsys, monkeypatch, stdin_text=None):
-    """Invoke ``xonsh check`` and capture stdout/stderr/exit."""
+    """Invoke ``pygwin check`` and capture stdout/stderr/exit."""
     if stdin_text is not None:
         monkeypatch.setattr(sys, "stdin", io.StringIO(stdin_text))
     rc = ccli.main(argv)
@@ -74,7 +74,7 @@ def test_check_source_does_not_execute(tmp_path):
 
 
 # ---------------------------------------------------------------------
-# Subcommand: xonsh check FILE...
+# Subcommand: pygwin check FILE...
 # ---------------------------------------------------------------------
 
 
@@ -155,7 +155,7 @@ def test_stdin_dash_invalid(capsys, monkeypatch):
 
 
 # ---------------------------------------------------------------------
-# Flag engine: check_no_execute (xonsh -n)
+# Flag engine: check_no_execute (pygwin -n)
 # ---------------------------------------------------------------------
 
 
@@ -227,36 +227,36 @@ def test_no_execute_interactive_nothing_to_check(capsys, monkeypatch):
 
 
 def test_main_dispatches_check_subcommand(tmp_path):
-    import xonsh.main
+    import pygwin.main
 
     f = tmp_path / "a.xsh"
     f.write_text("x = 1\n")
     with pytest.raises(SystemExit) as ei:
-        xonsh.main.main(["check", str(f), "-q"])
+        pygwin.main.main(["check", str(f), "-q"])
     assert ei.value.code == ccli.EXIT_OK
 
 
 def test_main_dispatches_check_subcommand_invalid(tmp_path):
-    import xonsh.main
+    import pygwin.main
 
     f = tmp_path / "bad.xsh"
     f.write_text("x = (1 +\n")
     with pytest.raises(SystemExit) as ei:
-        xonsh.main.main(["check", str(f)])
+        pygwin.main.main(["check", str(f)])
     assert ei.value.code == ccli.EXIT_SYNTAX
 
 
 def test_premain_n_flag_valid():
-    import xonsh.main
+    import pygwin.main
 
     with pytest.raises(SystemExit) as ei:
-        xonsh.main.premain(["-n", "-c", "x = 1; print(x)"])
+        pygwin.main.premain(["-n", "-c", "x = 1; print(x)"])
     assert ei.value.code == ccli.EXIT_OK
 
 
 def test_premain_n_flag_invalid():
-    import xonsh.main
+    import pygwin.main
 
     with pytest.raises(SystemExit) as ei:
-        xonsh.main.premain(["-n", "-c", "x = (1 +"])
+        pygwin.main.premain(["-n", "-c", "x = (1 +"])
     assert ei.value.code == ccli.EXIT_SYNTAX

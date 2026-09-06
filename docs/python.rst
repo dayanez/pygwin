@@ -4,14 +4,14 @@
 Python
 ======
 
-Xonsh is built on top of Python and Python code can be executed natively
+Pygwin is built on top of Python and Python code can be executed natively
 alongside shell commands. This page collects notes on how Python-specific
 behaviour interacts with the shell.
 
 Python versions support policy
 ==============================
 
-Xonsh adopts `NEP-0029 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`_ in supporting Python versions.
+Pygwin adopts `NEP-0029 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`_ in supporting Python versions.
 Simply speaking a minor Python release (X.*) will be supported for 42 months from its date of initial release.
 Since Python has adopted yearly release cycle, most of the time,
 the latest 4 minor versions of Python would be supported at any given time.
@@ -22,12 +22,12 @@ the latest 4 minor versions of Python would be supported at any given time.
 Importing Python modules from a local directory
 ===============================================
 
-The modules available for import in a given ``xonsh`` session depend on what's
+The modules available for import in a given ``pygwin`` session depend on what's
 available in ``sys.path``. If you want to be able to import a module that
 resides in the current directory, ensure that there is an empty string as the
 first element of your ``sys.path``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ import sys
    @ sys.path.insert(0, '')
@@ -39,10 +39,10 @@ Inline scripting
 Inline import
 -------------
 
-Use ``@.imp`` as an inline importer (xonsh >= 0.18.2) — modules are looked
+Use ``@.imp`` as an inline importer (pygwin >= 0.18.2) — modules are looked
 up lazily without a preceding ``import`` statement:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ @.imp.json.loads($(echo '{"a":1}'))
    {'a': 1}
@@ -63,7 +63,7 @@ Use ``$[...]`` (or ``$(...)``) to embed subprocess statements directly
 inside Python expressions — loops, comprehensions, conditionals, and
 context managers all compose naturally:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ for i in range(1, 5): $[echo @(i)]
 
@@ -87,7 +87,7 @@ Triple quotes
 To avoid escape characters (``echo "\"hello\""``) and keep strings readable,
 use triple quotes:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ echo """{"hello":'world'}"""
    {"hello":'world'}
@@ -97,9 +97,9 @@ f-strings in commands
 ---------------------
 
 f-strings work both inside ``@(...)`` and standalone as arguments
-(xonsh >= 0.23.0):
+(pygwin >= 0.23.0):
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ echo @(f'Hello {$HOME}')
    Hello /home/snail
@@ -116,7 +116,7 @@ lets you capture a value inline and reuse it later.
 
 In subprocess:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ echo Hello @(_name := input('Name: '))  # use ``_`` to keep the env clean
    @ echo Hello again @(_name)
@@ -127,7 +127,7 @@ In subprocess:
 Works with JSON/struct output too — decorators like ``@json`` return Python
 objects which the walrus captures for reuse:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ (servers := $(@json echo '["srv1", "srv2"]'))
    ['srv1', 'srv2']
@@ -139,11 +139,11 @@ objects which the walrus captures for reuse:
 Shadowing between shell commands and Python names
 ==================================================
 
-Because xonsh parses Python-mode first, a bare name that resolves as a
+Because pygwin parses Python-mode first, a bare name that resolves as a
 Python built-in is evaluated as Python rather than run as a shell
 command. Classic collisions: ``id``, ``zip``, ``dir``, ``import``.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ id
    <built-in function id> # Python built-in, not /usr/bin/id
@@ -151,7 +151,7 @@ command. Classic collisions: ``id``, ``zip``, ``dir``, ``import``.
 Workarounds:
 
 * **Flip the experimental toggle**
-  `$XONSH_BUILTINS_TO_CMD <envvars.html#XONSH_BUILTINS_TO_CMD>`_ — when
+  `$PYGWIN_BUILTINS_TO_CMD <envvars.html#PYGWIN_BUILTINS_TO_CMD>`_ — when
   set, bare built-in names are run as subprocess commands if a matching
   alias or executable exists, falling back to the Python built-in
   otherwise. The same switch is also useful on Windows for ``dir`` (see
@@ -168,5 +168,5 @@ Workarounds:
 * **Use `xontrib-abbrevs`** to auto-expand on space.
 
 
-See also: `xonsh-cheatsheet <https://github.com/anki-code/xonsh-cheatsheet>`_
+See also: `pygwin-cheatsheet <https://github.com/anki-code/xonsh-cheatsheet>`_
 for more copy-pastable examples.

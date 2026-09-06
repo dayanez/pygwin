@@ -52,11 +52,11 @@ def test_unexpected_newline_preserves_lineno(parser):
 def test_syntax_error_offset_matches_cpython(parser):
     """SyntaxError.offset should be 1-indexed, matching CPython."""
     code = "def f(:\n"
-    with pytest.raises(SyntaxError) as xonsh_exc:
+    with pytest.raises(SyntaxError) as pygwin_exc:
         parser.parse(code)
     with pytest.raises(SyntaxError) as cpython_exc:
         compile(code, "<test>", "exec")
-    assert xonsh_exc.value.offset == cpython_exc.value.offset
+    assert pygwin_exc.value.offset == cpython_exc.value.offset
 
 
 @pytest.mark.parametrize(
@@ -71,9 +71,9 @@ def test_syntax_error_offset_matches_cpython(parser):
 )
 def test_import_alias_location_matches_cpython(parser, code):
     """ast.alias lineno/col_offset should match CPython."""
-    xonsh_tree = parser.parse(code)
+    pygwin_tree = parser.parse(code)
     cpython_tree = ast.parse(code)
-    xa = xonsh_tree.body[0].names[0]
+    xa = pygwin_tree.body[0].names[0]
     ca = cpython_tree.body[0].names[0]
     assert xa.lineno == ca.lineno
     assert xa.col_offset == ca.col_offset

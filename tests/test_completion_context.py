@@ -3,14 +3,14 @@ from unittest import mock
 
 import pytest
 
-import xonsh.parsers.completion_context as ctx
-from xonsh.parsers.completion_context import (
+import pygwin.parsers.completion_context as ctx
+from pygwin.parsers.completion_context import (
     CommandArg,
     CommandContext,
     CompletionContextParser,
     PythonContext,
 )
-from xonsh.pytest.tools import ON_WINDOWS
+from pygwin.pytest.tools import ON_WINDOWS
 
 DEBUG = False
 MISSING = object()

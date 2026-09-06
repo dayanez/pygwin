@@ -2,7 +2,7 @@
 
 import pytest
 
-from xonsh.color_tools import iscolor
+from pygwin.color_tools import iscolor
 
 
 @pytest.mark.parametrize(

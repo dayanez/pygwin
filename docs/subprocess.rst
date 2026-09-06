@@ -5,7 +5,7 @@
 Subprocess
 ************************************
 
-Xonsh provides several operators for launching subprocesses, each with
+Pygwin provides several operators for launching subprocesses, each with
 different capturing and blocking behavior. Choosing the right one
 depends on whether you need the output, whether the process is
 interactive, and what return type you expect.
@@ -17,7 +17,7 @@ interactive, and what return type you expect.
 Runs ``cmd``, captures stdout and returns it as a string. Nothing is
 printed to the screen:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     $(whoami)
     # 'user'
@@ -31,7 +31,7 @@ printed to the screen:
 
 Use :ref:`Command Decorators <command-decorators>` to change the return format:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     $(@lines ls /)
     # ['/bin', '/etc', '/home']
@@ -46,13 +46,13 @@ See :ref:`Command Decorators <command-decorators>` for the full list
 ``!(cmd)`` -- captured object
 =============================
 
-In fact every subprocess command in xonsh is executed through a
-:class:`~xonsh.procs.pipelines.CommandPipeline` -- the central object
+In fact every subprocess command in pygwin is executed through a
+:class:`~pygwin.procs.pipelines.CommandPipeline` -- the central object
 that manages process execution, piping, stdout/stderr capturing, and
 return codes.
 
 ``!(cmd)`` operator captures stdout and stderr and returns a
-:class:`~xonsh.procs.pipelines.CommandPipeline`. The object is truthy
+:class:`~pygwin.procs.pipelines.CommandPipeline`. The object is truthy
 when the return code is 0, and iterates over lines of stdout.
 
 
@@ -63,7 +63,7 @@ when the return code is 0, and iterates over lines of stdout.
     call ``.end()``, or convert to ``str``, which forces the process to
     complete.
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     r = !(ls /)
     r.output            # '' -- process may not have finished yet
@@ -76,7 +76,7 @@ when the return code is 0, and iterates over lines of stdout.
 
 Non-blocking pattern with a worker:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     worker = !(sleep 3)                   # returns immediately
     echo 'doing other work...'
@@ -96,11 +96,11 @@ Non-blocking pattern with a worker:
 ======================================
 
 Streams stdout and stderr to the screen and returns a
-:class:`~xonsh.procs.pipelines.HiddenCommandPipeline`.
+:class:`~pygwin.procs.pipelines.HiddenCommandPipeline`.
 This is the operator used under the hood when you type a plain command
 at the interactive prompt (``cmd`` is the same as ``![cmd]``).
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     r = ![echo hello]
     # hello                   <- streamed to terminal
@@ -108,11 +108,11 @@ at the interactive prompt (``cmd`` is the same as ``![cmd]``).
     # 0
 
 The ``.out`` attribute is empty by default. Set
-``$XONSH_CAPTURE_ALWAYS = True`` to capture output even in this mode:
+``$PYGWIN_CAPTURE_ALWAYS = True`` to capture output even in this mode:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
-    with @.env.swap(XONSH_CAPTURE_ALWAYS=True):
+    with @.env.swap(PYGWIN_CAPTURE_ALWAYS=True):
         r = ![echo hello]
         # hello               <- still streamed
         r.out
@@ -120,7 +120,7 @@ The ``.out`` attribute is empty by default. Set
 
 Checking return status with the walrus operator:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     if r := ![ls NO]:
         print(f'OK, code: {r.returncode}')
@@ -141,7 +141,7 @@ Python-level redirection.
 
 Use this for interactive or uncapturable processes (e.g. editors):
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     ret = $[echo 123]
     # 123    # output directly
@@ -161,11 +161,11 @@ Use this for interactive or uncapturable processes (e.g. editors):
 ==============================
 
 Runs ``cmd``, captures stdout, splits it using
-:meth:`Lexer.split() <xonsh.parsers.lexer.Lexer.split>`
+:meth:`Lexer.split() <pygwin.parsers.lexer.Lexer.split>`
 (shell-aware, respects quoting), and injects the resulting tokens as
 separate arguments:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ showcmd @$(echo -e '1\n2\r3 4\r\n5')
     # ['1', '2\r3', '4', '5']
@@ -174,7 +174,7 @@ You can use the same function directly to split any command string:
 
 .. code-block:: python
 
-    from xonsh.parsers.lexer import Lexer
+    from pygwin.parsers.lexer import Lexer
     Lexer().split('echo "hello world" file.txt')
     # ['echo', '"hello world"', 'file.txt']
 
@@ -182,19 +182,19 @@ You can use the same function directly to split any command string:
 Threading
 =========
 
-Xonsh has a threading prediction mechanism that allows it to understand
+Pygwin has a threading prediction mechanism that allows it to understand
 which commands can be captured. For example, ``echo`` has no interaction
 with the user and is capturable. However, some tools have mixed behavior
 -- they can be run for either interactive or non-interactive tasks. The
 best example is ``ssh``, which allows for remote terminal sessions *and*
 executing commands.
 
-To handle different types of tasks, xonsh has the ``@thread`` and
+To handle different types of tasks, pygwin has the ``@thread`` and
 ``@unthread`` built-in decorator aliases. If you need to capture the
 output from an interactive tool that has a capturable mode, use
 ``@thread``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ !(@thread ssh host -T 'echo remote')
     CommandPipeline(output="remote")
@@ -238,7 +238,7 @@ Summary table
       - no
       - no for thread
       - no
-      - :class:`~xonsh.procs.pipelines.CommandPipeline`
+      - :class:`~pygwin.procs.pipelines.CommandPipeline`
     * - ``![cmd]``
       - yes
       - no
@@ -246,7 +246,7 @@ Summary table
       - yes
       - no for thread
       - yes
-      - :class:`~xonsh.procs.pipelines.HiddenCommandPipeline`
+      - :class:`~pygwin.procs.pipelines.HiddenCommandPipeline`
     * - ``$[cmd]``
       - yes
       - no
@@ -266,7 +266,7 @@ Summary table
 
 What all this means:
 
-* **Blocking** -- whether xonsh waits for the process to finish before
+* **Blocking** -- whether pygwin waits for the process to finish before
   continuing.
 * **Capture stdout** -- whether stdout is captured into a ``CommandPipeline`` object
   instead of being streamed to the terminal.
@@ -291,5 +291,5 @@ See also
 
 * :doc:`strings` -- how strings and quoting work in subprocess mode
 * :doc:`aliases` -- command decorators (``@lines``, ``@json``) and alias definitions
-* :doc:`launch` -- command-line options for starting xonsh
-* :doc:`tutorial` -- introduction to xonsh
+* :doc:`launch` -- command-line options for starting pygwin
+* :doc:`tutorial` -- introduction to pygwin

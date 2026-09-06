@@ -1,10 +1,10 @@
-"""Tests for reload-safe event handler uniqueness (xonsh/xonsh#3276)."""
+"""Tests for reload-safe event handler uniqueness (pygwin/pygwin#3276)."""
 
 import inspect
 
 import pytest
 
-from xonsh.events import Event, EventManager, LoadEvent, _handler_key
+from pygwin.events import Event, EventManager, LoadEvent, _handler_key
 
 
 @pytest.fixture
@@ -259,7 +259,7 @@ def test_delayed_discard_by_key_during_fire(events):
     assert "target" not in vals
 
 
-# --- xonsh/xonsh#3837: no dynamic per-event subclass ---
+# --- pygwin/pygwin#3837: no dynamic per-event subclass ---
 
 
 def test_event_is_direct_instance_not_synthetic_subclass(events):

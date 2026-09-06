@@ -1,4 +1,4 @@
-"""Tests for ``option=value`` path completion in ``xonsh/completers/path.py``.
+"""Tests for ``option=value`` path completion in ``pygwin/completers/path.py``.
 
 When an argument looks like ``--opt=/some/path`` or ``var=/some/path`` the
 path completer should complete only the value after the first ``=`` while
@@ -12,12 +12,12 @@ import tempfile
 
 import pytest
 
-import xonsh.completers.path as xcp
+import pygwin.completers.path as xcp
 
 
 @pytest.fixture(autouse=True)
-def xonsh_execer_autouse(xession, xonsh_execer):
-    return xonsh_execer
+def pygwin_execer_autouse(xession, pygwin_execer):
+    return pygwin_execer
 
 
 @pytest.fixture

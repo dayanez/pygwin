@@ -3,7 +3,7 @@
 ``sudo`` is more than a transparent command wrapper: it has its own flag
 grammar, accepts ``VAR=value`` environment assignments before the command,
 and honours the POSIX ``--`` end-of-options sentinel. The generic
-command-token skipper in :mod:`xonsh.completers.commands` only knows how to
+command-token skipper in :mod:`pygwin.completers.commands` only knows how to
 strip the literal ``sudo`` token, which leaves ``sudo -- foo``,
 ``sudo -u root foo`` and similar invocations without useful completions.
 
@@ -17,9 +17,9 @@ command at ``args[0]`` so the inner command's own completers
 
 import re
 
-from xonsh.built_ins import XSH
-from xonsh.completers.commands import complete_command
-from xonsh.parsers.completion_context import CommandContext, CompletionContext
+from pygwin.built_ins import XSH
+from pygwin.completers.commands import complete_command
+from pygwin.parsers.completion_context import CommandContext, CompletionContext
 
 # Short-form sudo flags whose next argument is the flag's value
 # (``sudo -u root cmd``). Long-form variants are tracked separately below
@@ -85,7 +85,7 @@ def _find_inner_command_position(args) -> int:
     return i
 
 
-def xonsh_complete(ctx: CommandContext):
+def pygwin_complete(ctx: CommandContext):
     """Complete arguments to ``sudo``."""
     inner = _find_inner_command_position(ctx.args)
 

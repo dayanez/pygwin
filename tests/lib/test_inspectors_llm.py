@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.lib.inspectors``.
+"""Smoke tests for ``pygwin.lib.inspectors``.
 
 The module ports IPython's object-inspection helpers — ``getdoc``, ``getsource``,
 ``find_file``, the ``Inspector`` class, ``object_info`` skeletons, etc. The
@@ -8,7 +8,7 @@ IPython-style ``?`` UI.
 
 import pytest
 
-from xonsh.lib.inspectors import (
+from pygwin.lib.inspectors import (
     Inspector,
     call_tip,
     find_file,
@@ -134,7 +134,7 @@ def test_is_simple_callable_for_builtin():
     """``all`` is a builtin function whose type matches ``_builtin_func_type``."""
     # Force-load the module-level LazyObjects before the isinstance check —
     # ``isinstance(obj, lazy_obj)`` is False until the lazy slot is resolved.
-    from xonsh.lib import inspectors as ins
+    from pygwin.lib import inspectors as ins
 
     bool(ins._builtin_func_type)
     bool(ins._builtin_meth_type)
@@ -253,7 +253,7 @@ def test_call_tip_falls_back_to_init_then_main_docstring():
 
 
 def test_find_file_for_module_function():
-    fname = find_file(getdoc)  # any function defined in xonsh.lib.inspectors
+    fname = find_file(getdoc)  # any function defined in pygwin.lib.inspectors
     assert fname is not None
     assert fname.endswith("inspectors.py")
 

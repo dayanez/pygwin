@@ -5,8 +5,8 @@ it captures subprocess output and pipes it through ``tomllib.loads`` so
 that ``$(@toml cmd)`` yields a parsed ``dict`` instead of raw text.
 """
 
-from xonsh.aliases import make_default_aliases
-from xonsh.procs.specs import SpecAttrDecoratorAlias
+from pygwin.aliases import make_default_aliases
+from pygwin.procs.specs import SpecAttrDecoratorAlias
 
 
 def test_toml_decorator_registered(xession):

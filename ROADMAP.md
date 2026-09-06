@@ -6,17 +6,37 @@ Phase two is the actual performance and observability work that pygwin exists fo
 This file tracks both, in place of GitHub issues, which this project does not use
 internally (see AGENTS.md).
 
-## Phase one: scaffold (done)
+## Phase one: scaffold and rebrand (done)
 
 - [x] Fork xonsh's source into this repository, with a clean, single-author git history.
-- [x] Rebrand the CLI entry point, `--version` string, and interactive banner to pygwin,
-      while keeping the internal package name `xonsh` so future patches stay small and
-      diffable against upstream.
+- [x] Rebrand the CLI entry point and `--version` string to pygwin.
+- [x] Full rename: the Python package itself (`xonsh/` to `pygwin/`), the `__xonsh__`
+      runtime global (to `__pygwin__`), every `$XONSH_*` environment variable (to
+      `$PYGWIN_*`), and every `Xonsh`-prefixed class and function name, renamed
+      throughout rather than kept for merge-friendliness. See SYNCING.md for the full
+      account and what it costs going forward.
+- [x] Silent startup by default: no welcome banner, no first-run message
+      (`$XONSH_SUPPRESS_WELCOME` defaults to `True`).
 - [x] GPL-3.0 license, with the original xonsh BSD notice preserved in CREDITS.md.
 - [x] CI workflow (lint and test).
-- [x] CD workflow (build and publish a Windows Nuitka executable on release).
+- [x] CD workflow definition (build a Windows Nuitka executable on release); an actual
+      tagged release with a working `.exe` attached is still pending, see Distribution
+      below.
 - [x] Minimal GitHub Pages site.
 - [x] AGENTS.md for coding agents working on this repo.
+
+## Known rough edge from the rename
+
+`virtualenv` ships its own built-in xonsh activator (baked into the `virtualenv`
+package itself, unrelated to whether real xonsh is installed) that also targets
+`activate.xsh`, the same filename pygwin's own activator writes. Running plain
+`virtualenv <dir>` without pinning `--activators pygwin` lets both run, and
+whichever runs last silently overwrites the other's file: if virtualenv's built-in
+one wins, the resulting `activate.xsh` is compiled for xonsh's `__xonsh__` global
+and fails with `NameError: name '__xonsh__' is not defined` when sourced under
+pygwin. Until this has a real fix (either getting pygwin's activator to take
+precedence, or writing to a distinct filename), the workaround is
+`virtualenv <dir> --activators pygwin`. See `tests/test_virtualenv_activator.py`.
 
 ## Phase two: the actual point of pygwin
 
@@ -57,5 +77,5 @@ not a checklist to rush through in one pass.
       the first Nuitka release (see the Releases page) is a baseline, not the target.
 
 All of this belongs in new files under `xontrib/`, `xompletions/`, or a new top-level
-module, per AGENTS.md's one rule. It does not belong in edits scattered across
-`xonsh/`'s existing files.
+module where that's a real option, per AGENTS.md's one rule. It does not belong in
+edits scattered across `pygwin/`'s existing files without good reason.

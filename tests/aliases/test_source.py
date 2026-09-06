@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from xonsh.aliases import make_default_aliases, source_alias_fn, source_foreign_fn
-from xonsh.tools import argvquote
+from pygwin.aliases import make_default_aliases, source_alias_fn, source_foreign_fn
+from pygwin.tools import argvquote
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def mocked_execx_checker(xession, monkeypatch):
 
 def test_source_files(mockopen, monkeypatch, mocked_execx_checker):
     monkeypatch.setattr(os.path, "isfile", lambda x: True)
-    files = [".xonshrc", "foo.xsh", "bar.xonshrc", "py.py"]
+    files = [".pygwinrc", "foo.xsh", "bar.pygwinrc", "py.py"]
     source_alias_fn(files)
     assert mocked_execx_checker == files
 
@@ -50,9 +50,9 @@ def test_source_files_any_ext(mockopen, monkeypatch, mocked_execx_checker):
         "foo.bar",
         "bar.foo",
         ".foobar",
-        ".xonshrc",
+        ".pygwinrc",
         "foo.xsh",
-        "bar.xonshrc",
+        "bar.pygwinrc",
         "py.py",
     ]
     source_alias_fn(files, ignore_ext=True)
@@ -114,7 +114,7 @@ def _spy_foreign_shell(monkeypatch):
 
     fake_foreign_shell_data.cache_clear = lambda: None
     monkeypatch.setattr(
-        "xonsh.aliases.foreign_shell_data", fake_foreign_shell_data, raising=False
+        "pygwin.aliases.foreign_shell_data", fake_foreign_shell_data, raising=False
     )
     return calls
 

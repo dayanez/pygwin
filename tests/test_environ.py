@@ -1,4 +1,4 @@
-"""Tests the xonsh environment."""
+"""Tests the pygwin environment."""
 
 import datetime
 import os
@@ -12,7 +12,7 @@ from time import sleep
 
 import pytest
 
-from xonsh.environ import (
+from pygwin.environ import (
     DeprecatedSetting,
     Env,
     EnvPath,
@@ -24,12 +24,12 @@ from xonsh.environ import (
     default_value,
     locate_binary,
     make_args_env,
-    xonsh_cache_dir,
-    xonsh_config_dir,
-    xonsh_data_dir,
+    pygwin_cache_dir,
+    pygwin_config_dir,
+    pygwin_data_dir,
 )
-from xonsh.pytest.tools import skip_if_on_unix
-from xonsh.tools import DefaultNotGiven, always_true
+from pygwin.pytest.tools import skip_if_on_unix
+from pygwin.tools import DefaultNotGiven, always_true
 
 
 @pytest.fixture(autouse=True)
@@ -414,7 +414,7 @@ def test_no_lines_columns():
 
 
 def test_no_thread_local_inherited_from_os_environ():
-    # If a parent xonsh leaked __THREAD_LOCAL__ into os.environ (stringified
+    # If a parent pygwin leaked __THREAD_LOCAL__ into os.environ (stringified
     # by detype), the child must strip it before populating XSH.env —
     # otherwise CommandPipeline._apply_to_thread_local reads a str instead
     # of a dict and every pipeline crashes.
@@ -772,13 +772,13 @@ def test_thread_local_dict_multiple():
     assert thread_values == [i**2 for i in range(num_threads)]
 
 
-def test_xonsh_dir_vars():
+def test_pygwin_dir_vars():
     env = Env(
-        XONSH_CONFIG_DIR="/config", XONSH_CACHE_DIR="/cache", XONSH_DATA_DIR="/data"
+        PYGWIN_CONFIG_DIR="/config", PYGWIN_CACHE_DIR="/cache", PYGWIN_DATA_DIR="/data"
     )
-    assert xonsh_config_dir(env), "/config"
-    assert xonsh_cache_dir(env), "/cache"
-    assert xonsh_data_dir(env), "/data"
+    assert pygwin_config_dir(env), "/config"
+    assert pygwin_cache_dir(env), "/cache"
+    assert pygwin_data_dir(env), "/data"
 
 
 def test_numerical_envvar_defined():
@@ -836,24 +836,24 @@ def test_envpath_eq_expands_both_sides(xession):
 
 def test_env_deprecated():
     env = Env()
-    env._vars["XONSH_PROMPT_AUTO_SUGGEST"] = PTKSetting.XONSH_PROMPT_AUTO_SUGGEST
+    env._vars["PYGWIN_PROMPT_AUTO_SUGGEST"] = PTKSetting.PYGWIN_PROMPT_AUTO_SUGGEST
     env._vars["AUTO_SUGGEST"] = DeprecatedSetting.AUTO_SUGGEST
     assert env["AUTO_SUGGEST"] is True
-    assert env["AUTO_SUGGEST"] == env["XONSH_PROMPT_AUTO_SUGGEST"]
+    assert env["AUTO_SUGGEST"] == env["PYGWIN_PROMPT_AUTO_SUGGEST"]
     with pytest.warns(DeprecationWarning):
         env["AUTO_SUGGEST"] = False
-    assert env["AUTO_SUGGEST"] == env["XONSH_PROMPT_AUTO_SUGGEST"]
-    env["XONSH_PROMPT_AUTO_SUGGEST"] = True
-    assert env["AUTO_SUGGEST"] == env["XONSH_PROMPT_AUTO_SUGGEST"]
+    assert env["AUTO_SUGGEST"] == env["PYGWIN_PROMPT_AUTO_SUGGEST"]
+    env["PYGWIN_PROMPT_AUTO_SUGGEST"] = True
+    assert env["AUTO_SUGGEST"] == env["PYGWIN_PROMPT_AUTO_SUGGEST"]
     with pytest.warns(DeprecationWarning):
         env["AUTO_SUGGEST"] = True
     with pytest.warns(DeprecationWarning):
         env["AUTO_SUGGEST"] = False
     with warnings.catch_warnings(record=True) as wrngs:
-        env["XONSH_PROMPT_AUTO_SUGGEST"] = True
+        env["PYGWIN_PROMPT_AUTO_SUGGEST"] = True
     assert len(wrngs) == 0
     with warnings.catch_warnings(record=True) as wrngs:
-        env["XONSH_PROMPT_AUTO_SUGGEST"] = False
+        env["PYGWIN_PROMPT_AUTO_SUGGEST"] = False
     assert len(wrngs) == 0
 
 

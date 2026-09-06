@@ -1,7 +1,7 @@
 include scripts/*
 include LICENSE
 include CHANGELOG.md
-include README.rst
+include README.md
 include run-tests.xsh
 include conftest.py
 recursive-include tests *

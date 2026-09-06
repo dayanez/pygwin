@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from xonsh.parsers.lexer import Lexer
+from pygwin.parsers.lexer import Lexer
 
 _skip_pre_312 = pytest.mark.skipif(
     sys.version_info < (3, 12), reason="PEP 701 requires Python 3.12+"
@@ -286,7 +286,7 @@ class TestFStringConversionLexer:
     def test_bang_r(self):
         result = toks('f"{x!r}"')
         types = [t[0] for t in result]
-        # ! is ERRORTOKEN in xonsh tokenizer (same as CPython)
+        # ! is ERRORTOKEN in pygwin tokenizer (same as CPython)
         assert "NAME" in types  # 'r' after '!'
 
     def test_bang_s(self):
@@ -472,11 +472,11 @@ class TestFStringExprLexer:
         assert "LAMBDA" in types
 
 
-# ---- xonsh syntax inside f-strings ----
+# ---- pygwin syntax inside f-strings ----
 
 
 @_skip_pre_312
-class TestFStringXonshLexer:
+class TestFStringPygwinLexer:
     def test_dollar_name(self):
         result = toks('f"{$HOME}"')
         types = [t[0] for t in result]
@@ -537,7 +537,7 @@ class TestFStringXonshLexer:
         assert "STRING" in types
 
 
-# ---- xonsh pf"..." path f-strings ----
+# ---- pygwin pf"..." path f-strings ----
 
 
 @_skip_pre_312

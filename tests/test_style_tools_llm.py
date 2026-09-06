@@ -1,6 +1,6 @@
-"""Smoke tests for ``xonsh.style_tools``.
+"""Smoke tests for ``pygwin.style_tools``.
 
-The module re-implements a tiny subset of pygments's token type so xonsh can
+The module re-implements a tiny subset of pygments's token type so pygwin can
 keep working when pygments is not available. These tests cover the parts
 that don't actually need a live pygments install: the ``_TokenType`` algebra,
 ``color_by_name``, and ``partial_color_tokenize``.
@@ -8,7 +8,7 @@ that don't actually need a live pygments install: the ``_TokenType`` algebra,
 
 import pytest
 
-from xonsh.style_tools import (
+from pygwin.style_tools import (
     DEFAULT_STYLE_DICT,
     Color,
     Token,
@@ -100,7 +100,7 @@ def test_color_by_name_no_color_acts_like_reset(capsys):
     """``NO_COLOR`` is a deprecated alias for RESET — it still resolves to
     ``Color.RESET`` and prints a one-time warning to stderr."""
     # reset the one-shot warning flag so this test sees it
-    import xonsh.color_tools as ct
+    import pygwin.color_tools as ct
 
     ct._NO_COLOR_WARNING_SHOWN = False
     tok, fg, bg = color_by_name("NO_COLOR")

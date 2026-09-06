@@ -1,9 +1,9 @@
 Callable Aliases
 ================
 
-In Xonsh, a Python function can be registered as a shell command (alias). The
-function declares which arguments it needs, and Xonsh fills them automatically
-based on parameter names. When a function runs as an alias, Xonsh redirects
+In Pygwin, a Python function can be registered as a shell command (alias). The
+function declares which arguments it needs, and Pygwin fills them automatically
+based on parameter names. When a function runs as an alias, Pygwin redirects
 ``sys.stdout`` and ``sys.stderr`` inside it, making it possible to capture all
 output that happens within the function — including ``print()`` calls and
 subprocess commands.
@@ -47,7 +47,7 @@ combination of the following parameters in any order:
 
 You only need to declare the parameters you actually use:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       def _hello():
@@ -83,7 +83,7 @@ Alias Name and Called Alias Name
 When one alias points to another, it can be useful to know how the alias was
 invoked. The ``alias_name`` and ``called_alias_name`` parameters provide this:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register('groot')
       def _groot(alias_name=None, called_alias_name=None):
@@ -103,14 +103,14 @@ Local Environment Overlay
 -------------------------
 
 The ``env`` parameter provides a local environment overlay. Values set in
-``env`` shadow the global environment during alias execution — both for Xonsh
+``env`` shadow the global environment during alias execution — both for Pygwin
 ``$VAR`` reads and for subprocesses. When the alias exits, the overlay is
 removed and the global environment is unchanged.
 
 Direct writes to ``$VAR`` or ``@.env`` modify the global environment as usual
 and persist after the alias exits:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       def _ca(env=None):
@@ -137,7 +137,7 @@ Return Command Aliases
 
 The ``@aliases.return_command`` decorator creates aliases that return a new
 command to execute instead of running it themselves. The body of the alias
-can run its own commands first, then return the command Xonsh should execute
+can run its own commands first, then return the command Pygwin should execute
 on its behalf.
 
 The alias may return its result in either of two forms:
@@ -146,24 +146,24 @@ The alias may return its result in either of two forms:
 no env overlay; if you need to set env vars for it you must use the dict
 form below.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       @aliases.return_command
       def _rca(args):
-          return ['xonsh', '-c', 'echo hello']
+          return ['pygwin', '-c', 'echo hello']
 
 **2. A dict** with a required ``"cmd"`` key (non-empty list of tokens) and
 an optional ``"env"`` key (dict) — the command tokens plus an env overlay
 that applies **only** to the returned command.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       @aliases.return_command
       def _rca(args):
           return {
-              'cmd': ['xonsh', '-c', 'echo $RETURNED'],
+              'cmd': ['pygwin', '-c', 'echo $RETURNED'],
               'env': {'RETURNED': 'set_by_dict'},
           }
 
@@ -179,7 +179,7 @@ inline (e.g. via ``$[...]``, ``!()``, or subprocess syntax), but it does
 **not** flow to the returned command. To set env for the returned command,
 the alias must use the dict form above.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       @aliases.return_command
@@ -198,7 +198,7 @@ The following example exercises all four env-flow paths of a
 a direct global write (persists), a dict-return ``"env"`` overlay (applies only
 to the returned command), and the global value that flows through both.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $GLOBAL = 1
 
@@ -208,21 +208,21 @@ to the returned command), and the global value that flows through both.
           # ``env`` is the body-scoped overlay (introduced in 0.23.0).
           # Mutating it affects commands the alias runs inline.
           env['LOCAL'] = 1
-          xonsh -c @('echo g=$GLOBAL l=$LOCAL')
+          pygwin -c @('echo g=$GLOBAL l=$LOCAL')
           # Direct write to the global env — persists after the alias exits.
           $GLOBAL = 2
           return {
-              'cmd': ['xonsh', '-c', 'echo g=$GLOBAL l=$LOCAL'],
+              'cmd': ['pygwin', '-c', 'echo g=$GLOBAL l=$LOCAL'],
               'env': {'LOCAL': 2},
           }
 
     @ rca
-    # xonsh inside the alias body:
+    # pygwin inside the alias body:
     #   g=1  from the global $GLOBAL set before the alias
     #   l=1  from the ``env=`` kwarg overlay (body-scoped)
     g=1 l=1
 
-    # the returned xonsh command:
+    # the returned pygwin command:
     #   g=2  from the direct write ``$GLOBAL = 2`` in the body
     #   l=2  from the dict-return ``"env"`` overlay
     g=2 l=2
@@ -242,7 +242,7 @@ Return Values
 
 Callable aliases can return values in several forms:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       def _ret0():
@@ -289,7 +289,7 @@ alias's captured output, not directly to the terminal:
     print("x", file=stdout)    # same
     stdout.write("x\n")        # same
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       def _demo(args, stdout=None, stderr=None):
@@ -308,7 +308,7 @@ alias's captured output, not directly to the terminal:
 Here is a more complete example showing how different output methods behave
 under capture:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       def _printer(args, stdin, stdout, stderr):
@@ -363,7 +363,7 @@ When called uncaptured (bare command), output goes to the terminal as usual.
 The ``stderr`` argument and ``sys.stderr`` are also redirected — use
 ``sys.__stderr__`` if you need to bypass capture:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       def _loud(args, stdin=None):
@@ -379,7 +379,7 @@ The ``stderr`` argument and ``sys.stderr`` are also redirected — use
 Streams
 -------
 
-Inside a callable alias Xonsh replaces ``sys.stdout`` and ``sys.stderr``
+Inside a callable alias Pygwin replaces ``sys.stdout`` and ``sys.stderr``
 with the alias's own streams.  The ``stdout`` and ``stderr`` function
 arguments point to the **same** redirected streams.  So bare ``print()``
 just works — in pipes, in capture, everywhere:
@@ -422,7 +422,7 @@ stream when piped into.  This is the one argument you **must** use explicitly
             for line in stdin:
                 print(line.strip().upper())
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ echo hello | upper
     HELLO
@@ -450,7 +450,7 @@ ends:
             stdout.buffer.write(chunk)
         stdout.buffer.flush()
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cat /usr/bin/python | passthru > /tmp/copy
     @ # bytes preserved exactly — diff /usr/bin/python /tmp/copy is empty
@@ -483,14 +483,14 @@ Threading and capturability can also be controlled at call time using the
 ``@thread``, ``@unthread`` command decorators. These override the function's
 decorators for a single invocation:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @unthread my-alias    # force main thread for this call
     @ @thread my-alias      # force background thread for this call
 
 To set it permanently on the function, use the Python decorator:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       @aliases.unthreadable
@@ -513,7 +513,7 @@ take over the terminal. These must not be captured, or the program will not
 display correctly. Use ``@aliases.uncapturable``, typically together with
 ``@aliases.unthreadable``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register
       @aliases.uncapturable
@@ -546,18 +546,18 @@ Click CLI Integration
 ---------------------
 
 If the `click <https://click.palletsprojects.com/>`_ package is installed,
-xonsh exposes two helpers on the ``aliases`` object:
+pygwin exposes two helpers on the ``aliases`` object:
 
 * ``aliases.click`` — the ``click`` module itself, for decorating functions
   with ``@aliases.click.option(...)``, ``@aliases.click.argument(...)``, etc.
 * ``aliases.register_click_command`` — a decorator that registers a click
-  command as a Xonsh alias.
+  command as a Pygwin alias.
 
 Both are loaded lazily on first access — sessions that never touch click
 don't pay the import cost, and nothing breaks on systems where click is
 not installed.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register_click_command
       @aliases.click.option('--count', default=1, help='Number of greetings.')
@@ -581,7 +581,7 @@ The decorator mirrors the calling conventions of ``@aliases.register``:
     @aliases.register_click_command("my-name")   # explicit alias name
 
 The function's first argument is a ``click.Context`` subclass that carries
-every standard Xonsh alias parameter from `Signature Parameters`_ as an
+every standard Pygwin alias parameter from `Signature Parameters`_ as an
 attribute of the same name — ``ctx.stdin``, ``ctx.stdout``, ``ctx.stderr``,
 ``ctx.spec``, ``ctx.stack``, ``ctx.decorators``, ``ctx.alias_name``,
 ``ctx.called_alias_name``, ``ctx.env``. The only exception is ``args``,
@@ -592,7 +592,7 @@ The ``click`` module itself is also attached as ``ctx.click``, so
 callbacks can call ``ctx.click.echo(...)``, ``ctx.click.secho(...)``, etc.
 without a separate ``import click``.
 
-Use these when a click command needs the underlying Xonsh streams or
+Use these when a click command needs the underlying Pygwin streams or
 environment overlay — for example, ``print(text, file=ctx.stdout)`` writes
 to the alias's captured output the same way a regular callable alias does.
 
@@ -600,7 +600,7 @@ Tab completion is wired up automatically: option flags, ``click.Choice``
 option values, positional ``click.Choice`` arguments, and sub-commands of
 a ``click.Group`` are all suggested without any extra configuration.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ hello --<TAB>
     --count --help --name
@@ -609,25 +609,25 @@ a ``click.Group`` are all suggested without any extra configuration.
 String Aliases and ExecAlias
 ----------------------------
 
-When you assign a string to an alias, Xonsh stores it in one of two ways
+When you assign a string to an alias, Pygwin stores it in one of two ways
 depending on the content.
 
 A **simple string** like ``"ls -la"`` is split into a list of tokens and
 stored as ``["ls", "-la"]``. This is equivalent to assigning the list
 directly:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases['ll'] = 'ls -la'
     @ aliases['ll'] = ['ls', '-la']   # same thing
 
-A string that contains Xonsh expressions (``@()``, ``$()``), pipes (``|``),
+A string that contains Pygwin expressions (``@()``, ``$()``), pipes (``|``),
 redirections (``>``, ``<``), or logical operators (``&&``, ``||``) cannot be
-represented as a simple list — it needs to be compiled and executed as Xonsh
-code. Xonsh wraps such strings in an ``ExecAlias``, which is a callable alias
+represented as a simple list — it needs to be compiled and executed as Pygwin
+code. Pygwin wraps such strings in an ``ExecAlias``, which is a callable alias
 under the hood:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases['answer'] = 'echo @(21+21)'
     @ answer
@@ -654,14 +654,14 @@ temporary environment variables:
 These variables exist only while the alias body is running and are removed
 afterwards.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases['greet'] = 'echo Hello, $arg0!'
     @ greet World
     Hello, World!
 
     @ aliases['piu'] = 'pip install -U @($args)'
-    @ piu xonsh prompt_toolkit
+    @ piu pygwin prompt_toolkit
 
     @ aliases['cdls'] = 'cd $arg0 && ls'
     @ cdls /tmp
@@ -669,7 +669,7 @@ afterwards.
 Arguments are **not** passed automatically — you need to use ``$args`` or
 ``$arg<n>`` explicitly. If you don't reference them, they are ignored:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases['noargs'] = 'echo @("arguments are ignored")'
     @ noargs 1 2 3
@@ -686,7 +686,7 @@ Equivalence with Callable Aliases
 An ``ExecAlias`` is a shorthand for a callable alias. These three definitions
 are equivalent:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases['answer'] = 'echo @(21+21)'
 

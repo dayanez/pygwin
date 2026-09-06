@@ -1,14 +1,14 @@
 [run]
 #branch = true
 source =
-  xonsh/
+  pygwin/
   xontrib/
 omit =
   .venv/*
-  xonsh/lazyasd.py
-  xonsh/parser_table.py
-  xonsh/completion_parser_table.py
-  xonsh/parsers/ply/*
+  pygwin/lazyasd.py
+  pygwin/parser_table.py
+  pygwin/completion_parser_table.py
+  pygwin/parsers/ply/*
 
 # keep all cache files in one place
 data_file = .cache/coverage

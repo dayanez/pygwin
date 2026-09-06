@@ -1,8 +1,8 @@
-"""PEP 701 f-string tests: nested quotes, nested f-strings, xonsh $ syntax."""
+"""PEP 701 f-string tests: nested quotes, nested f-strings, pygwin $ syntax."""
 
 import pytest
 
-from xonsh.pytest.tools import VER_MAJOR_MINOR
+from pygwin.pytest.tools import VER_MAJOR_MINOR
 
 _skip_pre_312 = pytest.mark.skipif(VER_MAJOR_MINOR < (3, 12), reason="PEP 701")
 
@@ -261,38 +261,38 @@ class TestPEP701FStrings:
 
 
 @_skip_pre_312
-class TestPEP701XonshFStrings:
-    """PEP 701 f-strings combined with xonsh-specific syntax."""
+class TestPEP701PygwinFStrings:
+    """PEP 701 f-strings combined with pygwin-specific syntax."""
 
     # -- $VAR in f-strings --
 
-    def test_dollar_env_var(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'f"{$HOME}"', run=False)
+    def test_dollar_env_var(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'f"{$HOME}"', run=False)
 
-    def test_dollar_env_var_single_quote(self, check_xonsh_ast):
-        check_xonsh_ast({}, "f'{$HOME}'", run=False)
+    def test_dollar_env_var_single_quote(self, check_pygwin_ast):
+        check_pygwin_ast({}, "f'{$HOME}'", run=False)
 
-    def test_dollar_env_var_with_text(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'f"home={$HOME}"', run=False)
+    def test_dollar_env_var_with_text(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'f"home={$HOME}"', run=False)
 
-    def test_multiple_dollar_vars(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'f"{$HOME} and {$USER}"', run=False)
+    def test_multiple_dollar_vars(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'f"{$HOME} and {$USER}"', run=False)
 
-    def test_dollar_var_with_regular_expr(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'f"{$HOME}/{1+1}"', run=False)
+    def test_dollar_var_with_regular_expr(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'f"{$HOME}/{1+1}"', run=False)
 
     # -- $VAR evaluated at runtime --
 
-    def test_dollar_env_eval(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_dollar_env_eval(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "HOME", "/foo/bar")
-        obs = check_xonsh_ast({}, 'f"{$HOME}"', return_obs=True)
+        obs = check_pygwin_ast({}, 'f"{$HOME}"', return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == "/foo/bar"
 
-    def test_dollar_env_multiple_eval(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_dollar_env_multiple_eval(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "HOME", "/home")
         monkeypatch.setitem(xsh.env, "USER", "alice")
-        obs = check_xonsh_ast({}, 'f"{$HOME}/users/{$USER}"', return_obs=True)
+        obs = check_pygwin_ast({}, 'f"{$HOME}/users/{$USER}"', return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == "/home/users/alice"
 
@@ -307,72 +307,72 @@ class TestPEP701XonshFStrings:
             ('f"{$HOME= }"', "$HOME= '/foo/bar'"),
         ],
     )
-    def test_dollar_var_self_doc(self, check_xonsh_ast, xsh, monkeypatch, inp, exp):
+    def test_dollar_var_self_doc(self, check_pygwin_ast, xsh, monkeypatch, inp, exp):
         monkeypatch.setitem(xsh.env, "HOME", "/foo/bar")
-        obs = check_xonsh_ast({}, inp, return_obs=True)
+        obs = check_pygwin_ast({}, inp, return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == exp
 
     # -- $VAR combined with PEP 701 quote reuse --
 
-    def test_dollar_var_reuse_quotes(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_dollar_var_reuse_quotes(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "HOME", "/home")
-        obs = check_xonsh_ast({}, 'f"{"prefix-" + $HOME}"', return_obs=True)
+        obs = check_pygwin_ast({}, 'f"{"prefix-" + $HOME}"', return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == "prefix-/home"
 
     # -- $VAR in nested f-strings --
 
-    def test_dollar_var_nested_fstring(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_dollar_var_nested_fstring(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "NAME", "world")
-        obs = check_xonsh_ast({}, 'f"{"hello " + f"{$NAME}"}"', return_obs=True)
+        obs = check_pygwin_ast({}, 'f"{"hello " + f"{$NAME}"}"', return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == "hello world"
 
-    def test_dollar_var_nested_path(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_dollar_var_nested_path(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "HOME", "/home")
-        obs = check_xonsh_ast({}, 'f"{f"path={$HOME}"}"', return_obs=True)
+        obs = check_pygwin_ast({}, 'f"{f"path={$HOME}"}"', return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == "path=/home"
 
     # -- $VAR with format spec --
 
-    def test_dollar_var_format_spec(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_dollar_var_format_spec(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "PI", "3.14159")
-        obs = check_xonsh_ast({}, 'f"{float($PI):.2f}"', return_obs=True)
+        obs = check_pygwin_ast({}, 'f"{float($PI):.2f}"', return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == "3.14"
 
     # -- ${} dynamic env var access --
 
-    def test_dollar_brace_env(self, check_xonsh_ast):
-        check_xonsh_ast({}, "f\"{${'HOME'}}\"", run=False)
+    def test_dollar_brace_env(self, check_pygwin_ast):
+        check_pygwin_ast({}, "f\"{${'HOME'}}\"", run=False)
 
-    def test_dollar_brace_env_eval(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_dollar_brace_env_eval(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "HOME", "/foo/bar")
-        obs = check_xonsh_ast({}, "f\"{${'HOME'}}\"", return_obs=True)
+        obs = check_pygwin_ast({}, "f\"{${'HOME'}}\"", return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == "/foo/bar"
 
     # -- pf"..." path f-strings --
 
-    def test_pf_path_fstring(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'pf"{$HOME}"', run=False)
+    def test_pf_path_fstring(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'pf"{$HOME}"', run=False)
 
-    def test_fp_path_fstring(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'fp"{$HOME}"', run=False)
+    def test_fp_path_fstring(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'fp"{$HOME}"', run=False)
 
-    def test_pf_with_text(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'pf"{$HOME}/subdir"', run=False)
+    def test_pf_with_text(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'pf"{$HOME}/subdir"', run=False)
 
-    # -- triple-quoted f-strings with xonsh --
+    # -- triple-quoted f-strings with pygwin --
 
-    def test_triple_quoted_dollar(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'f"""{$HOME}"""', run=False)
+    def test_triple_quoted_dollar(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'f"""{$HOME}"""', run=False)
 
-    def test_triple_quoted_multiline_dollar(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_triple_quoted_multiline_dollar(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "HOME", "/home")
-        obs = check_xonsh_ast(
+        obs = check_pygwin_ast(
             {},
             'f"""path:\n{$HOME}\nend"""',
             return_obs=True,
@@ -382,17 +382,17 @@ class TestPEP701XonshFStrings:
 
     # -- $() command substitution in f-strings --
 
-    def test_dollar_paren_in_fstring(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'f"{$(echo hello)}"', run=False)
+    def test_dollar_paren_in_fstring(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'f"{$(echo hello)}"', run=False)
 
-    def test_dollar_paren_strip(self, check_xonsh_ast):
-        check_xonsh_ast({}, 'f"{$(echo hello).strip()}"', run=False)
+    def test_dollar_paren_strip(self, check_pygwin_ast):
+        check_pygwin_ast({}, 'f"{$(echo hello).strip()}"', run=False)
 
-    # -- escaped braces with xonsh --
+    # -- escaped braces with pygwin --
 
-    def test_escaped_braces_with_dollar(self, check_xonsh_ast, xsh, monkeypatch):
+    def test_escaped_braces_with_dollar(self, check_pygwin_ast, xsh, monkeypatch):
         monkeypatch.setitem(xsh.env, "HOME", "/home")
-        obs = check_xonsh_ast({}, 'f"{{literal}} {$HOME}"', return_obs=True)
+        obs = check_pygwin_ast({}, 'f"{{literal}} {$HOME}"', return_obs=True)
         code = compile(obs, "<test>", "eval")
         assert eval(code) == "{literal} /home"
 
@@ -401,61 +401,61 @@ class TestPEP701XonshFStrings:
 class TestPEP701SubprocFStrings:
     """PEP 701 f-strings inside subprocess @() injections."""
 
-    def test_subproc_at_string(self, check_xonsh_ast):
+    def test_subproc_at_string(self, check_pygwin_ast):
         """echo @('hello') — baseline, regular string."""
-        check_xonsh_ast({}, '$[echo @("hello")]\n', run=False, mode="exec")
+        check_pygwin_ast({}, '$[echo @("hello")]\n', run=False, mode="exec")
 
-    def test_subproc_at_fstring_empty(self, check_xonsh_ast):
+    def test_subproc_at_fstring_empty(self, check_pygwin_ast):
         """echo @(f'') — empty f-string."""
-        check_xonsh_ast({}, "$[echo @(f'')]\n", run=False, mode="exec")
+        check_pygwin_ast({}, "$[echo @(f'')]\n", run=False, mode="exec")
 
-    def test_subproc_at_fstring_text(self, check_xonsh_ast):
+    def test_subproc_at_fstring_text(self, check_pygwin_ast):
         """echo @(f'hello') — f-string without expressions."""
-        check_xonsh_ast({}, "$[echo @(f'hello')]\n", run=False, mode="exec")
+        check_pygwin_ast({}, "$[echo @(f'hello')]\n", run=False, mode="exec")
 
-    def test_subproc_at_fstring_expr(self, check_xonsh_ast):
+    def test_subproc_at_fstring_expr(self, check_pygwin_ast):
         """echo @(f'{42}') — f-string with expression."""
-        check_xonsh_ast({}, "$[echo @(f'{42}')]\n", run=False, mode="exec")
+        check_pygwin_ast({}, "$[echo @(f'{42}')]\n", run=False, mode="exec")
 
-    def test_subproc_at_fstring_pep701_quotes(self, check_xonsh_ast):
+    def test_subproc_at_fstring_pep701_quotes(self, check_pygwin_ast):
         """echo @(f'{"word"}') — PEP 701 same-quote reuse."""
-        check_xonsh_ast({}, '$[echo @(f"{"word"}")]\n', run=False, mode="exec")
+        check_pygwin_ast({}, '$[echo @(f"{"word"}")]\n', run=False, mode="exec")
 
-    def test_subproc_at_fstring_method(self, check_xonsh_ast):
+    def test_subproc_at_fstring_method(self, check_pygwin_ast):
         """echo @(f'{"word".upper()}') — method call with reused quotes."""
-        check_xonsh_ast({}, '$[echo @(f"{"word".upper()}")]\n', run=False, mode="exec")
+        check_pygwin_ast({}, '$[echo @(f"{"word".upper()}")]\n', run=False, mode="exec")
 
-    def test_subproc_at_fstring_nested(self, check_xonsh_ast):
+    def test_subproc_at_fstring_nested(self, check_pygwin_ast):
         """echo @(f'{f"{1+1}"}') — nested f-string."""
-        check_xonsh_ast({}, '$[echo @(f"{f"{1+1}"}")]\n', run=False, mode="exec")
+        check_pygwin_ast({}, '$[echo @(f"{f"{1+1}"}")]\n', run=False, mode="exec")
 
-    def test_subproc_at_fstring_format_spec(self, check_xonsh_ast):
+    def test_subproc_at_fstring_format_spec(self, check_pygwin_ast):
         """echo @(f'{42:.2f}') — format spec."""
-        check_xonsh_ast({}, "$[echo @(f'{42:.2f}')]\n", run=False, mode="exec")
+        check_pygwin_ast({}, "$[echo @(f'{42:.2f}')]\n", run=False, mode="exec")
 
-    def test_subproc_at_fstring_escaped_braces(self, check_xonsh_ast):
+    def test_subproc_at_fstring_escaped_braces(self, check_pygwin_ast):
         """echo @(f'{{x}}') — escaped braces."""
-        check_xonsh_ast({}, "$[echo @(f'{{x}}')]\n", run=False, mode="exec")
+        check_pygwin_ast({}, "$[echo @(f'{{x}}')]\n", run=False, mode="exec")
 
-    def test_subproc_at_fstring_dollar_var(self, check_xonsh_ast):
-        """echo @(f'{$HOME}') — xonsh env var."""
-        check_xonsh_ast({}, "$[echo @(f'{$HOME}')]\n", run=False, mode="exec")
+    def test_subproc_at_fstring_dollar_var(self, check_pygwin_ast):
+        """echo @(f'{$HOME}') — pygwin env var."""
+        check_pygwin_ast({}, "$[echo @(f'{$HOME}')]\n", run=False, mode="exec")
 
-    def test_subproc_at_fstring_dollar_with_text(self, check_xonsh_ast):
+    def test_subproc_at_fstring_dollar_with_text(self, check_pygwin_ast):
         """echo @(f'home={$HOME}') — env var with text."""
-        check_xonsh_ast({}, "$[echo @(f'home={$HOME}')]\n", run=False, mode="exec")
+        check_pygwin_ast({}, "$[echo @(f'home={$HOME}')]\n", run=False, mode="exec")
 
-    def test_subproc_at_fstring_dollar_paren(self, check_xonsh_ast):
+    def test_subproc_at_fstring_dollar_paren(self, check_pygwin_ast):
         """echo @(f'{$(echo hi)}') — command substitution inside f-string."""
-        check_xonsh_ast({}, "$[echo @(f'{$(echo hi)}')]\n", run=False, mode="exec")
+        check_pygwin_ast({}, "$[echo @(f'{$(echo hi)}')]\n", run=False, mode="exec")
 
-    def test_subproc_at_fstring_concat(self, check_xonsh_ast):
+    def test_subproc_at_fstring_concat(self, check_pygwin_ast):
         """echo @('a' + f'{"b"}') — string concat with f-string."""
-        check_xonsh_ast({}, '$[echo @("a" + f"{"b"}")]\n', run=False, mode="exec")
+        check_pygwin_ast({}, '$[echo @("a" + f"{"b"}")]\n', run=False, mode="exec")
 
-    def test_subproc_fstring_multiple_dollar_paren(self, check_xonsh_ast):
+    def test_subproc_fstring_multiple_dollar_paren(self, check_pygwin_ast):
         """echo f'{$(echo 1)} {$(echo 2)}' — f-string with two command subs."""
-        check_xonsh_ast(
+        check_pygwin_ast(
             {},
             """$[echo f"{$(echo 1).strip()} {$(echo 2).strip()}"]\n""",
             run=False,

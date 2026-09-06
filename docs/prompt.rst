@@ -4,7 +4,7 @@
 Prompt
 ******
 
-Xonsh ships with two REPL engines. Historically, they have been referred to in xonsh
+Pygwin ships with two REPL engines. Historically, they have been referred to in pygwin
 as “shells” or “prompts”, but they will likely be renamed in the future, as they are in fact
 REPL (read–eval–print loop) engines that power all user interaction with the terminal. These are:
 
@@ -12,7 +12,7 @@ REPL (read–eval–print loop) engines that power all user interaction with the
   engine built on `prompt_toolkit <https://python-prompt-toolkit.readthedocs.io/>`_.
   It provides syntax highlighting, multi-line editing, completion menus, custom
   key bindings, and more. It is included when installing the full package
-  (``pip install 'xonsh[full]'``).
+  (``pip install 'pygwin[full]'``).
 * **readline** (``$SHELL_TYPE`` is ``readline``) — a minimal fallback used when
   ptk cannot be started for some reason (for example, when ``prompt_toolkit``
   is not installed).
@@ -35,7 +35,7 @@ The ``$PROMPT`` variable can be a string, or it can be a function (of no
 arguments) that returns a string.  The result can contain keyword arguments,
 which will be replaced automatically:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $PROMPT = '{user}@{hostname}:{cwd} @ '
     snail@home:~ @ # it works!
@@ -49,9 +49,9 @@ By default, the following variables are available for use:
 * ``cwd``: The current working directory. Use ``$DYNAMIC_CWD_WIDTH`` to
   set a maximum width and ``$DYNAMIC_CWD_ELISION_CHAR`` for the elision character.
 * ``short_cwd``: A shortened form of the current working directory; e.g.,
-  ``/path/to/xonsh`` becomes ``/p/t/xonsh``
+  ``/path/to/pygwin`` becomes ``/p/t/pygwin``
 * ``cwd_dir``: The dirname of the current working directory, e.g. ``/path/to/``
-* ``cwd_base``: The basename of the current working directory, e.g. ``xonsh``
+* ``cwd_base``: The basename of the current working directory, e.g. ``pygwin``
 * ``env_name``: The name of active virtual environment, if any.
 * ``env_prefix``: Prefix characters for active virtual environment (default ``"("``).
 * ``env_postfix``: Postfix characters for active virtual environment (default ``") "``).
@@ -62,7 +62,7 @@ By default, the following variables are available for use:
 * ``prompt_end``: ``@#`` if the user has root/admin permissions, ``@`` otherwise.
 * ``current_job``: The name of the command currently running in the foreground.
 * ``gitstatus``: Informative git status, like ``[main|MERGING|+1…2]``.
-  See :py:mod:`xonsh.prompt.gitstatus` for customization options.
+  See :py:mod:`pygwin.prompt.gitstatus` for customization options.
 * ``localtime``: The current local time, formatted with ``time_format``.
 * ``time_format``: A time format string, defaulting to ``"%H:%M:%S"``.
 * ``last_return_code``: The return code of the last issued command.
@@ -71,7 +71,7 @@ By default, the following variables are available for use:
 Colors
 ======
 
-Xonsh supports colored output in prompts, ``print_color``, and ``printx``.
+Pygwin supports colored output in prompts, ``print_color``, and ``printx``.
 Color keywords such as ``{GREEN}`` or ``{BOLD_BLUE}`` can be used in prompt
 strings and with color printing functions.
 
@@ -156,7 +156,7 @@ Here is an example — a random emoji before the prompt character:
 
 .. code-block:: python
 
-    from xonsh.completers.emoji import get_emoji_cache
+    from pygwin.completers.emoji import get_emoji_cache
     $PROMPT_FIELDS['random_emoji'] = lambda: @.imp.random.choice(get_emoji_cache())[0]
     $PROMPT = $PROMPT.replace("{prompt_end}", "{random_emoji} {prompt_end}")
 
@@ -180,8 +180,8 @@ But let's consider a problem:
 
 .. code-block:: python
 
-    snail@home ~/xonsh @ $PROMPT = "{cwd_base} [{curr_branch}] @ "
-    xonsh [main] @ cd ..
+    snail@home ~/pygwin @ $PROMPT = "{cwd_base} [{curr_branch}] @ "
+    pygwin [main] @ cd ..
     ~ [] @
 
 We want the branch to be displayed in square brackets, but we also don't want
@@ -191,8 +191,8 @@ invoked only if the value is not ``None``:
 
 .. code-block:: python
 
-    snail@home ~/xonsh @ $PROMPT = "{cwd_base}{curr_branch: [{}]} @ "
-    xonsh [main] @ cd ..
+    snail@home ~/pygwin @ $PROMPT = "{cwd_base}{curr_branch: [{}]} @ "
+    pygwin [main] @ cd ..
     ~ @
 
 The curly brackets act as a placeholder, because the additional part is an
@@ -207,7 +207,7 @@ Multiline Prompt
 ================
 
 When you enter a multi-line statement (``for`` loop, ``if`` block, etc.),
-xonsh displays a continuation prompt on each subsequent line.  The pattern
+pygwin displays a continuation prompt on each subsequent line.  The pattern
 is controlled by ``$MULTILINE_PROMPT`` (default ``" "``).
 
 The value is repeated to fill the width of the main prompt.  It can be a
@@ -220,7 +220,7 @@ plain string, a string with color markup, or a callable:
     ~*~*~*~*     print(i)
     ~*~*~*~*
 
-Both xonsh color keywords (``{RED}``) and ANSI escape codes (``\033[31m``)
+Both pygwin color keywords (``{RED}``) and ANSI escape codes (``\033[31m``)
 are supported.
 
 
@@ -259,17 +259,17 @@ Existing callables that accept no arguments continue to work.
 Custom Keybindings
 ==================
 
-For the list of default key bindings shipped with xonsh, see
+For the list of default key bindings shipped with pygwin, see
 :doc:`keyboard_shortcuts`.
 
 The ``prompt_toolkit`` shell has a registry for handling custom keybindings. You
-may not like the default keybindings in xonsh, or you may want to add a new key
+may not like the default keybindings in pygwin, or you may want to add a new key
 binding.
 
 This section walks you through how to do this using ``prompt_toolkit`` tools to
 define keybindings and warns you about potential pitfalls.
 
-All of the code below can be entered into your :doc:`xonsh RC <xonshrc>`.
+All of the code below can be entered into your :doc:`pygwin RC <pygwinrc>`.
 
 This will let you hook directly into the ``prompt_toolkit`` keybinding manager. It will not stop you from rendering your
 prompt completely unusable, so tread lightly.
@@ -278,7 +278,7 @@ Control characters
 ------------------
 
 Some `ASCII control characters <https://en.wikipedia.org/wiki/Control_character#In_ASCII>`_ are widely used,
-and it is generally not recommended to override them. Additionally, certain keybindings are used by xonsh
+and it is generally not recommended to override them. Additionally, certain keybindings are used by pygwin
 and may affect functionality if changed.
 
 .. list-table::
@@ -334,13 +334,13 @@ We'll start with a toy example that just inserts the text "hi" into the current 
         def say_hi(event):
             event.current_buffer.insert_text('hi')
 
-Put that in your :doc:`xonsh RC <xonshrc>`, restart xonsh and then see if
+Put that in your :doc:`pygwin RC <pygwinrc>`, restart pygwin and then see if
 pressing ``Ctrl-w`` does anything (it should!)
 
 What commands can keybindings run?
 ----------------------------------
 
-Pretty much anything! Since we're defining these commands after xonsh has
+Pretty much anything! Since we're defining these commands after pygwin has
 started up, we can create keybinding events that run subprocess commands with
 hardly any effort at all. If we wanted to, say, have a command that runs ``ls
 -l`` in the current directory:
@@ -373,7 +373,7 @@ Restrict actions with filters
 -----------------------------
 
 Often we want a key command to only work if certain conditions are met. For
-instance, the ``<TAB>`` key in xonsh brings up the completions menu, but then it
+instance, the ``<TAB>`` key in pygwin brings up the completions menu, but then it
 also cycles through the available completions. We use filters to create this
 behavior.
 
@@ -381,9 +381,9 @@ A few helpful filters are included with ``prompt_toolkit``, like
 ``ViInsertMode`` and ``EmacsInsertMode``, which return ``True`` when the
 respective insert mode is active.
 
-But it's also easy to create our own filters that take advantage of xonsh's
+But it's also easy to create our own filters that take advantage of pygwin's
 beautiful strangeness. Suppose we want a filter to restrict a given command to
-run only when there are fewer than ten files in a given directory. We just need a function that returns a Bool that matches that requirement and then we decorate it! And remember, those functions can be in xonsh-language, not just pure Python:
+run only when there are fewer than ten files in a given directory. We just need a function that returns a Bool that matches that requirement and then we decorate it! And remember, those functions can be in pygwin-language, not just pure Python:
 
 .. code-block:: python
 
@@ -409,7 +409,7 @@ Now that the condition is defined, we can pass it as a ``filter`` keyword to a k
                 ls -l
             run_in_terminal(_task)
 
-With both of those in your :doc:`xonsh RC <xonshrc>`, pressing ``Control L`` will list the
+With both of those in your :doc:`pygwin RC <pygwinrc>`, pressing ``Control L`` will list the
 contents of your current directory if there are fewer than 10 items in it.
 Useful? Debatable. Powerful? Yes.
 
@@ -451,18 +451,18 @@ true. Combine with custom ``Condition`` filters using ``&``, ``|``, ``~``
 Pre-filling the next command
 ============================
 
-xonsh can pre-fill the prompt input for the next command using two environment
+pygwin can pre-fill the prompt input for the next command using two environment
 variables. This is useful for building interactive workflows, wizards, or
 keybindings that prepare a command for the user to review and edit before running.
 
-``$XONSH_PROMPT_NEXT_CMD``
+``$PYGWIN_PROMPT_NEXT_CMD``
 --------------------------
 
 Sets the text that will appear in the next prompt as editable input:
 
 .. code-block:: python
 
-    $XONSH_PROMPT_NEXT_CMD = 'git commit -m ""'
+    $PYGWIN_PROMPT_NEXT_CMD = 'git commit -m ""'
 
 The next time the prompt appears, ``git commit -m ""`` will be pre-filled
 and the user can edit it before pressing Enter.
@@ -472,7 +472,7 @@ specific position:
 
 .. code-block:: python
 
-    $XONSH_PROMPT_NEXT_CMD = 'git commit -m "<cursor>"'
+    $PYGWIN_PROMPT_NEXT_CMD = 'git commit -m "<cursor>"'
 
 The marker is removed from the text and the cursor is placed at its position —
 in this case, between the quotes.
@@ -486,22 +486,22 @@ in this case, between the quotes.
 
         @bindings.add('c-g')
         def prepare_commit(event):
-            $XONSH_PROMPT_NEXT_CMD = 'git commit -m "<cursor>"'
+            $PYGWIN_PROMPT_NEXT_CMD = 'git commit -m "<cursor>"'
 
 Now pressing ``Ctrl-G`` will pre-fill the next prompt with ``git commit -m ""``
 and place the cursor between the quotes.
 
-``$XONSH_PROMPT_NEXT_CMD_SUGGESTION``
+``$PYGWIN_PROMPT_NEXT_CMD_SUGGESTION``
 -------------------------------------
 
 Sets a greyed-out suggestion (like auto-suggest from history) for the next prompt.
 The user can accept it by pressing the right arrow key:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_PROMPT_NEXT_CMD_SUGGESTION = 'git push origin main'
+    @ $PYGWIN_PROMPT_NEXT_CMD_SUGGESTION = 'git push origin main'
 
-Unlike ``$XONSH_PROMPT_NEXT_CMD``, this does not pre-fill the input — it only
+Unlike ``$PYGWIN_PROMPT_NEXT_CMD``, this does not pre-fill the input — it only
 shows a suggestion that the user can accept or ignore.
 
 Both variables are cleared automatically after being consumed by the prompt.
@@ -510,14 +510,14 @@ Both variables are cleared automatically after being consumed by the prompt.
 Virtual Environment in Prompt
 -----------------------------
 
-xonsh obeys the ``$VIRTUAL_ENV_DISABLE_PROMPT`` environment variable
+pygwin obeys the ``$VIRTUAL_ENV_DISABLE_PROMPT`` environment variable
 `as defined by virtualenv <https://virtualenv.pypa.io/en/latest/how-to/usage.html#customize-prompt>`__.
-If this variable is truthy, xonsh will *always* substitute an empty string
+If this variable is truthy, pygwin will *always* substitute an empty string
 for ``{env_name}``. Note that unlike other shells,
 ``$VIRTUAL_ENV_DISABLE_PROMPT`` takes effect *immediately* after being set
 --- it is not necessary to re-activate the environment.
 
-xonsh also allows for an explicit override of the rendering of ``{env_name}``,
+pygwin also allows for an explicit override of the rendering of ``{env_name}``,
 via the ``$VIRTUAL_ENV_PROMPT`` environment variable. If this variable is
 set to a non-empty value, ``{env_name}`` will *always* render as its value,
 regardless of whether a virtual environment is active. The value is used
@@ -555,29 +555,29 @@ Color theme
 
 You can view the available styles by typing
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ xonfig styles                      # list styles
    @ xonfig colors paraiso-dark         # review how it looks
-   @ $XONSH_COLOR_STYLE='paraiso-dark'  # set a new theme
+   @ $PYGWIN_COLOR_STYLE='paraiso-dark'  # set a new theme
 
 Registering custom styles
 -------------------------
 
 If you aren't happy with the styles provided by us (and ``pygments``), you can create and register custom styles.
 
-To do so, add something similar to your :doc:`xonsh RC <xonshrc>`:
+To do so, add something similar to your :doc:`pygwin RC <pygwinrc>`:
 
 .. code-block:: python
 
-   from xonsh.tools import register_custom_style
+   from pygwin.tools import register_custom_style
    mystyle = {
        "Literal.String.Single": "#ff88aa",
        "Literal.String.Double": "#ff4488",
        "RED": "#008800",
    }
    register_custom_style("mystyle", mystyle, base="monokai")
-   $XONSH_COLOR_STYLE = "mystyle"
+   $PYGWIN_COLOR_STYLE = "mystyle"
 
 You can check ``xonfig colors`` for the token names. The ``base`` style will be used as a fallback for styles you don't set - pick one from ``xonfig styles`` (``default`` is used if omitted).
 
@@ -585,7 +585,7 @@ You can check ``xonfig colors`` for the token names. The ``base`` style will be 
 OSC 7 — Working directory reporting
 ====================================
 
-Xonsh automatically emits `OSC 7 <https://gitlab.freedesktop.org/terminal-wg/specifications/-/merge_requests/7>`_
+Pygwin automatically emits `OSC 7 <https://gitlab.freedesktop.org/terminal-wg/specifications/-/merge_requests/7>`_
 escape sequences on every directory change and at shell startup. This is an
 invisible signal that tells the terminal emulator what the current working
 directory is.

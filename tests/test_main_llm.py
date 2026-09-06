@@ -1,6 +1,6 @@
-"""LLM-authored tests for :mod:`xonsh.main`.
+"""LLM-authored tests for :mod:`pygwin.main`.
 
-Module-mirroring home for generated tests of ``xonsh/main.py``. Each test
+Module-mirroring home for generated tests of ``pygwin/main.py``. Each test
 documents the specific behavior it pins down in its own docstring.
 """
 
@@ -8,8 +8,8 @@ import builtins
 
 import pytest
 
-import xonsh.main
-from xonsh.platform_info import HAS_PYGMENTS
+import pygwin.main
+from pygwin.platform_info import HAS_PYGMENTS
 
 
 @pytest.fixture
@@ -42,15 +42,15 @@ def test_displayhook_passes_ansi_repr_through_verbatim(
     """An ANSI-colored repr is shown verbatim, not re-highlighted (gh-6503).
 
     When ``__repr__`` already emits terminal escapes, re-lexing the string as
-    xonsh source splits the escapes into separate tokens and prompt_toolkit then
+    pygwin source splits the escapes into separate tokens and prompt_toolkit then
     sanitizes the raw ESC bytes, so the color never renders. The displayhook must
     instead pass it straight through, like CPython's default ``sys.displayhook``.
     """
-    print_color = mocker.patch("xonsh.main.print_color")
+    print_color = mocker.patch("pygwin.main.print_color")
     xession.env["COLOR_RESULTS"] = True
     xession.env["PRETTY_PRINT_RESULTS"] = True
 
-    xonsh.main._pprint_displayhook(_AnsiRepr())
+    pygwin.main._pprint_displayhook(_AnsiRepr())
 
     out, _ = capsys.readouterr()
     # The escape sequence survives byte-for-byte (matching print(repr(foo))) ...
@@ -63,11 +63,11 @@ def test_displayhook_passes_ansi_repr_with_pretty_print_off(
     xession, capsys, mocker, restore_underscore
 ):
     """Passthrough also applies when PRETTY_PRINT_RESULTS falls back to repr()."""
-    print_color = mocker.patch("xonsh.main.print_color")
+    print_color = mocker.patch("pygwin.main.print_color")
     xession.env["COLOR_RESULTS"] = True
     xession.env["PRETTY_PRINT_RESULTS"] = False
 
-    xonsh.main._pprint_displayhook(_AnsiRepr())
+    pygwin.main._pprint_displayhook(_AnsiRepr())
 
     out, _ = capsys.readouterr()
     assert out == "\x1b[31mhello\x1b[0m\n"
@@ -77,11 +77,11 @@ def test_displayhook_passes_ansi_repr_with_pretty_print_off(
 @pytest.mark.skipif(not HAS_PYGMENTS, reason="pygments not installed")
 def test_displayhook_highlights_plain_repr(xession, capsys, mocker, restore_underscore):
     """A normal repr (no embedded escapes) still goes through highlighting."""
-    print_color = mocker.patch("xonsh.main.print_color")
+    print_color = mocker.patch("pygwin.main.print_color")
     xession.env["COLOR_RESULTS"] = True
     xession.env["PRETTY_PRINT_RESULTS"] = True
 
-    xonsh.main._pprint_displayhook([1, 2, 3])
+    pygwin.main._pprint_displayhook([1, 2, 3])
 
     # Highlighting path taken: print_color receives the lexed tokens ...
     print_color.assert_called_once()

@@ -1,7 +1,7 @@
 """Completers for gh CLI"""
 
-from xonsh.completers.tools import completion_from_cmd_output, sub_proc_get_output
-from xonsh.parsers.completion_context import CommandContext
+from pygwin.completers.tools import completion_from_cmd_output, sub_proc_get_output
+from pygwin.parsers.completion_context import CommandContext
 
 
 def _complete(cmd, *args):
@@ -19,7 +19,7 @@ def _complete(cmd, *args):
             yield completion_from_cmd_output(ln)
 
 
-def xonsh_complete(ctx: CommandContext):
+def pygwin_complete(ctx: CommandContext):
     cmd, *args = [arg.value for arg in ctx.args] + [ctx.prefix]
 
     return _complete(cmd, *args)

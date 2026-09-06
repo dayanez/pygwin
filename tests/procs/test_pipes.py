@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from xonsh.procs.pipes import PipeChannel
+from pygwin.procs.pipes import PipeChannel
 
 
 def test_from_pipe_roundtrip():

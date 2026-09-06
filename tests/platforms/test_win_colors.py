@@ -1,5 +1,5 @@
-from xonsh import tools
-from xonsh.platforms import win_colors
+from pygwin import tools
+from pygwin.platforms import win_colors
 
 
 def test_win10_color_map():

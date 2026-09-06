@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from xonsh.lib import pretty
+from pygwin.lib import pretty
 
 long_list = ["str"] * 30
 long_list_exp = "[" + (",\n ".join(["'str'"] * 30) + "]")

@@ -1,8 +1,8 @@
 import pytest
 
-from xonsh.completers.base import complete_base
-from xonsh.parsers.completion_context import CommandContext, CompletionContext
-from xonsh.pytest.tools import ON_WINDOWS
+from pygwin.completers.base import complete_base
+from pygwin.parsers.completion_context import CommandContext, CompletionContext
+from pygwin.pytest.tools import ON_WINDOWS
 
 CUR_DIR = (
     "." if ON_WINDOWS else "./"
@@ -10,7 +10,7 @@ CUR_DIR = (
 
 
 @pytest.fixture(autouse=True)
-def setup(xession, xonsh_execer, monkeypatch, mock_executables_in):
+def setup(xession, pygwin_execer, monkeypatch, mock_executables_in):
     xession.env["COMMANDS_CACHE_SAVE_INTERMEDIATE"] = False
     xession.env["COMPLETION_QUERY_LIMIT"] = 2000
 

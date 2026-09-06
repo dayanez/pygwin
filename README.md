@@ -1,8 +1,8 @@
 # pygwin
 
 A Windows-first, Python-powered shell and system observability console. pygwin is a
-light fork of [xonsh](https://github.com/xonsh/xonsh): the same battle-tested Python
-shell engine and parser, wearing a new name, a leaner default configuration, and a
+fork of [xonsh](https://github.com/xonsh/xonsh): the same battle-tested Python shell
+engine and parser, renamed throughout, wearing a leaner default configuration and a
 different mission.
 
 xonsh already proved that a shell can run real Python, mixed freely with subprocess
@@ -24,7 +24,7 @@ how to use what is already built.
 - [Quickstart](#quickstart)
 - [Wiki](#wiki)
   - [Running pygwin](#running-pygwin)
-  - [It is still xonsh underneath](#it-is-still-xonsh-underneath)
+  - [Built on xonsh's engine](#built-on-xonshs-engine)
   - [Configuration](#configuration)
   - [Extending pygwin: xontribs](#extending-pygwin-xontribs)
   - [The coreutils bundled in](#the-coreutils-bundled-in)
@@ -59,8 +59,8 @@ Neither of those is finished. See [Status](#status).
 
 pygwin is in an early, honest state. What exists today:
 
-- A working, renamed build of xonsh: install it, run `pygwin`, and you have a full
-  xonsh-class shell under a new name.
+- A working fork of xonsh, renamed throughout: install it, run `pygwin`, and you have
+  a full xonsh-class shell under its own name, top to bottom.
 - A CI pipeline that lints and tests every push and pull request.
 - A CD pipeline that builds a standalone Windows `.exe` with [Nuitka](https://nuitka.net/)
   on release.
@@ -150,27 +150,32 @@ Run a script file:
 pygwin myscript.xsh
 ```
 
-### It is still xonsh underneath
+### Built on xonsh's engine
 
-pygwin is deliberately a thin rebrand over xonsh's engine, not a rewrite. Its internal
-Python package is still named `xonsh`. That is intentional: it is what lets pygwin pull
-in upstream xonsh fixes and features without a rename fight in every merge. See
-[SYNCING.md](SYNCING.md) for exactly which files have ever diverged from upstream, and
-[AGENTS.md](AGENTS.md) for the rule that keeps it that way (new behavior goes in new
-files, not edits to existing xonsh source).
+pygwin is a fork of xonsh's parser, execer, and shell engine, not a rewrite. Every
+function does what its xonsh equivalent did; the whole codebase, including the
+Python package name, the environment variable names, and internal class names, was
+renamed from xonsh to pygwin throughout. See [SYNCING.md](SYNCING.md) for exactly
+what that rename touched, what was deliberately kept for compatibility (a couple of
+xonsh's plugin-alias protocol details, and recognizing `#!/usr/bin/env xonsh`
+shebangs), and what it costs going forward (pulling in upstream xonsh fixes now means
+porting them by hand, not a clean merge).
 
-Practically, this means almost everything written about xonsh in its own documentation
-and community applies to pygwin too: its Python-in-the-shell semantics, its subprocess
-syntax, its environment variable system, its prompt formatting language. pygwin does
-not attempt to duplicate that documentation here. What this README documents is what is
+Practically, this means almost everything written about xonsh's own language and
+semantics still applies to pygwin: Python-in-the-shell syntax, subprocess mode,
+the prompt formatting language, the xontrib plugin model. The specifics that changed
+are the package name, the `$PYGWIN_*` environment variable names (where xonsh used
+`$XONSH_*`), and the `~/.pygwinrc` config file name. pygwin does not attempt to
+duplicate xonsh's own documentation here. What this README documents is what is
 different: the name, the defaults, and the roadmap.
 
 ### Configuration
 
-pygwin reads its run control file the same way xonsh does: `~/.config/pygwin/rc.xsh`
-(on Windows this is typically `%APPDATA%\pygwin\rc.xsh`), falling back to xonsh's own
-`~/.xonshrc` if present. Anything you could put in a `.xonshrc` file works here:
-environment variables, aliases, prompt customization, and xontrib loading.
+pygwin's primary run control file is `~/.pygwinrc`. If that doesn't exist but an
+`~/.xonshrc` does (carried over from xonsh, or from an older pygwin install), pygwin
+reads that instead, so nothing breaks on upgrade. Anything you could put in a
+`.xonshrc` file works in a `.pygwinrc` too: environment variables, aliases, prompt
+customization, and xontrib loading.
 
 A minimal example:
 
@@ -190,8 +195,8 @@ xontrib load coreutils
 pygwin inherits xonsh's plugin system, called xontribs. A xontrib is a Python or `.xsh`
 file that defines a `_load_xontrib_(xsh, **_)` function and registers aliases, prompt
 fields, or event hooks. This is also how pygwin adds its own features without editing
-xonsh's core: see `xontrib/banner.py` in this repository for the simplest possible
-example, the one that prints pygwin's own welcome banner on interactive startup.
+core files: see `xontrib/coreutils.py` in this repository for a simple example that
+registers the bundled coreutils aliases.
 
 List what is available and loaded:
 
@@ -206,8 +211,8 @@ xontrib load <name>
 ```
 
 Every feature on the [roadmap](ROADMAP.md), telemetry, auto-tuning, cached process
-lookups, is planned as a xontrib or a new top-level module, not a patch to xonsh's own
-files.
+lookups, is planned as a xontrib or a new top-level module, not a patch scattered
+across existing core files.
 
 ### The coreutils bundled in
 
@@ -231,7 +236,7 @@ Windows, macOS, and Linux.
 | `pygwin <script.xsh>` | Run a script file. |
 | `pygwin -V`, `pygwin --version` | Print the pygwin version. |
 | `pygwin -h`, `pygwin --help` | Print help, including the `format`, `check`, and `lint` subcommands. |
-| `pygwin format` | Format pygwin/xonsh source files. |
+| `pygwin format` | Format pygwin source files. |
 | `pygwin check` | Check source files for syntax errors without running them. |
 | `pygwin lint` | Lint source files for likely mistakes. |
 
@@ -266,11 +271,11 @@ To build locally:
 ```
 pip install -e ".[full]"
 pip install nuitka
-python -m nuitka --standalone --onefile --output-filename=pygwin.exe --enable-plugin=no-qt xonsh/main.py
+python -m nuitka --standalone --onefile --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution pygwin/main.py
 ```
 
-The current release is a baseline: it compiles today's still-mostly-unmodified xonsh
-codebase, not the stripped-down build described in the roadmap. Expect it to be sizable
+The current release is a baseline: it compiles today's codebase as-is, not the
+stripped-down build described in the roadmap. Expect it to be sizable
 and its startup time to reflect xonsh's own, not the 30 to 60 millisecond target above.
 Rebuilding after the phase-two work in [ROADMAP.md](ROADMAP.md) lands is itself a
 roadmap item.
@@ -278,7 +283,7 @@ roadmap item.
 ## Repository layout
 
 ```
-xonsh/        the core shell engine, parser, and built-in shells (upstream xonsh code)
+pygwin/       the shell engine, parser, and built-in shells (a renamed fork of xonsh's own xonsh/)
 xontrib/      plugin extensions, including pygwin's own additions
 xompletions/  completion providers for external commands
 tests/        the pytest suite

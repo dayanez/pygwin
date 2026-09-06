@@ -5,9 +5,9 @@ Frequently Asked Questions
 
 Ok, so, maybe no one actually asked them.
 
-1. Why xonsh?
+1. Why pygwin?
 -------------
-The idea for xonsh first struck while I was reviewing the Bash chapter
+The idea for pygwin first struck while I was reviewing the Bash chapter
 (written by my co-author `Katy Huff <http://katyhuff.github.io/>`_)
 of `Effective Computation in Physics <http://physics.codes/>`_. In the book,
 we spend a bunch of time describing important, but complex ideas, such
@@ -17,7 +17,7 @@ for well over a decade, I am not even sure I *know how*
 to add two numbers together in it or consistently create an array. This is
 normal.
 
-If the tool is so bad, then maybe we need a new tool. So xonsh is really meant
+If the tool is so bad, then maybe we need a new tool. So pygwin is really meant
 to solve the problem that other shells don't "fit your brain."
 In some programming situations this is OK because of what you get
 (an optimizing compiler, type safety, provable correctness, register access).
@@ -34,7 +34,7 @@ And thus, `again <http://exofrills.org>`_, I entered the danger zone.
 -----------------------------------------------------
 While many other alternative shells have an amazing suite of features
 as well as much improved syntax of traditional options, none of them
-are quite as beautiful as Python.  In xonsh, you get the best of all possible
+are quite as beautiful as Python.  In pygwin, you get the best of all possible
 worlds. A syntax that already fits your brain and any features that you
 desire.
 
@@ -57,17 +57,17 @@ does not work. This is a deal breaker for day-to-day use.
 4. So how does this all work?
 -----------------------------
 We use `PLY <http://www.dabeaz.com/ply/ply.html>`_ to tokenize and parse
-xonsh code. This is heavily inspired by how `pycparser <https://github.com/eliben/pycparser>`_
+pygwin code. This is heavily inspired by how `pycparser <https://github.com/eliben/pycparser>`_
 used this PLY. From our parser, we construct an abstract syntax tree (AST)
 only using nodes found in the Python ``ast`` standard library module.
 This allows us to compile and execute the AST using the normal Python tools.
 
-Of course, xonsh has special builtins, so the proper context
+Of course, pygwin has special builtins, so the proper context
 (builtins, globals, and locals) must be set up prior to actually executing
 any code. However, the AST can be constructed completely independently of
 any context...mostly.
 
-While the grammar of the xonsh language is context-free, it was convenient
+While the grammar of the pygwin language is context-free, it was convenient
 to write the executer in a way that is slightly context sensitive. This is
 because certain expressions are ambiguous as to whether they belong to
 Python-mode or subprocess-mode. For example, most people will look at
@@ -76,11 +76,11 @@ Python variables, this could be transformed to the equivalent (Python)
 expressions ``ls - l`` or ``ls-l``.  Neither of which are valid listing
 commands.
 
-What xonsh does to overcome such ambiguity is to check if the names in the
+What pygwin does to overcome such ambiguity is to check if the names in the
 expression (``ls`` and ``l`` above) are in the present Python context. If they are,
 then it takes
-the line to be valid xonsh as written. If one of the names cannot be found,
-then xonsh assumes that the left-most name is an external command. It thus
+the line to be valid pygwin as written. If one of the names cannot be found,
+then pygwin assumes that the left-most name is an external command. It thus
 attempts to parse the line after wrapping it in an uncaptured subprocess
 call ``![]``.  If wrapped version successfully parses, the ``![]`` version
 stays. Otherwise, the original line is retained.
@@ -96,7 +96,7 @@ manually use the ``![]``, ``!()``, ``$[]`` or ``$()`` operators on your code.
 
 5. Context-sensitive parsing is gross
 --------------------------------------
-Yes, context-sensitive parsing is gross. But the point of xonsh is that it uses
+Yes, context-sensitive parsing is gross. But the point of pygwin is that it uses
 xontext-sensitive parsing and
 is ultimately a lot less gross than other shell languages, such as Bash.
 Furthermore, its use is heavily limited here.
@@ -106,10 +106,10 @@ Furthermore, its use is heavily limited here.
 -------------------------------
 Depending on you system, setup, and repository sizes, computing branch names
 and colors (i.e. if the branch is dirty or not), can be a pretty slow operation.
-This is bad news because xonsh can try to compute these each time it formats
+This is bad news because pygwin can try to compute these each time it formats
 the ``$PROMPT``.
 
-In order to keep xonsh snappy, we have implemented branch computation timeouts.
+In order to keep pygwin snappy, we have implemented branch computation timeouts.
 This is set to a nominal value (usually 0.1 sec) via the ``$VC_BRANCH_TIMEOUT``
 environment variable.
 
@@ -125,7 +125,7 @@ name while being fast enough.
 
 7. exec
 -------
-The notion of ``exec`` is a bit of a tricky beast in xonsh. Both Python and
+The notion of ``exec`` is a bit of a tricky beast in pygwin. Both Python and
 basically every other shell language have an exec that perform radically
 different operations.
 
@@ -136,9 +136,9 @@ different operations.
 
 These two ideas are central to both languages - without which most programs
 cannot be run.  Luckily, even though they share a name, they have distinct
-syntax and don't share a namespace.  Therefore, in xonsh,
+syntax and don't share a namespace.  Therefore, in pygwin,
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     # exec() as a function is run as Python's exec
     @ exec('x = 41; x += 1', globals(), locals())
@@ -152,17 +152,17 @@ versions of Python *had* an exec statement whose syntax would have clashed
 with the sh-lang command form.
 
 Yes, we are sorry. But the alternative is that important programs that use
-exec under the covers, such as SSH and gdb, would not be usable when xonsh
+exec under the covers, such as SSH and gdb, would not be usable when pygwin
 is set as the default shell. (Note that we can't rename the exec() function
 since Python would fail.) As usability is the most important aspect of a shell,
-xonsh trades a small amount of potential confusion for large class of important
+pygwin trades a small amount of potential confusion for large class of important
 commands.
 
 All of the above being true, if the exec duality is causing you problems there
 a few operations that you can implement to mitigate the confusion. The first is
 that you can remove the ``exec`` alias and use the ``xexec`` alias instead:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ del aliases['exec']
     @ xexec ssh
@@ -170,14 +170,14 @@ that you can remove the ``exec`` alias and use the ``xexec`` alias instead:
 Alternatively, you can always be sure to run the exec command explicitly in
 subprocess mode with ``![]`` or ``!()``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ ![exec bash]
 
 Lastly, you can assign the result of the exec() function to a throw away
 variable (since the return is always None):
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ _ = exec('x = 42')
 
@@ -186,17 +186,17 @@ it...unless chimera slaying is your bag.
 
 8. Gotchas
 ----------
-There are a few gotchas when using xonsh across multiple versions of Python,
+There are a few gotchas when using pygwin across multiple versions of Python,
 where some behavior can differ, as the underlying Python might behave
 differently.
 
 To keep available packages independent from underlying environments, use the provided `xpip` alias in the same way as `pip` is installed.
-It will make sure that the installed packages are available to `xonsh`
+It will make sure that the installed packages are available to `pygwin`
 
 
 See also
 ========
 
-* :doc:`tutorial` -- introduction to xonsh
+* :doc:`tutorial` -- introduction to pygwin
 * :doc:`subprocess` -- subprocess operators and capturing modes
-* :doc:`python_virtual_environments` -- virtual environments in xonsh
+* :doc:`python_virtual_environments` -- virtual environments in pygwin

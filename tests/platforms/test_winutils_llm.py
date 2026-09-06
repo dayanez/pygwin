@@ -1,4 +1,4 @@
-"""Tests for :mod:`xonsh.platforms.winutils`.
+"""Tests for :mod:`pygwin.platforms.winutils`.
 
 The console-history wrappers (``CONSOLE_HISTORY_INFO`` and friends) are defined
 with ``ctypes`` lazy objects, so the structure layout and the public Python
@@ -11,9 +11,9 @@ import inspect
 
 import pytest
 
-from xonsh.environ import WindowsSetting
-from xonsh.platforms import winutils
-from xonsh.pytest.tools import skip_if_on_unix
+from pygwin.environ import WindowsSetting
+from pygwin.platforms import winutils
+from pygwin.pytest.tools import skip_if_on_unix
 
 
 @skip_if_on_unix
@@ -50,11 +50,11 @@ def test_set_console_history_info_defaults():
 
 
 def test_env_default_buffers():
-    assert WindowsSetting.XONSH_WIN_CONSOLE_HISTORY_BUFFERS.default == 32
+    assert WindowsSetting.PYGWIN_WIN_CONSOLE_HISTORY_BUFFERS.default == 32
 
 
 def test_env_default_resolves(xession):
-    assert xession.env.get("XONSH_WIN_CONSOLE_HISTORY_BUFFERS") == 32
+    assert xession.env.get("PYGWIN_WIN_CONSOLE_HISTORY_BUFFERS") == 32
 
 
 @skip_if_on_unix

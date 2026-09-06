@@ -3,9 +3,9 @@ locate the ``bash_completion`` framework script.
 
 The defaults used to live in two places:
 
-* ``xonsh.platform_info.BASH_COMPLETIONS_DEFAULT`` — the canonical default
+* ``pygwin.platform_info.BASH_COMPLETIONS_DEFAULT`` — the canonical default
   surfaced via the ``$BASH_COMPLETIONS`` env var.
-* ``xonsh.completers.bash_completion._bash_completion_paths_default``
+* ``pygwin.completers.bash_completion._bash_completion_paths_default``
   — a standalone fallback inside the bash-completion bridge.
 
 They drifted: ``/opt/homebrew/...`` was added to the canonical list
@@ -22,8 +22,8 @@ import subprocess
 
 import pytest
 
-from xonsh import platform_info as plat_mod
-from xonsh.completers import bash_completion as bc_mod
+from pygwin import platform_info as plat_mod
+from pygwin.completers import bash_completion as bc_mod
 
 
 def test_bridge_fallback_delegates_to_canonical_default():
@@ -228,7 +228,7 @@ def test_canonical_bsd_default_covers_ports_prefix():
     Only the library file ``bash_completion`` (no extension) is listed
     — the user-facing wrapper ``bash_completion.sh`` shipped by
     bash-completion 2.17+ short-circuits in non-interactive bash, so
-    sourcing it from xonsh's ``bash -c`` bridge produces empty
+    sourcing it from pygwin's ``bash -c`` bridge produces empty
     completions. Pin both behaviours so a future regression that adds
     the wrapper back in front gets caught.
     """
@@ -242,7 +242,7 @@ def test_canonical_bsd_default_covers_ports_prefix():
     # /usr/pkg — NetBSD pkgsrc
     assert "/usr/pkg/share/bash-completion/bash_completion" in paths
     # The interactive-only wrapper must NOT be listed — it produces
-    # empty completions when sourced from xonsh's non-interactive bash.
+    # empty completions when sourced from pygwin's non-interactive bash.
     for path in paths:
         assert not path.endswith("bash_completion.sh"), (
             f"interactive-only wrapper leaked into BASH_COMPLETIONS_DEFAULT: {path!r}"

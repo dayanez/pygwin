@@ -1,11 +1,11 @@
-"""LLM-generated tests for ``xonsh.procs.pipelines``."""
+"""LLM-generated tests for ``pygwin.procs.pipelines``."""
 
-from xonsh.procs.pipelines import CommandPipeline
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.procs.pipelines import CommandPipeline
+from pygwin.pytest.tools import skip_if_on_windows
 
 
 @skip_if_on_windows
-def test_returncode_finalizes_unreaped_proc(xonsh_session):
+def test_returncode_finalizes_unreaped_proc(pygwin_session):
     """Regression for #6456: if ``tee_stdout`` bails before reaping
     (intermittent under load), ``end()`` leaves ``proc.returncode``
     unset.  ``CommandPipeline.returncode`` must still produce a
@@ -13,12 +13,12 @@ def test_returncode_finalizes_unreaped_proc(xonsh_session):
     conflate "undetermined" with "succeeded".
 
     Use a successful ``!(true)`` as the carrier pipeline (so the test
-    is independent of ``$XONSH_SUBPROC_CMD_RAISE_ERROR``, which the
+    is independent of ``$PYGWIN_SUBPROC_CMD_RAISE_ERROR``, which the
     in-CI ``run-tests.xsh`` enables) and inject the bug state by
     swapping ``pipeline.proc`` for one whose ``returncode`` is ``None``
     until ``poll()`` is called.
     """
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(true)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(true)")
     pipeline.end()
     assert pipeline.proc.returncode == 0  # sanity
 
@@ -36,13 +36,13 @@ def test_returncode_finalizes_unreaped_proc(xonsh_session):
 
 
 @skip_if_on_windows
-def test_returncode_stays_none_when_proc_still_alive(xonsh_session):
+def test_returncode_stays_none_when_proc_still_alive(pygwin_session):
     """The poll-based fallback added for #6456 must not block: a
     still-alive proc keeps ``returncode`` at ``None`` so suspended /
     background pipelines still report "undetermined" to the
     raise-checks (which intentionally skip on ``None``).
     """
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(true)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(true)")
     pipeline.end()
     assert pipeline.proc.returncode == 0
 
@@ -57,13 +57,13 @@ def test_returncode_stays_none_when_proc_still_alive(xonsh_session):
 
 
 @skip_if_on_windows
-def test_returncode_poll_failure_trace(xonsh_session, monkeypatch, capsys):
-    """When ``$XONSH_SUBPROC_TRACE`` is enabled, a failing ``poll()`` in
+def test_returncode_poll_failure_trace(pygwin_session, monkeypatch, capsys):
+    """When ``$PYGWIN_SUBPROC_TRACE`` is enabled, a failing ``poll()`` in
     the #6456 fallback must surface its exception on stderr instead of
     silently swallowing it — so that the rare "proc disappeared" path
     is debuggable.  With trace off, the swallow stays silent.
     """
-    pipeline: CommandPipeline = xonsh_session.execer.eval("!(true)")
+    pipeline: CommandPipeline = pygwin_session.execer.eval("!(true)")
     pipeline.end()
 
     class _PollFails:
@@ -75,11 +75,11 @@ def test_returncode_poll_failure_trace(xonsh_session, monkeypatch, capsys):
     pipeline.proc = _PollFails()
 
     # Trace off — silent swallow, returncode is None.
-    monkeypatch.setitem(xonsh_session.env, "XONSH_SUBPROC_TRACE", 0)
+    monkeypatch.setitem(pygwin_session.env, "PYGWIN_SUBPROC_TRACE", 0)
     assert pipeline.returncode is None
     assert "simulated poll failure" not in capsys.readouterr().err
 
     # Trace on — exception surfaces on stderr; returncode is still None.
-    monkeypatch.setitem(xonsh_session.env, "XONSH_SUBPROC_TRACE", 1)
+    monkeypatch.setitem(pygwin_session.env, "PYGWIN_SUBPROC_TRACE", 1)
     assert pipeline.returncode is None
     assert "simulated poll failure" in capsys.readouterr().err

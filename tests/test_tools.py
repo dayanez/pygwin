@@ -1,4 +1,4 @@
-"""Tests xonsh tools."""
+"""Tests pygwin tools."""
 
 import datetime as dt
 import os
@@ -9,17 +9,17 @@ import warnings
 
 import pytest
 
-from xonsh import __version__
-from xonsh.environ import (
+from pygwin import __version__
+from pygwin.environ import (
     EnvPath,
     is_env_path,
     str_to_env_path,
     str_to_path,
 )
-from xonsh.parsers.lexer import Lexer
-from xonsh.platform_info import HAS_PYGMENTS, ON_WINDOWS, PYTHON_VERSION_INFO
-from xonsh.pytest.tools import skip_if_on_windows
-from xonsh.tools import (
+from pygwin.parsers.lexer import Lexer
+from pygwin.platform_info import HAS_PYGMENTS, ON_WINDOWS, PYTHON_VERSION_INFO
+from pygwin.pytest.tools import skip_if_on_windows
+from pygwin.tools import (
     all_permutations,
     always_false,
     always_true,
@@ -101,8 +101,8 @@ LEXER.build()
 
 INDENT = "    "
 
-TOOLS_ENV = {"EXPAND_ENV_VARS": True, "XONSH_ENCODING_ERRORS": "strict"}
-ENCODE_ENV_ONLY = {"XONSH_ENCODING_ERRORS": "strict"}
+TOOLS_ENV = {"EXPAND_ENV_VARS": True, "PYGWIN_ENCODING_ERRORS": "strict"}
+ENCODE_ENV_ONLY = {"PYGWIN_ENCODING_ERRORS": "strict"}
 
 
 def test_random_choice():
@@ -514,7 +514,7 @@ def test_subproc_toks_call_subscript_does_not_drop_call(line):
     assert obs != "![[0]]"
     assert obs != '![["rows"]]'
     # Either the function declines to wrap (None) or the wrap covers
-    # the full expression.  The latter is not valid xonsh syntax and
+    # the full expression.  The latter is not valid pygwin syntax and
     # will trigger the ``try_subproc_toks`` SyntaxError fallback.
     if obs is not None:
         assert line in obs, f"expected full expression in {obs!r}"
@@ -1119,7 +1119,7 @@ def expand(path):
 @pytest.mark.parametrize(
     "inp, exp",
     [
-        ("xonsh_dir", "xonsh_dir"),
+        ("pygwin_dir", "pygwin_dir"),
         (".", "."),
         ("../", "../"),
         ("~/", "~/"),
@@ -1140,8 +1140,8 @@ def test_env_path_getitem(inp, exp, xession, env):
     "inp, exp",
     [
         (
-            os.pathsep.join(["xonsh_dir", "../", ".", "~/"]),
-            ["xonsh_dir", "../", ".", "~/"],
+            os.pathsep.join(["pygwin_dir", "../", ".", "~/"]),
+            ["pygwin_dir", "../", ".", "~/"],
         ),
         (
             "/home/wakka" + os.pathsep + "/home/jakka" + os.pathsep + "~/",
@@ -1789,7 +1789,7 @@ def test_expand_case_matching(inp, exp):
     ],
 )
 def test_expandvars(inp, exp, xession):
-    """Tweaked for xonsh cases from CPython `test_genericpath.py`"""
+    """Tweaked for pygwin cases from CPython `test_genericpath.py`"""
     xession.env.update(
         dict({"foo": "bar", "spam": "eggs", "a_bool": True, "an_int": 42, "none": None})
     )
@@ -1815,7 +1815,7 @@ def test_expandvars(inp, exp, xession):
     ],
 )
 def test_ensure_timestamp(inp, fmt, exp, xession):
-    xession.env["XONSH_DATETIME_FORMAT"] = "%Y-%m-%d %H:%M"
+    xession.env["PYGWIN_DATETIME_FORMAT"] = "%Y-%m-%d %H:%M"
     obs = ensure_timestamp(inp, fmt)
     assert exp == obs
 
@@ -1859,11 +1859,11 @@ def test_expand_path(expand_user, inp, expand_env_vars, exp_end, xession):
     ],
 )
 def test_expand_path_expanduser_toggle(inp, exp_expanded, exp_literal, xession):
-    """$XONSH_SUBPROC_ARG_EXPANDUSER controls ~ expansion in subprocess args."""
-    xession.env["XONSH_SUBPROC_ARG_EXPANDUSER"] = True
+    """$PYGWIN_SUBPROC_ARG_EXPANDUSER controls ~ expansion in subprocess args."""
+    xession.env["PYGWIN_SUBPROC_ARG_EXPANDUSER"] = True
     assert expand_path(inp) == exp_expanded
 
-    xession.env["XONSH_SUBPROC_ARG_EXPANDUSER"] = False
+    xession.env["PYGWIN_SUBPROC_ARG_EXPANDUSER"] = False
     assert expand_path(inp) == exp_literal
 
 
@@ -2134,7 +2134,7 @@ def test_register_custom_style(name, styles, refrules):
         ("default", True),
         ("menu-complete", True),
         ("def", False),
-        ("xonsh", False),
+        ("pygwin", False),
         ("men", False),
     ],
 )
@@ -2252,7 +2252,7 @@ def test_is_regex_false():
     assert not is_regex("**")
 
 
-from xonsh.style_tools import Token
+from pygwin.style_tools import Token
 
 
 @pytest.mark.parametrize(
@@ -2304,7 +2304,7 @@ def test_print_exception_msg(xession, capsys):
 def test_print_exception_error(xession, capsys):
     xession.env["COLOR_INPUT"] = False
 
-    with xession.env.swap(XONSH_SHOW_TRACEBACK=False):
+    with xession.env.swap(PYGWIN_SHOW_TRACEBACK=False):
         try:
             raise subprocess.CalledProcessError(1, ["ls", "nofile"], output="nooutput")
         except subprocess.CalledProcessError:
@@ -2317,7 +2317,7 @@ def test_print_exception_error(xession, capsys):
         re.MULTILINE | re.DOTALL,
     ), f"\nAssert: {cap.err!r},\nexpected: {match!r}"
 
-    with xession.env.swap(XONSH_SHOW_TRACEBACK=True):
+    with xession.env.swap(PYGWIN_SHOW_TRACEBACK=True):
         try:
             raise subprocess.CalledProcessError(1, ["ls", "nofile"], output="nooutput")
         except subprocess.CalledProcessError:

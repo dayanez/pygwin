@@ -6,9 +6,9 @@ from unittest.mock import patch
 
 import pytest
 
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.procs.proxies import ProcProxy, ProcProxyThread, still_writable
-from xonsh.procs.readers import safe_fdclose
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.procs.proxies import ProcProxy, ProcProxyThread, still_writable
+from pygwin.procs.readers import safe_fdclose
 
 skip_if_not_on_windows = pytest.mark.skipif(
     not ON_WINDOWS, reason="SIGBREAK / Ctrl+Break only exist on Windows"
@@ -131,7 +131,7 @@ class TestProcProxyWaitFdCleanup:
 
         p = _make_proc_proxy(alias, xession, stdin=r)
         with patch(
-            "xonsh.procs.proxies.safe_fdclose", wraps=safe_fdclose
+            "pygwin.procs.proxies.safe_fdclose", wraps=safe_fdclose
         ) as mock_close:
             p.wait()
             # At least one call should be a TextIOWrapper wrapping our fd
@@ -149,7 +149,7 @@ class TestProcProxyWaitFdCleanup:
 
         p = _make_proc_proxy(alias, xession, stdout=w)
         with patch(
-            "xonsh.procs.proxies.safe_fdclose", wraps=safe_fdclose
+            "pygwin.procs.proxies.safe_fdclose", wraps=safe_fdclose
         ) as mock_close:
             p.wait()
             closed_handles = [c.args[0] for c in mock_close.call_args_list]
@@ -167,7 +167,7 @@ class TestProcProxyWaitFdCleanup:
 
         p = _make_proc_proxy(alias, xession, stderr=w)
         with patch(
-            "xonsh.procs.proxies.safe_fdclose", wraps=safe_fdclose
+            "pygwin.procs.proxies.safe_fdclose", wraps=safe_fdclose
         ) as mock_close:
             p.wait()
             closed_handles = [c.args[0] for c in mock_close.call_args_list]
@@ -184,7 +184,7 @@ class TestProcProxyWaitFdCleanup:
 
         p = _make_proc_proxy(alias, xession)
         with patch(
-            "xonsh.procs.proxies.safe_fdclose", wraps=safe_fdclose
+            "pygwin.procs.proxies.safe_fdclose", wraps=safe_fdclose
         ) as mock_close:
             p.wait()
             closed_handles = [c.args[0] for c in mock_close.call_args_list]
@@ -200,7 +200,7 @@ class TestProcProxyWaitFdCleanup:
 
         p = _make_proc_proxy(alias, xession, stdout=buf)
         with patch(
-            "xonsh.procs.proxies.safe_fdclose", wraps=safe_fdclose
+            "pygwin.procs.proxies.safe_fdclose", wraps=safe_fdclose
         ) as mock_close:
             p.wait()
             closed_handles = [c.args[0] for c in mock_close.call_args_list]
@@ -215,7 +215,7 @@ class TestProcProxyWaitFdCleanup:
 
         p = _make_proc_proxy(alias, xession, stdout=w)
         with patch(
-            "xonsh.procs.proxies.safe_fdclose", wraps=safe_fdclose
+            "pygwin.procs.proxies.safe_fdclose", wraps=safe_fdclose
         ) as mock_close:
             p.wait()
             assert p.returncode == 1
@@ -238,7 +238,7 @@ class TestProcProxyWaitFdCleanup:
 
         p = _make_proc_proxy(alias, xession, stdin=in_r, stdout=out_w, stderr=err_w)
         with patch(
-            "xonsh.procs.proxies.safe_fdclose", wraps=safe_fdclose
+            "pygwin.procs.proxies.safe_fdclose", wraps=safe_fdclose
         ) as mock_close:
             p.wait()
             closed_handles = [c.args[0] for c in mock_close.call_args_list]
@@ -291,7 +291,7 @@ def test_proxy_signal_break_is_idempotent():
 def test_proxy_signal_break_restores_and_chains(monkeypatch):
     """Once the alias has finished, the break restores the previous handler
     and chains to it, raising the catchable KeyboardInterrupt."""
-    import xonsh.procs.proxies as pmod
+    import pygwin.procs.proxies as pmod
 
     calls = []
     monkeypatch.setattr(pmod.signal, "signal", lambda s, h: calls.append((s, h)))
@@ -308,7 +308,7 @@ def test_proxy_signal_break_restores_and_chains(monkeypatch):
 def test_proxy_restore_sigbreak_without_frame_sets_returncode(monkeypatch):
     """Cleanup-path restore (frame=None) reinstalls the old handler, does not
     chain, and marks an interrupted alias as failed (returncode=1)."""
-    import xonsh.procs.proxies as pmod
+    import pygwin.procs.proxies as pmod
 
     calls = []
     monkeypatch.setattr(pmod.signal, "signal", lambda s, h: calls.append((s, h)))

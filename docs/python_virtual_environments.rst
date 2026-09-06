@@ -7,7 +7,7 @@ Virtual Environments
 ====================
 
 Python virtual environments let you isolate a project's dependencies from
-the system Python, and xonsh works with the usual tools for creating them.
+the system Python, and pygwin works with the usual tools for creating them.
 Whichever tool you pick, the :ref:`xcontext <aliases-xcontext>` command
 will always tell you which interpreter, ``pip``, and environment variables
 are in effect right now — handy when something isn't resolving where you
@@ -16,10 +16,10 @@ expected.
 ``virtualenv``
 ==============
 
-`virtualenv <https://virtualenv.pypa.io/>`_ ships with a native xonsh
+`virtualenv <https://virtualenv.pypa.io/>`_ ships with a native pygwin
 activator, so creating and entering an environment takes just two steps:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ virtualenv myenv
     @ source myenv/bin/activate.xsh
@@ -31,7 +31,7 @@ To leave the environment, run ``deactivate``.
 ``vox``
 =======
 
-xonsh works with the usual Python virtual environment tools — ``venv``,
+pygwin works with the usual Python virtual environment tools — ``venv``,
 ``virtualenv``, ``pew`` — and on top of that ships its own environments
 manager called **Vox**. Vox is an xontrib that makes creating, listing,
 activating, and removing virtualenvs feel natural right inside the shell,
@@ -40,7 +40,7 @@ script per project.
 
 Install and load Vox:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ xpip install xontrib-vox
     @ xontrib load vox
@@ -48,7 +48,7 @@ Install and load Vox:
 To create a new environment with vox, run ``vox new <envname>``:
 
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ vox new myenv
     Creating environment...
@@ -58,7 +58,7 @@ The interpreter ``vox`` uses to create a virtualenv is configured via the ``$VOX
 
 You may also set the interpreter used to create the virtual environment by passing it explicitly to ``vox new`` i.e.:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ vox new python2-env -p /usr/local/bin/python2
 
@@ -70,7 +70,7 @@ By default, environments are stored in ``~/.virtualenvs``, but you can override 
 
 To see all existing environments, run ``vox list``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ vox list
     Available environments:
@@ -80,7 +80,7 @@ To see all existing environments, run ``vox list``:
 
 To activate an environment, run ``vox activate <envname>``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ vox activate myenv
     Activated "myenv".
@@ -90,21 +90,21 @@ Instead of ``activate``, you can call ``workon`` or ``enter``.
 If you want to activate an environment which is stored somewhere else (maybe because it was created by another tool) you can pass to ``vox activate`` a path to a virtual environment:
 
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ vox activate /home/user/myenv
     Activated "/home/user/myenv".
 
 To exit the currently active environment, run ``vox deactivate`` or ``vox exit``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ vox deactivate
     Deactivated "myenv".
 
 To remove an environment, run ``vox remove <envname>``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ vox remove myenv
     Environment "myenv" removed.
@@ -120,7 +120,7 @@ to automatically update in the same way as ``virtualenv``.
 
 Simply add the ``'{env_name}'`` variable to your ``$PROMPT``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $PROMPT = '{env_name: {}}' + restofmyprompt
 
@@ -135,7 +135,7 @@ Automatic environment switching based on the current directory is managed with t
 
 Implementing policies is easy! Just register with the ``autovox_policy`` event and return a ``Path`` if there is a matching venv. For example, this policy implements handling if there is a ``.venv`` directory in the project:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     @events.autovox_policy
     def dotvenv_policy(path, **_):

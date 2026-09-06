@@ -6,15 +6,15 @@ import shlex
 
 import pytest
 
-from xonsh.history.json import (
+from pygwin.history.json import (
     JsonHistory,
     _xhj_gc_bytes_to_rmfiles,
     _xhj_gc_commands_to_rmfiles,
     _xhj_gc_files_to_rmfiles,
     _xhj_gc_seconds_to_rmfiles,
 )
-from xonsh.history.main import HistoryAlias, history_main
-from xonsh.lib.lazyjson import LazyJSON
+from pygwin.history.main import HistoryAlias, history_main
+from pygwin.lib.lazyjson import LazyJSON
 
 CMDS = ["ls", "cat hello kitty", "abc", "def", "touch me", "grep from me"]
 IGNORE_OPTS = ",".join(["ignoredups", "ignoreerr", "ignorespace"])
@@ -22,7 +22,7 @@ IGNORE_OPTS = ",".join(["ignoredups", "ignoreerr", "ignorespace"])
 
 @pytest.fixture
 def hist(tmpdir, xession, monkeypatch):
-    file = tmpdir / "xonsh-HISTORY-TEST.json"
+    file = tmpdir / "pygwin-HISTORY-TEST.json"
     h = JsonHistory(filename=str(file), here="yup", sessionid="SESSIONID", gc=False)
     monkeypatch.setattr(xession, "history", h)
     yield h
@@ -70,7 +70,7 @@ def test_hist_flush(hist, xession):
         assert not cmd.get("out", None)
 
 
-def test_hist_flush_on_xonsh_unload(hist, xession):
+def test_hist_flush_on_pygwin_unload(hist, xession):
     hf = hist.flush()
     assert hf is None
     xession.env["HISTCONTROL"] = set()
@@ -87,7 +87,7 @@ def test_hist_flush_with_store_stdout(hist, xession):
     hf = hist.flush()
     assert hf is None
     xession.env["HISTCONTROL"] = set()
-    xession.env["XONSH_STORE_STDOUT"] = True
+    xession.env["PYGWIN_STORE_STDOUT"] = True
     hist.append({"inp": "still alive?", "rtn": 0, "out": "yes"})
     hf = hist.flush()
     assert hf is not None
@@ -191,7 +191,7 @@ def test_show_cmd_numerate(inp, commands, offset, hist, xession, capsys):
 
 
 def test_history_diff(tmpdir, xession, monkeypatch, capsys):
-    files = [tmpdir / f"xonsh-HISTORY-TEST-{idx}.json" for idx in range(2)]
+    files = [tmpdir / f"pygwin-HISTORY-TEST-{idx}.json" for idx in range(2)]
     for file in files:
         hist = JsonHistory(
             filename=str(file), here="yup", sessionid="SESSIONID", gc=False
@@ -337,7 +337,7 @@ def test_parser_show(args, session, slice, numerate, reverse, mocker, hist, xess
     }
 
     # clear parser instance, so that patched func can take place
-    from xonsh.history import main as mod
+    from pygwin.history import main as mod
 
     main = HistoryAlias()
     spy = mocker.spy(mod.xcli, "run_with_partial_args")
@@ -410,7 +410,7 @@ def history_files_list(gen_count) -> (float, int, str, int):
                 # first day in sec + #days * 24hr + #hr * 60min + # sec * 60sec + sec= sec to date.
                 HF_FIRST_DAY + (((((i * 24) + 9) * 60) + 0) * 60) + 0,  # mod dt,
                 100,
-                f".argle/xonsh-{2 * i:05n}.json",
+                f".argle/pygwin-{2 * i:05n}.json",
                 10000,
             )
         )
@@ -419,7 +419,7 @@ def history_files_list(gen_count) -> (float, int, str, int):
                 # first day in sec + #days * 24hr + #hr * 60min + # sec * 60sec + sec= sec to date.
                 HF_FIRST_DAY + (((((i * 24) + 23) * 60) + 0) * 60) + 0,  # mod dt,
                 50,
-                f".argle/xonsh-{2 * i + 1:05n}.json",
+                f".argle/pygwin-{2 * i + 1:05n}.json",
                 2500,
             )
         )
@@ -576,7 +576,7 @@ def test__xhj_gc_xx_to_rmfiles(fn, hsize, in_files, exp_size, exp_files, xession
 
 def test_hist_clear_cmd(hist, xession, capsys, tmpdir):
     """Verify that the CLI history clear command works."""
-    xession.env.update({"XONSH_DATA_DIR": str(tmpdir)})
+    xession.env.update({"PYGWIN_DATA_DIR": str(tmpdir)})
     xession.env["HISTCONTROL"] = set()
 
     for ts, cmd in enumerate(CMDS):  # populate the shell history
@@ -592,7 +592,7 @@ def test_hist_clear_cmd(hist, xession, capsys, tmpdir):
 
 def test_hist_clear_wipes_file_and_allows_new_commands(hist, xession, tmpdir):
     """After clear, old commands are gone from disk and new ones are saved."""
-    xession.env.update({"XONSH_DATA_DIR": str(tmpdir)})
+    xession.env.update({"PYGWIN_DATA_DIR": str(tmpdir)})
     xession.env["HISTCONTROL"] = set()
 
     # Add commands
@@ -606,7 +606,7 @@ def test_hist_clear_wipes_file_and_allows_new_commands(hist, xession, tmpdir):
     assert len(hist) == 0
 
     # Verify file on disk has no commands
-    from xonsh.lib.lazyjson import LazyJSON
+    from pygwin.lib.lazyjson import LazyJSON
 
     with LazyJSON(hist.filename) as lj:
         assert len(lj["cmds"]) == 0
@@ -623,7 +623,7 @@ def test_hist_clear_wipes_file_and_allows_new_commands(hist, xession, tmpdir):
 
 def test_erasedups_command(hist, xession, tmpdir):
     """Test history erasedups removes duplicates across JSON history."""
-    xession.env.update({"XONSH_DATA_DIR": str(tmpdir)})
+    xession.env.update({"PYGWIN_DATA_DIR": str(tmpdir)})
     xession.env["HISTCONTROL"] = set()
 
     hist.append({"inp": "ls foo", "rtn": 0, "ts": (1, 2)})
@@ -635,7 +635,7 @@ def test_erasedups_command(hist, xession, tmpdir):
     assert removed == 1
     assert total == 3
 
-    from xonsh.lib.lazyjson import LazyJSON
+    from pygwin.lib.lazyjson import LazyJSON
 
     with LazyJSON(hist.filename) as lj:
         cmds = list(lj["cmds"])
@@ -647,7 +647,7 @@ def test_erasedups_command(hist, xession, tmpdir):
 
 def test_hist_off_cmd(hist, xession, capsys, tmpdir):
     """Verify that the CLI history off command works."""
-    xession.env.update({"XONSH_DATA_DIR": str(tmpdir)})
+    xession.env.update({"PYGWIN_DATA_DIR": str(tmpdir)})
     xession.env["HISTCONTROL"] = set()
 
     for ts, cmd in enumerate(CMDS):  # populate the shell history
@@ -668,7 +668,7 @@ def test_hist_off_cmd(hist, xession, capsys, tmpdir):
 
 def test_hist_on_cmd(hist, xession, capsys, tmpdir):
     """Verify that the CLI history on command works."""
-    xession.env.update({"XONSH_DATA_DIR": str(tmpdir)})
+    xession.env.update({"PYGWIN_DATA_DIR": str(tmpdir)})
     xession.env["HISTCONTROL"] = set()
 
     for ts, cmd in enumerate(CMDS):  # populate the shell history
@@ -691,10 +691,10 @@ def test_hist_on_cmd(hist, xession, capsys, tmpdir):
 @pytest.mark.parametrize(
     "src_sessionid", [None, "e2265764-041c-4c57-acba-49d4e4f676e5"]
 )
-def test_hist_pull(src_sessionid, ptk_shell, tmpdir, xonsh_session, monkeypatch):
+def test_hist_pull(src_sessionid, ptk_shell, tmpdir, pygwin_session, monkeypatch):
     """Test that `pull` method correctly loads history entries
     added to the database by other sessions."""
-    xonsh_session.env["XONSH_DATA_DIR"] = str(tmpdir)
+    pygwin_session.env["PYGWIN_DATA_DIR"] = str(tmpdir)
     before = time.time()
 
     # simulate commands being run in other sessions before this session starts
@@ -717,7 +717,7 @@ def test_hist_pull(src_sessionid, ptk_shell, tmpdir, xonsh_session, monkeypatch)
     hist_b.flush(at_exit=True)
 
     # pull only works with PTK shell
-    monkeypatch.setattr(xonsh_session.shell, "shell", ptk_shell[2])
+    monkeypatch.setattr(pygwin_session.shell, "shell", ptk_shell[2])
     hist_main.pull(src_sessionid=src_sessionid)
     hist_strings = ptk_shell[2].prompter.history.get_strings()
 
@@ -730,12 +730,12 @@ def test_hist_pull(src_sessionid, ptk_shell, tmpdir, xonsh_session, monkeypatch)
         assert hist_strings == ["cmd hist_a after"]
 
 
-def test_hist_pull_mixed(ptk_shell, tmpdir, xonsh_session, monkeypatch):
+def test_hist_pull_mixed(ptk_shell, tmpdir, pygwin_session, monkeypatch):
     """Test that mixing general pull with session-specific pull
     does not result in missed or duplicate items.
     """
-    xonsh_session.env["XONSH_DATA_DIR"] = str(tmpdir)
-    monkeypatch.setattr(xonsh_session.shell, "shell", ptk_shell[2])
+    pygwin_session.env["PYGWIN_DATA_DIR"] = str(tmpdir)
+    monkeypatch.setattr(pygwin_session.shell, "shell", ptk_shell[2])
 
     # make sure that all of our fake commands have real, sequential timestamps
     def cmd(inp):

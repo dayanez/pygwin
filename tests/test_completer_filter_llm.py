@@ -1,11 +1,11 @@
-"""Tests for the ``on_completer_filter`` event (xonsh/completer.py)."""
+"""Tests for the ``on_completer_filter`` event (pygwin/completer.py)."""
 
 import pytest
 
-from xonsh.completer import Completer
-from xonsh.completers.tools import contextual_command_completer
-from xonsh.events import events
-from xonsh.parsers.completion_context import CommandContext
+from pygwin.completer import Completer
+from pygwin.completers.tools import contextual_command_completer
+from pygwin.events import events
+from pygwin.parsers.completion_context import CommandContext
 
 
 @pytest.fixture(scope="session")
@@ -197,7 +197,7 @@ def test_filter_per_completer_selectivity(completer, completers_mock):
 def test_filter_trace_reports_skip_with_handler_name(
     completer, completers_mock, xession, monkeypatch
 ):
-    monkeypatch.setitem(xession.env, "XONSH_COMPLETER_TRACE", True)
+    monkeypatch.setitem(xession.env, "PYGWIN_COMPLETER_TRACE", True)
     completers_mock["bash"] = lambda *a: {"x"}
 
     @events.on_completer_filter
@@ -206,7 +206,7 @@ def test_filter_trace_reports_skip_with_handler_name(
 
     messages = []
     monkeypatch.setattr(
-        "xonsh.completer.print_above_prompt", lambda msg: messages.append(msg)
+        "pygwin.completer.print_above_prompt", lambda msg: messages.append(msg)
     )
 
     completer.complete("", "", 0, 0)

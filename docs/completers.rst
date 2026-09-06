@@ -7,36 +7,36 @@ Tab-Completion
 Overview
 ================================
 
-As with many other shells, xonsh ships with the ability to complete
+As with many other shells, pygwin ships with the ability to complete
 partially-specified arguments upon hitting the "tab" key.
 
 In Python-mode, pressing the "tab" key will complete based on the variable
-names in the current builtins, globals, and locals, as well as xonsh language
+names in the current builtins, globals, and locals, as well as pygwin language
 keywords & operators, files & directories, and environment variable names. In
-subprocess-mode, xonsh additionally completes based on the names of any
+subprocess-mode, pygwin additionally completes based on the names of any
 executable files on your $PATH, alias keys, and full Bash completion for the
 commands themselves.
 
-xonsh also provides a mechanism by which the results of a tab completion can be
+pygwin also provides a mechanism by which the results of a tab completion can be
 customized (i.e., new completions can be generated, or a subset of the built-in
 completions can be ignored).
 
-This page details the internal structure of xonsh's completion system and
+This page details the internal structure of pygwin's completion system and
 includes instructions for implementing new tab completion functions.
 
 
 Structure
 ==========
 
-xonsh's built-in completers live in the ``xonsh.completers`` package, and they
-are managed through an instance of ``OrderedDict`` (``__xonsh__.completers``)
+pygwin's built-in completers live in the ``pygwin.completers`` package, and they
+are managed through an instance of ``OrderedDict`` (``__pygwin__.completers``)
 that maps unique identifiers to completion functions.
 
 The completers are divided to **exclusive** completers and **non-exclusive** completers.
 Non-exclusive completers are used for completions that are relevant but don't cover the whole completions needed
 (e.g. completions for the built-in commands ``and``/``or``).
 
-When the "tab" key is pressed, xonsh loops over the completion functions in
+When the "tab" key is pressed, pygwin loops over the completion functions in
 order, calling each one in turn and collecting its output until it reaches an **exclusive** one that returns a non-empty
 set of completions for the current line. The collected completions are then displayed to the
 user.
@@ -54,7 +54,7 @@ checked.
 Writing a New Completer
 =======================
 
-Completers are implemented as Python functions that take a :class:`Completion Context <xonsh.parsers.completion_context.CompletionContext>` object.
+Completers are implemented as Python functions that take a :class:`Completion Context <pygwin.parsers.completion_context.CompletionContext>` object.
 Examples for the context object:
 
 .. code-block:: python
@@ -87,12 +87,12 @@ Examples for the context object:
     )
 
 .. note::
-    Xonsh still supports legacy completers - see `Legacy Completers Support`_.
+    Pygwin still supports legacy completers - see `Legacy Completers Support`_.
     For backwards-compatibility, contextual completers need to be marked (as seen in the examples).
 
 This function should return a python set of possible completions for ``command.prefix``
 in the current context.  If the completer should not be used in this case, it
-should return ``None`` or an empty set, which will cause xonsh to move on and
+should return ``None`` or an empty set, which will cause pygwin to move on and
 try to use the next completer.
 
 Occasionally, completers will need to return a match that does not actually
@@ -109,11 +109,11 @@ functionality, which will be displayed by ``completer list``.
 
 Some simple examples follow.  For real-world examples, see
 ``xompletions.git`` (subprocess-based, uses ``--git-completion-helper``)
-and ``xonsh.completers.man`` (man page parsing with disk cache).
+and ``pygwin.completers.man`` (man page parsing with disk cache).
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ from xonsh.completers.tools import *
+    @ from pygwin.completers.tools import *
 
     @ @contextual_completer
       def dummy_completer(context):
@@ -173,12 +173,12 @@ and ``xonsh.completers.man`` (man page parsing with disk cache).
         if command.arg_index == 1 and 'carcolh'.startswith(command.prefix):
             return {'snail'}, len('lou ') + len(command.prefix)
 
-To understand how xonsh uses completers and their return values try
-to set :ref:`$XONSH_COMPLETER_TRACE <xonsh_completer_trace>` to ``True``:
+To understand how pygwin uses completers and their return values try
+to set :ref:`$PYGWIN_COMPLETER_TRACE <pygwin_completer_trace>` to ``True``:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_COMPLETER_TRACE = True
+    @ $PYGWIN_COMPLETER_TRACE = True
     @ pip c<TAB>
     TRACE COMPLETIONS: Getting completions with context:
     CompletionContext(command=CommandContext(args=(CommandArg(value='pip', opening_quote='', closing_quote=''),), arg_index=1, prefix='c', suffix='', opening_quote='', closing_quote='', is_after_closing_quote=False, subcmd_opening=''), python=PythonContext('pip c', 5, is_sub_expression=False))
@@ -209,26 +209,26 @@ For example, the ``base`` completer runs a union of Python names,
 ``$PATH`` executables, aliases, and file paths. When you type the first
 argument and hit ``<TAB>``, the trace distinguishes them:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ aliases['qwe-xonsh'] = 'echo'
-    @ xonsh<TAB>
-    TRACE COMPLETIONS: Got 2 from exclusive 'base' for 'xonsh':
-    'qwe-xonsh ': src=base, pvd='alias', type=exclusive, prefix_len=5, append_space=True
-    'xonsh ': src=base, pvd='command', type=exclusive, prefix_len=5, append_space=True
+    @ aliases['qwe-pygwin'] = 'echo'
+    @ pygwin<TAB>
+    TRACE COMPLETIONS: Got 2 from exclusive 'base' for 'pygwin':
+    'qwe-pygwin ': src=base, pvd='alias', type=exclusive, prefix_len=5, append_space=True
+    'pygwin ': src=base, pvd='command', type=exclusive, prefix_len=5, append_space=True
 
 Completers that are invoked but return no usable matches are also
 reported, so you can see the full decision path:
 
 .. code-block:: text
 
-    TRACE COMPLETIONS: Got 0 from non-exclusive 'environment_vars' for 'xonsh'.
-    TRACE COMPLETIONS: Got 0 from exclusive 'bash' for 'xonsh'.
+    TRACE COMPLETIONS: Got 0 from non-exclusive 'environment_vars' for 'pygwin'.
+    TRACE COMPLETIONS: Got 0 from exclusive 'bash' for 'pygwin'.
     TRACE COMPLETIONS: Got 3 from exclusive 'path' for './do':
     ...
 
-This way you can see immediately that ``qwe-xonsh`` comes from an alias
-while ``xonsh`` is a real executable on ``$PATH``. Built-in providers:
+This way you can see immediately that ``qwe-pygwin`` comes from an alias
+while ``pygwin`` is a real executable on ``$PATH``. Built-in providers:
 ``alias``, ``command``, ``python``, ``path``, plus the xompletion module
 name (e.g. ``pip``, ``gh``) for completions produced by the ``xompleter``.
 Custom completers may set any string they like.
@@ -245,7 +245,7 @@ you want to distinguish them in trace:
 
 .. code-block:: python
 
-    from xonsh.completers.tools import (
+    from pygwin.completers.tools import (
         RichCompletion,
         contextual_command_completer_for,
     )
@@ -279,7 +279,7 @@ already carry their own ``provider``:
 
 .. code-block:: python
 
-    from xonsh.completers.tools import (
+    from pygwin.completers.tools import (
         contextual_command_completer_for,
         tag_provider,
     )
@@ -301,7 +301,7 @@ Registering a Completer
 =======================
 
 Once you have created a completion function, you can add it to the list of
-active completers via the ``completer add`` command or ``xonsh.completers.completer.add_one_completer`` function::
+active completers via the ``completer add`` command or ``pygwin.completers.completer.add_one_completer`` function::
 
     Usage:
         completer add NAME FUNC [POS]
@@ -320,7 +320,7 @@ active completers via the ``completer add`` command or ``xonsh.completers.comple
 
 If ``POS`` is not provided, it defaults to ``"start"``.
 
-.. note:: It is also possible to manipulate ``__xonsh__.completers`` directly,
+.. note:: It is also possible to manipulate ``__pygwin__.completers`` directly,
           but this is the preferred method.
 
 Removing a Completer
@@ -333,7 +333,7 @@ with the completer you wish to remove.
 Advanced Completions
 ====================
 
-To provide further control over the completion, a completer can return a :class:`RichCompletion <xonsh.completers.tools.RichCompletion>` object.
+To provide further control over the completion, a completer can return a :class:`RichCompletion <pygwin.completers.tools.RichCompletion>` object.
 Using this class, you can:
 
 * Provide a specific prefix length per completion (via ``prefix_len``)
@@ -378,34 +378,34 @@ You can attach a custom completer to a function alias using the
 .. code-block:: python
 
     def _complete_hello(command, alias):
-        return {'world', 'there', 'xonsh'}
+        return {'world', 'there', 'pygwin'}
 
     @aliases.register
     @aliases.completer(_complete_hello)
     def _hello(args):
         echo @(args)
 
-Now ``hello <TAB>`` will suggest ``world``, ``there``, and ``xonsh``.
+Now ``hello <TAB>`` will suggest ``world``, ``there``, and ``pygwin``.
 
-You can also set the ``xonsh_complete`` attribute manually:
+You can also set the ``pygwin_complete`` attribute manually:
 
 .. code-block:: python
 
     def _hello(args):
         echo @(args)
 
-    _hello.xonsh_complete = lambda *a, **kw: {'world', 'there', 'xonsh'}
+    _hello.pygwin_complete = lambda *a, **kw: {'world', 'there', 'pygwin'}
     aliases['hello'] = _hello
 
 The completer function receives two keyword arguments:
 
-* ``command``: the :class:`CommandContext <xonsh.parsers.completion_context.CommandContext>` for the current completion
+* ``command``: the :class:`CommandContext <pygwin.parsers.completion_context.CommandContext>` for the current completion
 * ``alias``: the resolved alias object
 
 Command Completers (xompletions)
 ================================
 
-xonsh includes a package called ``xompletions`` that provides tab-completions for
+pygwin includes a package called ``xompletions`` that provides tab-completions for
 specific commands like ``pip``, ``gh``, ``cd``, etc. Each command gets its own Python
 module inside the ``xompletions/`` directory.
 
@@ -414,33 +414,33 @@ How it works:
 1. When the user presses TAB, the ``xompleter`` completer (registered as ``complete_xompletions``)
    extracts the command name from ``args[0]``.
 2. It looks for a matching module in ``xompletions/`` — first by exact name, then by regex patterns.
-3. If found, it calls the module's ``xonsh_complete(ctx)`` function.
+3. If found, it calls the module's ``pygwin_complete(ctx)`` function.
 4. The function returns completions or ``None`` (to let the next completer handle it).
 
 Creating a command completer
 ----------------------------
 
 To create a completer for a command, place a Python file named after the command
-in any directory listed in ``$XONSH_COMPLETER_DIRS``. The file must contain
-a ``xonsh_complete`` function:
+in any directory listed in ``$PYGWIN_COMPLETER_DIRS``. The file must contain
+a ``pygwin_complete`` function:
 
 .. code-block:: python
 
-    # ~/.config/xonsh/completers/mycmd.py
-    from xonsh.parsers.completion_context import CommandContext
+    # ~/.config/pygwin/completers/mycmd.py
+    from pygwin.parsers.completion_context import CommandContext
 
-    def xonsh_complete(ctx: CommandContext):
+    def pygwin_complete(ctx: CommandContext):
         """Completes mycmd subcommands."""
         if ctx.arg_index == 1:
             return {'start', 'stop', 'status'}
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
-    $XONSH_COMPLETER_DIRS = ["~/.config/xonsh/completers"]
+    $PYGWIN_COMPLETER_DIRS = ["~/.config/pygwin/completers"]
 
 Now ``mycmd <TAB>`` will suggest ``start``, ``stop``, and ``status``.
 
-xonsh also ships built-in completers in the ``xompletions/`` package (for ``pip``, ``gh``, ``cd``, etc.).
+pygwin also ships built-in completers in the ``xompletions/`` package (for ``pip``, ``gh``, ``cd``, etc.).
 
 Handling command name variants with ``wrap``
 --------------------------------------------
@@ -451,25 +451,25 @@ so ``gh.exe`` will find ``gh.py``.
 
 However, if a command has other name variants (e.g. ``pip3.11``, ``python3.12``),
 the exact file name won't match. For these cases, you can register regex patterns
-from your :doc:`xonsh RC <xonshrc>` or a xontrib:
+from your :doc:`pygwin RC <pygwinrc>` or a xontrib:
 
 .. code-block:: python
 
-    from xonsh.completers.commands import complete_xompletions as xmp
+    from pygwin.completers.commands import complete_xompletions as xmp
     xmp.wrap(r"\bmycmd(?:\d)*$", "mycmd")
 
 This maps ``mycmd``, ``mycmd2``, ``mycmd3`` etc. to the ``mycmd`` completer module.
 
-xonsh ships with built-in patterns for ``pip`` (covers ``xpip``, ``pip3.11``, ``pip.exe``)
+pygwin ships with built-in patterns for ``pip`` (covers ``xpip``, ``pip3.11``, ``pip.exe``)
 and ``python`` (covers ``python3``, ``python3.12``, ``python.exe``).
 
 Completing ``python -m <module>``
 ---------------------------------
 
 When an alias resolves to ``python -m <module>`` (e.g. ``xpip`` → ``python -m pip``),
-xonsh uses the ``xompletions/python.py`` completer to delegate to the module's completer.
+pygwin uses the ``xompletions/python.py`` completer to delegate to the module's completer.
 
-The mapping is stored in ``PYTHON_MODULE_COMPLETERS`` and can be extended from your :doc:`xonsh RC <xonshrc>`:
+The mapping is stored in ``PYTHON_MODULE_COMPLETERS`` and can be extended from your :doc:`pygwin RC <pygwinrc>`:
 
 .. code-block:: python
 
@@ -484,7 +484,7 @@ The mapping is stored in ``PYTHON_MODULE_COMPLETERS`` and can be extended from y
 Now ``python -m mytool <TAB>`` will suggest ``start``, ``stop``, and ``status``.
 This also works through aliases:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     aliases['mt'] = ['python', '-m', 'mytool']
     mt <TAB>  # completes with start, stop, status
@@ -502,21 +502,21 @@ a ready-made helper is available:
 Shortcut Path Completion
 ========================
 
-When typing long paths, xonsh can complete each segment from a one- or
+When typing long paths, pygwin can complete each segment from a one- or
 two-character hint instead of the full directory name — every
 slash-separated segment is matched as a *subsequence* of an actual
 entry, similar to fish and zsh.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ cd /u/lo/b<TAB>             # → cd /usr/local/bin/
-    @ cat ~/p/g/x/READ<TAB>       # → cat ~/Projects/git/xonsh/README.rst
+    @ cat ~/p/g/x/READ<TAB>       # → cat ~/Projects/git/pygwin/README.rst
 
 Hits are tried in order: exact prefix → substring → subsequence →
 fuzzy (Levenshtein), so a regular full prefix still wins when one is
 available. Both subsequence and fuzzy matching are on by default and
 can be turned off via ``$SUBSEQUENCE_PATH_COMPLETION = False`` or
-``$FUZZY_PATH_COMPLETION = False`` in your :doc:`xonsh RC <xonshrc>`.
+``$FUZZY_PATH_COMPLETION = False`` in your :doc:`pygwin RC <pygwinrc>`.
 
 Path completion is also case-insensitive on POSIX — typing
 ``/USR/lo<TAB>`` resolves to ``/usr/local/`` even on case-sensitive
@@ -526,13 +526,13 @@ filesystems like ext4.
 Emoji & Symbols
 ================
 
-Need a 🐈 in your commit message? xonsh has a built-in emoji completer.
+Need a 🐈 in your commit message? pygwin has a built-in emoji completer.
 It is disabled by default. To enable, set the trigger prefixes:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_COMPLETER_EMOJI_PREFIX = '::'
-    @ $XONSH_COMPLETER_SYMBOLS_PREFIX = ':::'
+    @ $PYGWIN_COMPLETER_EMOJI_PREFIX = '::'
+    @ $PYGWIN_COMPLETER_SYMBOLS_PREFIX = ':::'
 
 Then type ``::`` followed by a keyword and press TAB to search for colorful
 emoji:
@@ -549,7 +549,7 @@ For classic unicode symbols (arrows, math, stars), use ``:::``:
     echo ":::arrow<TAB>"  →  echo "→"
     echo ":::star<TAB>"   →  echo "★"
 
-Set ``$XONSH_COMPLETER_EMOJI_PREFIX`` or ``$XONSH_COMPLETER_SYMBOLS_PREFIX``
+Set ``$PYGWIN_COMPLETER_EMOJI_PREFIX`` or ``$PYGWIN_COMPLETER_SYMBOLS_PREFIX``
 to ``None`` to disable the corresponding completer.
 
 
@@ -564,11 +564,11 @@ completion you want. By default, ENTER will also execute the current
 line. If you would prefer to not automatically execute the line (say,
 if you're constructing a long pathname), you can set
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    $COMPLETIONS_CONFIRM = True
 
-in your :doc:`xonsh RC <xonshrc>`.
+in your :doc:`pygwin RC <pygwinrc>`.
 
 By default, TABs cycle through the full list. Set
 ``$COMPLETION_MODE = "menu-complete"`` to instead insert the first whole
@@ -581,23 +581,23 @@ for the full list (display style, menu rows, threading, trace output, and more).
 Man Page Completer
 ==================
 
-When no dedicated completer exists for a command, xonsh falls back to
+When no dedicated completer exists for a command, pygwin falls back to
 parsing the command's **man page** to extract option names (``-v``,
 ``--verbose``, etc.). This works automatically for most CLI tools.
 
 For commands that use per-subcommand man pages (``docker-run``,
-``cargo-build``, ``systemctl-start``, etc.), xonsh tries the hyphenated
+``cargo-build``, ``systemctl-start``, etc.), pygwin tries the hyphenated
 form ``man <cmd>-<subcmd>`` first and falls back to ``man <cmd>``.
 
 Parsed options are cached on disk under
-``$XONSH_DATA_DIR/generated_completions/man/``. The cache is invalidated
+``$PYGWIN_DATA_DIR/generated_completions/man/``. The cache is invalidated
 automatically when the man page file is updated (e.g. after a package
-upgrade). To force a refresh — for example, after upgrading xonsh
+upgrade). To force a refresh — for example, after upgrading pygwin
 itself with an improved parser — clear the cache:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-   @ rm $XONSH_DATA_DIR/generated_completions/man/*
+   @ rm $PYGWIN_DATA_DIR/generated_completions/man/*
 
 Installing man pages for tools
 ------------------------------
@@ -626,8 +626,8 @@ install the corresponding package.
 Legacy Completers Support
 =========================
 
-Before completion context was introduced, xonsh had a different readline-like completion API.
-While this legacy API is not recommended, xonsh still supports it.
+Before completion context was introduced, pygwin had a different readline-like completion API.
+While this legacy API is not recommended, pygwin still supports it.
 
 .. warning::
     The legacy completers are less robust than the contextual system in many situations, for example:

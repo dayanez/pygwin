@@ -1,10 +1,10 @@
-"""Smoke tests for ``xonsh.xoreutils.umask``.
+"""Smoke tests for ``pygwin.xoreutils.umask``.
 
 Covers the pure helpers (number ↔ symbolic conversion, mask parsing) so the
 tests run on any platform without poking at the running process's actual mask.
 
 The matching ulimit tests live in ``test_xoreutils_ulimit_llm.py`` — that
-module imports ``xonsh.xoreutils.ulimit`` which in turn ``import resource``
+module imports ``pygwin.xoreutils.ulimit`` which in turn ``import resource``
 (POSIX-only), so it is skipped on Windows at collection time.
 """
 
@@ -12,7 +12,7 @@ import io
 
 import pytest
 
-from xonsh.xoreutils import umask
+from pygwin.xoreutils import umask
 
 # --- umask helpers -----------------------------------------------------------
 

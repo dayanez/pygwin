@@ -5,48 +5,48 @@ Editor and IDE
 
 Sublime Text
 ============
-There is a `xonsh package`_ for **Sublime Text 4** (build > 4075). To install:
+There is a `pygwin package`_ for **Sublime Text 4** (build > 4075). To install:
 
-- Via **Package Control**: open (``^``/``⌘`` ``⇧`` ``P``) ``Command Palette`` → ``Package Control: Install Package`` → ``xonsh``
-- **Manually**: clone the repository to your `Sublime Text packages`_ directory and rename it to ``xonsh``
+- Via **Package Control**: open (``^``/``⌘`` ``⇧`` ``P``) ``Command Palette`` → ``Package Control: Install Package`` → ``pygwin``
+- **Manually**: clone the repository to your `Sublime Text packages`_ directory and rename it to ``pygwin``
 
   .. code-block:: sh
 
     cd /path/to/sublime/packages/directory
     git clone https://github.com/eugenesvk/sublime-xonsh.git
-    mv sublime-xonsh xonsh
+    mv sublime-pygwin pygwin
 
-.. _xonsh package: https://packagecontrol.io/packages/xonsh
+.. _pygwin package: https://packagecontrol.io/packages/xonsh
 .. _Sublime Text packages: https://www.sublimetext.com/docs/packages.html
 
 
 Visual Studio Code (VS Code)
 ============================
-There is a `xonsh extension for VS Code`_. To install search "xonsh" using extensions
+There is a `pygwin extension for VS Code`_. To install search "pygwin" using extensions
 menu or just press ``F1`` and run without `>` preceding:
 
 .. code-block::
 
-    ext install jnoortheen.xonsh
+    ext install jnoortheen.pygwin
 
 .. https://github.com/microsoft/vscode/issues/200374
 
-Since version 1.86 of VS Code, the editor also supports loading the environment for users with xonsh as their default shell.
+Since version 1.86 of VS Code, the editor also supports loading the environment for users with pygwin as their default shell.
 
-.. _xonsh extension for VS Code: https://marketplace.visualstudio.com/items?itemName=jnoortheen.xonsh
+.. _pygwin extension for VS Code: https://marketplace.visualstudio.com/items?itemName=jnoortheen.xonsh
 
 
 JetBrains: IntelliJ IDEA, PyCharm
 ========================================
-There is a `xonsh-jetbrains <https://github.com/nahoj/xonsh-jetbrains>`_ plugin for JetBrains products.
+There is a `pygwin-jetbrains <https://github.com/nahoj/xonsh-jetbrains>`_ plugin for JetBrains products.
 
 Emacs
 =====
 
-Emacs Xonsh mode
+Emacs Pygwin mode
 ----------------
 
-There is an emacs mode for editing xonsh scripts available from the
+There is an emacs mode for editing pygwin scripts available from the
 `MELPA repository`_. If you are not familiar see the installation
 instructions there.
 
@@ -54,62 +54,62 @@ Then just add this line to your emacs configuration file:
 
 .. code-block:: emacs-lisp
 
-    (require 'xonsh-mode)
+    (require 'pygwin-mode)
 
 
 .. _MELPA repository: https://melpa.org/#/xonsh-mode
 
 
-Xonsh Comint buffer
+Pygwin Comint buffer
 -------------------
 
-You can use xonsh as your `interactive shell in Emacs
+You can use pygwin as your `interactive shell in Emacs
 <https://www.gnu.org/software/emacs/manual/html_node/emacs/Interactive-Shell.html>`_
 in a Comint buffer. This way you keep all the Emacs editing power
-in the shell, but you lose xonsh's completion feature.
+in the shell, but you lose pygwin's completion feature.
 
-Make sure you install xonsh with readline support and in your
-:doc:`xonsh RC <xonshrc>` define
+Make sure you install pygwin with readline support and in your
+:doc:`pygwin RC <pygwinrc>` define
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     $SHELL_TYPE = 'readline'
 
-Also, in Emacs set ``explicit-shell-file-name`` to your xonsh executable.
+Also, in Emacs set ``explicit-shell-file-name`` to your pygwin executable.
 
-Xonsh Ansi-term buffer
+Pygwin Ansi-term buffer
 ----------------------
 
-The second option is to run xonsh in an Ansi-term buffer inside
+The second option is to run pygwin in an Ansi-term buffer inside
 Emacs. This way you have to switch modes if you want do Emacs-style
-editing, but you keep xonsh's impressive completion.
+editing, but you keep pygwin's impressive completion.
 
-For this it is preferred to have xonsh installed with the
+For this it is preferred to have pygwin installed with the
 prompt-toolkit. Then you can leave ``$SHELL_TYPE`` at its default.
 
-Emacs will prompt you for the path of the xonsh executable when you
+Emacs will prompt you for the path of the pygwin executable when you
 start up ``ansi-term``.
 
 Vim
 ===
 
-There is `xonsh syntax file for vim`_. To install run:
+There is `pygwin syntax file for vim`_. To install run:
 
 .. code-block::
 
     git clone --depth 1 https://github.com/linkinpark342/xonsh-vim ~/.vim
 
-.. _xonsh syntax file for vim: https://github.com/linkinpark342/xonsh-vim
+.. _pygwin syntax file for vim: https://github.com/linkinpark342/xonsh-vim
 
 
-Formatting xonsh code
+Formatting pygwin code
 =====================
 
-Xonsh ships a built-in code formatter accessible as the ``xonsh format``
+Pygwin ships a built-in code formatter accessible as the ``pygwin format``
 subcommand. It can be wired into any editor that lets you pipe the
 current buffer through an external command — point the editor at
-``xonsh format -`` to read the buffer from stdin and replace it with
+``pygwin format -`` to read the buffer from stdin and replace it with
 the formatted output.
 
-See :ref:`formatting_xonsh_code` for the full set of invocations and
+See :ref:`formatting_pygwin_code` for the full set of invocations and
 flags.

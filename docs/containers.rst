@@ -1,11 +1,11 @@
 Container
 ================
 
-Xonsh publishes a handful of containers, primarily targeting CI and automation use cases. All of them are published on `Docker Hub <https://hub.docker.com/u/xonsh>`__.
+Pygwin publishes a handful of containers, primarily targeting CI and automation use cases. All of them are published on `Docker Hub <https://hub.docker.com/u/xonsh>`__.
 
-* ``xonsh/xonsh``: A base container providing basic xonsh
-* ``xonsh/xonsh-interactive``: xonsh with additions for people
-* ``xonsh/xonsh-github-action``: xonsh with additions for GitHub Actions
+* ``pygwin/pygwin``: A base container providing basic pygwin
+* ``pygwin/pygwin-interactive``: pygwin with additions for people
+* ``pygwin/pygwin-github-action``: pygwin with additions for GitHub Actions
 
 All containers use the same tagging scheme:
 
@@ -13,29 +13,29 @@ All containers use the same tagging scheme:
 * ``<version>-slim``/``slim``: Based on ``python:3-slim`` (Debian Buster, slim variant)
 * ``<version>-alpine``/``alpine``: Based on ``python:3-alpine`` (Alpine Linux)
 
-You can select specific versions of xonsh. However, you cannot select specific versions of Python. Everything is rebuilt daily.
+You can select specific versions of pygwin. However, you cannot select specific versions of Python. Everything is rebuilt daily.
 
 All containers include an ``xpip`` utility to let you easily install packages from a Dockerfile.
 
 The container source can be found in the `container project <https://github.com/xonsh/container>`_.
 
-``xonsh/xonsh``
+``pygwin/pygwin``
 ---------------
 
 (`Docker Hub <https://hub.docker.com/r/xonsh/xonsh>`__)
 
-A basic container, including Python itself, xonsh, and the linux extras. This container is deliberately kept minimal.
+A basic container, including Python itself, pygwin, and the linux extras. This container is deliberately kept minimal.
 
 
-``xonsh/xonsh-interactive``
+``pygwin/pygwin-interactive``
 ---------------------
 
 (`Docker Hub <https://hub.docker.com/r/xonsh/xonsh-interactive>`__)
 
-A container made for humans (such as getting a shell inside of a pod). It includes prompt toolkit and pygments so that xonsh is more usable interactively.
+A container made for humans (such as getting a shell inside of a pod). It includes prompt toolkit and pygments so that pygwin is more usable interactively.
 
 
-``xonsh/xonsh-github-action``
+``pygwin/pygwin-github-action``
 ----------------
 
 (`Docker Hub <https://hub.docker.com/r/xonsh/xonsh-github-action>`__)

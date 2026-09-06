@@ -1,4 +1,4 @@
-"""Smoke tests for the pure helpers in ``xonsh.procs.jobs``.
+"""Smoke tests for the pure helpers in ``pygwin.procs.jobs``.
 
 The full job-control machinery requires a live shell with a controlling
 terminal, so the tests here focus on the platform-independent helpers:
@@ -11,8 +11,8 @@ import sys
 
 import pytest
 
-from xonsh.procs import jobs
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.procs import jobs
+from pygwin.pytest.tools import skip_if_on_windows
 
 
 class _FakeProc:

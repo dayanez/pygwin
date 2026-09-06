@@ -1,10 +1,10 @@
 """Completion for "cd", includes only valid directory names."""
 
-from xonsh.completers.path import complete_dir
-from xonsh.parsers.completion_context import CommandContext
+from pygwin.completers.path import complete_dir
+from pygwin.parsers.completion_context import CommandContext
 
 
-def xonsh_complete(command: CommandContext):
+def pygwin_complete(command: CommandContext):
     """
     Completion for "cd", includes only valid directory names.
     """

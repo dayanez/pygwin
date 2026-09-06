@@ -8,7 +8,7 @@ Config Files and Settings
     :titlesonly:
     :maxdepth: 2
 
-    xonshrc
+    pygwinrc
     customization
     envvars
     aliases

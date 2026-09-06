@@ -1,4 +1,4 @@
-"""Tests the xonsh lexer."""
+"""Tests the pygwin lexer."""
 
 import os
 import sys
@@ -9,8 +9,8 @@ from pprint import pformat
 
 import pytest
 
-from xonsh.parsers.lexer import Lexer
-from xonsh.parsers.ply.lex import LexToken
+from pygwin.parsers.lexer import Lexer
+from pygwin.parsers.ply.lex import LexToken
 
 LEXER_ARGS = {"lextab": "lexer_test_table", "debug": 0}
 
@@ -492,7 +492,10 @@ def test_redir_whitespace(case):
         ('![echo "hello"]', ["![echo", '"hello"]']),
         ("/usr/bin/echo hello", ["/usr/bin/echo", "hello"]),
         ("$(/usr/bin/echo hello)", ["$(/usr/bin/echo", "hello)"]),
-        ("C:\\Python\\python.exe -m xonsh", ["C:\\Python\\python.exe", "-m", "xonsh"]),
+        (
+            "C:\\Python\\python.exe -m pygwin",
+            ["C:\\Python\\python.exe", "-m", "pygwin"],
+        ),
         ('print("""I am a triple string""")', ['print("""I am a triple string""")']),
         (
             'print("""I am a \ntriple string""")',

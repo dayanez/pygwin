@@ -1,6 +1,6 @@
 import pytest
 
-from xonsh.lib.string import endswith_newline, unquote
+from pygwin.lib.string import endswith_newline, unquote
 
 
 @pytest.mark.parametrize(

@@ -1,10 +1,10 @@
 """LLM-generated tests for the ``source-foreign`` family (issue #4977).
 
-Covers the user-facing error path of :func:`xonsh.aliases.source_foreign_fn`
+Covers the user-facing error path of :func:`pygwin.aliases.source_foreign_fn`
 when the foreign shell subprocess fails. The legacy message was
 
-    xonsh: error: Source failed: 'source /path\\n'
-    xonsh: error: Possible reasons: File not found or syntax error
+    pygwin: error: Source failed: 'source /path\\n'
+    pygwin: error: Possible reasons: File not found or syntax error
 
 — both lines were misleading: the literal ``\\n`` came from ``repr()`` of
 the assembled ``prevcmd``, and the "file not found or syntax error"
@@ -17,7 +17,7 @@ import os.path
 
 import pytest
 
-from xonsh.aliases import make_default_aliases, source_foreign_fn
+from pygwin.aliases import make_default_aliases, source_foreign_fn
 
 
 def test_source_foreign_failure_message_is_helpful(monkeypatch, xession):
@@ -33,7 +33,7 @@ def test_source_foreign_failure_message_is_helpful(monkeypatch, xession):
 
     fake_foreign_shell_data.cache_clear = lambda: None
     monkeypatch.setattr(
-        "xonsh.aliases.foreign_shell_data", fake_foreign_shell_data, raising=False
+        "pygwin.aliases.foreign_shell_data", fake_foreign_shell_data, raising=False
     )
     monkeypatch.setattr(os.path, "isfile", lambda _: True)
 
@@ -89,7 +89,7 @@ def _spy_prevcmd(monkeypatch):
 
     fake_foreign_shell_data.cache_clear = lambda: None
     monkeypatch.setattr(
-        "xonsh.aliases.foreign_shell_data", fake_foreign_shell_data, raising=False
+        "pygwin.aliases.foreign_shell_data", fake_foreign_shell_data, raising=False
     )
     return calls
 

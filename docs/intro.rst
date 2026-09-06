@@ -13,17 +13,17 @@
         "Break out of your shell",
         "The only shell that is also a shell",
         "All that is and all that shell be",
-        "Pass the xonsh, Piggy",
-        "Piggy glanced nervously into hell and cradled the xonsh",
-        "The xonsh is a symbol",
+        "Pass the pygwin, Piggy",
+        "Piggy glanced nervously into hell and cradled the pygwin",
+        "The pygwin is a symbol",
         "It is pronounced <i>consh</i>",
         "It is pronounced <i>🐚</i>",
         "The shell, bourne again",
         "Snailed it",
         "Starfish loves you",
         "Come snail away",
-        "This is Major Tom to Ground Xonshtrol",
-        "Sally sells csh and keeps xonsh to herself",
+        "This is Major Tom to Ground Pygwintrol",
+        "Sally sells csh and keeps pygwin to herself",
         "Nice indeed. Everything's accounted for, except your old shell.",
         "I wanna thank you for putting me back in my snail shell",
         "Crustaceanly Yours",
@@ -34,9 +34,9 @@
         "Ever wonder why there isn't a Taco Shell? Because it is a corny idea.",
         "It is pronounced <i>コンシュ</i>",
         "The carcolh will catch you!",
-        "People xonshtantly mispronounce these things",
+        "People pygwintantly mispronounce these things",
         "WHAT...is your favorite shell?",
-        "Conches for the xonsh god!",
+        "Conches for the pygwin god!",
         "Python-powered, cross-platform, Unix-gazing shell",
         "Tab completion in Alderaan places",
         "Exploiting the workers and hanging on to outdated imperialist dogma since 2015.",
@@ -58,6 +58,6 @@
     </span>
     </p>
 
-Xonsh (sounds like "consh") is a full-featured and cross-platform Python-based shell.
+Pygwin (sounds like "consh") is a full-featured and cross-platform Python-based shell.
 The language is a superset of Python 3 with seamless integration of shell functionality and commands.
 It works on all major platforms, including Linux, macOS, Windows, BSD, Jupyter, Android, Raspberry Pi and Nix.

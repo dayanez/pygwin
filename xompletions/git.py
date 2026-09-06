@@ -2,8 +2,8 @@
 
 import subprocess
 
-from xonsh.completers.tools import RichCompletion
-from xonsh.parsers.completion_context import CommandContext
+from pygwin.completers.tools import RichCompletion
+from pygwin.parsers.completion_context import CommandContext
 
 _REF_SUBCMDS = frozenset(
     {
@@ -40,7 +40,7 @@ def _run_git(*args) -> "str | None":
     except subprocess.CalledProcessError as e:
         err = (e.stderr or "").strip()
         if err:
-            from xonsh.tools import print_above_prompt
+            from pygwin.tools import print_above_prompt
 
             print_above_prompt(f"completer git: {err}")
         return None
@@ -66,7 +66,7 @@ def _get_aliases() -> "dict[str, str]":
     return aliases
 
 
-def xonsh_complete(context: CommandContext):
+def pygwin_complete(context: CommandContext):
     """Complete git subcommands, aliases, options, and branch/tag refs."""
     if context.arg_index == 0:
         return

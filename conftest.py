@@ -2,29 +2,29 @@ import os
 import stat
 import sys
 
-# Ensure the source tree is on sys.path so that xonsh is imported from here,
+# Ensure the source tree is on sys.path so that pygwin is imported from here,
 # not from site-packages. This is needed for bare `pytest` and IDE runners.
 _root = os.path.dirname(os.path.abspath(__file__))
 if _root not in sys.path:
     sys.path.insert(0, _root)
 
-import xonsh as _xonsh  # noqa: E402
+import pygwin as _pygwin  # noqa: E402
 
-_expected = os.path.abspath(os.path.join(_root, "xonsh", "__init__.py"))
-_actual = os.path.abspath(_xonsh.__file__)
+_expected = os.path.abspath(os.path.join(_root, "pygwin", "__init__.py"))
+_actual = os.path.abspath(_pygwin.__file__)
 if _actual != _expected:
     raise RuntimeError(
-        "\nXonsh package is installed. The `pytest` command will not work correctly and will use it instead of the "
+        "\npygwin package is installed. The `pytest` command will not work correctly and will use it instead of the "
         "source tree:\n"
         f" * Source tree: {_expected!r}\n"
         f" * Site-packages: {_actual!r}\n"
-        f"Use `cd {_root!r} && python -m pytest` to ensure that xonsh is tested from the source tree rather than site-packages."
+        f"Use `cd {_root!r} && python -m pytest` to ensure that pygwin is tested from the source tree rather than site-packages."
     )
 
 # Propagate the source-tree guarantee to subprocesses. Tests under
-# tests/xintegration/ spawn `python -m xonsh` via subprocess, which does not
-# inherit the parent's sys.path — Python in the child resolves `xonsh` against
-# its own default sys.path plus PYTHONPATH. Without this, a stale xonsh in
+# tests/xintegration/ spawn `python -m pygwin` via subprocess, which does not
+# inherit the parent's sys.path — Python in the child resolves `pygwin` against
+# its own default sys.path plus PYTHONPATH. Without this, a stale pygwin in
 # site-packages silently takes precedence when the child's cwd isn't the repo
 # root (any test that os.chdir()s and doesn't restore on failure breaks it).
 os.environ["PYTHONPATH"] = (
@@ -36,13 +36,13 @@ os.environ["PYTHONPATH"] = (
 # Render tests/bin/<name> from tests/bin/templates/<name> with a shebang that
 # uses the current pytest interpreter. The interpreter that runs pytest is the
 # one that should run the helper scripts, so a hardcoded ``#!/usr/bin/env
-# python3`` or ``#!/usr/bin/env xonsh`` is wrong on systems where those names
+# python3`` or ``#!/usr/bin/env pygwin`` is wrong on systems where those names
 # are missing (e.g. FreeBSD ports building against a single ``python3.11``,
-# or any environment where the ``xonsh`` console_script isn't on $PATH).
+# or any environment where the ``pygwin`` console_script isn't on $PATH).
 #
 # Plain Python scripts get ``#!<sys.executable>``. ``*.xsh`` scripts get a
-# multi-arg shebang via ``env -S`` so they invoke ``<sys.executable> -m xonsh``,
-# which works without relying on the ``xonsh`` launcher binary. ``env -S`` is
+# multi-arg shebang via ``env -S`` so they invoke ``<sys.executable> -m pygwin``,
+# which works without relying on the ``pygwin`` launcher binary. ``env -S`` is
 # supported on Linux (coreutils 8.30+, 2018), FreeBSD, and macOS 10.15+.
 #
 # Done at conftest module-load time so it fires for every pytest invocation,
@@ -50,7 +50,7 @@ os.environ["PYTHONPATH"] = (
 _templates_dir = os.path.join(_root, "tests", "bin", "templates")
 if os.path.isdir(_templates_dir):
     _py_shebang = f"#!{sys.executable}\n"
-    _xsh_shebang = f"#!/usr/bin/env -S {sys.executable} -m xonsh\n"
+    _xsh_shebang = f"#!/usr/bin/env -S {sys.executable} -m pygwin\n"
     for _name in os.listdir(_templates_dir):
         _src = os.path.join(_templates_dir, _name)
         if not os.path.isfile(_src):
@@ -66,8 +66,8 @@ if os.path.isdir(_templates_dir):
             os.stat(_dst).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
         )
 
-# Load the xonsh pytest plugin (provides xession fixture, etc.).
+# Load the pygwin pytest plugin (provides xession fixture, etc.).
 # With `python -m pytest` it's already loaded via the entry point;
 # with bare `pytest` or IDE runners it needs to be loaded explicitly.
-if "xonsh.pytest.plugin" not in sys.modules:
-    pytest_plugins = ("xonsh.pytest.plugin",)
+if "pygwin.pytest.plugin" not in sys.modules:
+    pytest_plugins = ("pygwin.pytest.plugin",)

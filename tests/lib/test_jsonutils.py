@@ -1,11 +1,11 @@
-"""Testing xonsh json hooks"""
+"""Testing pygwin json hooks"""
 
 import json
 
 import pytest
 
-from xonsh.environ import EnvPath
-from xonsh.lib.jsonutils import serialize_xonsh_json
+from pygwin.environ import EnvPath
+from pygwin.lib.jsonutils import serialize_pygwin_json
 
 
 @pytest.mark.parametrize(
@@ -20,7 +20,7 @@ from xonsh.lib.jsonutils import serialize_xonsh_json
         {"z": EnvPath(["wakka", "jawaka"])},
     ],
 )
-def test_serialize_xonsh_json_roundtrip(inp):
-    s = json.dumps(inp, default=serialize_xonsh_json)
+def test_serialize_pygwin_json_roundtrip(inp):
+    s = json.dumps(inp, default=serialize_pygwin_json)
     obs = json.loads(s)
     assert inp == obs

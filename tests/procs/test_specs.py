@@ -1,4 +1,4 @@
-"""Tests the xonsh.procs.specs"""
+"""Tests the pygwin.procs.specs"""
 
 import gc
 import itertools
@@ -10,9 +10,9 @@ from subprocess import CalledProcessError, Popen
 
 import pytest
 
-from xonsh.procs.posix import PopenThread
-from xonsh.procs.proxies import STDOUT_DISPATCHER, ProcProxy, ProcProxyThread
-from xonsh.procs.specs import (
+from pygwin.procs.posix import PopenThread
+from pygwin.procs.proxies import STDOUT_DISPATCHER, ProcProxy, ProcProxyThread
+from pygwin.procs.specs import (
     DecoratorAlias,
     SpecAttrDecoratorAlias,
     SubprocSpec,
@@ -23,13 +23,13 @@ from xonsh.procs.specs import (
     run_subproc,
     safe_close,
 )
-from xonsh.pytest.tools import (
+from pygwin.pytest.tools import (
     ON_WINDOWS,
     VER_MAJOR_MINOR,
     skip_if_on_bsd,
     skip_if_on_windows,
 )
-from xonsh.tools import XonshError, chdir
+from pygwin.tools import PygwinError, chdir
 
 # TODO: track down which pipeline + spec test is hanging CI
 # Skip entire test file for Linux on Python 3.12
@@ -69,13 +69,13 @@ def test_cmds_to_specs_thread_subproc(xession):
             for s in specs:
                 s.close()
 
-    # XONSH_CAPTURE_ALWAYS=False should disable interactive threaded subprocs
-    env["XONSH_CAPTURE_ALWAYS"] = False
+    # PYGWIN_CAPTURE_ALWAYS=False should disable interactive threaded subprocs
+    env["PYGWIN_CAPTURE_ALWAYS"] = False
     env["THREAD_SUBPROCS"] = True
     _check_cls(cmds, Popen)
 
     # Now for the other situations
-    env["XONSH_CAPTURE_ALWAYS"] = True
+    env["PYGWIN_CAPTURE_ALWAYS"] = True
 
     # First check that threadable subprocs become threadable
     env["THREAD_SUBPROCS"] = True
@@ -95,8 +95,8 @@ def test_cmds_to_specs_thread_subproc(xession):
 
 
 @pytest.mark.parametrize("thread_subprocs", [True, False])
-def test_cmds_to_specs_capture_stdout_not_stderr(thread_subprocs, xonsh_session):
-    env = xonsh_session.env
+def test_cmds_to_specs_capture_stdout_not_stderr(thread_subprocs, pygwin_session):
+    env = pygwin_session.env
     cmds = (["ls", "/root"],)
 
     env["THREAD_SUBPROCS"] = thread_subprocs
@@ -126,7 +126,7 @@ def test_subproc_spec_close_releases_pipe_wrappers(captured, xession):
     """
     xession.env["THREAD_SUBPROCS"] = True
     if captured == "hiddenobject":
-        xession.env["XONSH_CAPTURE_ALWAYS"] = True
+        xession.env["PYGWIN_CAPTURE_ALWAYS"] = True
 
     # Reap any garbage left over from earlier tests so its ResourceWarnings
     # don't leak into our tracking window.
@@ -165,7 +165,13 @@ def test_subproc_spec_close_releases_pipe_wrappers(captured, xession):
 )
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_capture_always(
-    capfd, thread_subprocs, capture_always, alias_type, pipe, monkeypatch, xonsh_session
+    capfd,
+    thread_subprocs,
+    capture_always,
+    alias_type,
+    pipe,
+    monkeypatch,
+    pygwin_session,
 ):
     if not thread_subprocs and alias_type in ["func", "exec"]:
         if pipe:
@@ -173,7 +179,7 @@ def test_capture_always(
         else:
             return pytest.skip("https://github.com/xonsh/xonsh/issues/4444")
 
-    env = xonsh_session.env
+    env = pygwin_session.env
     exp = "HELLO\nBYE\n"
     cmds = [["echo", "-n", exp]]
     if pipe:
@@ -185,20 +191,20 @@ def test_capture_always(
         # Enable capfd for function aliases:
         monkeypatch.setattr(STDOUT_DISPATCHER, "default", sys.stdout)
         if alias_type == "func":
-            xonsh_session.aliases["tst"] = lambda: (
+            pygwin_session.aliases["tst"] = lambda: (
                 run_subproc([first_cmd], "hiddenobject") and None
             )  # Don't return a value
         elif alias_type == "exec":
             first_cmd = " ".join(repr(arg) for arg in first_cmd)
-            xonsh_session.aliases["tst"] = f"![{first_cmd}]"
+            pygwin_session.aliases["tst"] = f"![{first_cmd}]"
         else:
             # alias_type == "simple"
-            xonsh_session.aliases["tst"] = first_cmd
+            pygwin_session.aliases["tst"] = first_cmd
 
         cmds[0] = ["tst"]
 
     env["THREAD_SUBPROCS"] = thread_subprocs
-    env["XONSH_CAPTURE_ALWAYS"] = capture_always
+    env["PYGWIN_CAPTURE_ALWAYS"] = capture_always
 
     hidden = run_subproc(cmds, "hiddenobject")  # ![]
     # Check that interactive subprocs are always printed
@@ -228,14 +234,14 @@ def test_capture_always(
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_callias_captured_redirect(xonsh_session, tmpdir):
-    @xonsh_session.aliases.register("a")
+def test_callias_captured_redirect(pygwin_session, tmpdir):
+    @pygwin_session.aliases.register("a")
     def _a(a, i, o, e):
         print("print_stdout")
-        xonsh_session.subproc_captured_stdout(["echo", "cap_stdout"])
-        xonsh_session.subproc_captured_object(["echo", "cap_object"])
-        xonsh_session.subproc_captured_hiddenobject(["echo", "hiddenobject"])
-        xonsh_session.subproc_uncaptured(["echo", "uncaptured"])
+        pygwin_session.subproc_captured_stdout(["echo", "cap_stdout"])
+        pygwin_session.subproc_captured_object(["echo", "cap_object"])
+        pygwin_session.subproc_captured_hiddenobject(["echo", "hiddenobject"])
+        pygwin_session.subproc_uncaptured(["echo", "uncaptured"])
         print("print_error", file=e)
 
     f = tmpdir / "capture.txt"
@@ -249,9 +255,9 @@ def test_callias_captured_redirect(xonsh_session, tmpdir):
 @pytest.mark.parametrize("captured", ["stdout", "object"])
 @pytest.mark.parametrize("interactive", [True, False])
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_interrupted_process_returncode(xonsh_session, captured, interactive):
-    xonsh_session.env["XONSH_INTERACTIVE"] = interactive
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+def test_interrupted_process_returncode(pygwin_session, captured, interactive):
+    pygwin_session.env["PYGWIN_INTERACTIVE"] = interactive
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
     cmd = [cmd_sig("SIGINT")]
     specs = cmds_to_specs(cmd, captured="stdout")
     (p := _run_command_pipeline(specs, cmd)).end()
@@ -260,8 +266,8 @@ def test_interrupted_process_returncode(xonsh_session, captured, interactive):
 
 @skip_if_on_windows
 @pytest.mark.flaky(reruns=3, reruns_delay=1)
-def test_proc_raise_subproc_error(xonsh_session):
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = False
+def test_proc_raise_subproc_error(pygwin_session):
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = False
 
     specs = cmds_to_specs(cmd := [["ls"]], captured="stdout")
     specs[-1].raise_subproc_error = True
@@ -293,7 +299,7 @@ def test_proc_raise_subproc_error(xonsh_session):
         exception = e
     assert isinstance(exception, CalledProcessError)
 
-    xonsh_session.env["XONSH_SUBPROC_CMD_RAISE_ERROR"] = True
+    pygwin_session.env["PYGWIN_SUBPROC_CMD_RAISE_ERROR"] = True
     specs = cmds_to_specs(cmd := [["ls", "nofile"]], captured="stdout")
     exception = None
     try:
@@ -304,14 +310,14 @@ def test_proc_raise_subproc_error(xonsh_session):
     assert isinstance(exception, CalledProcessError)
 
 
-def _check_suspended_pipeline(xonsh_session, suspended_pipeline):
-    xonsh_session.env["XONSH_INTERACTIVE"] = True
+def _check_suspended_pipeline(pygwin_session, suspended_pipeline):
+    pygwin_session.env["PYGWIN_INTERACTIVE"] = True
     specs = cmds_to_specs(suspended_pipeline, captured="object")
     p = _run_command_pipeline(specs, suspended_pipeline)
     # The child needs time to actually receive its self-sent stop signal
-    # *and* to let xonsh's reader thread call ``waitpid(WUNTRACED)`` at
+    # *and* to let pygwin's reader thread call ``waitpid(WUNTRACED)`` at
     # least once — otherwise the child races through SIGSTOP → SIGCONT
-    # → exit before xonsh observes ``WIFSTOPPED`` and ``p.suspended``
+    # → exit before pygwin observes ``WIFSTOPPED`` and ``p.suspended``
     # never gets set. 100 ms is comfortably above the reader's polling
     # cadence; this was tight enough on FreeBSD 16-CURRENT to flake
     # roughly half the runs without the wait.
@@ -335,7 +341,7 @@ def _check_suspended_pipeline(xonsh_session, suspended_pipeline):
 )
 @pytest.mark.flaky(reruns=3, reruns_delay=1)
 def test_specs_with_suspended_captured_process_pipeline_sigttin(
-    xonsh_session, suspended_pipeline
+    pygwin_session, suspended_pipeline
 ):
     """Realistic case: child sends itself SIGTTIN (the "background process
     tried to read from tty" signal), gets stopped, parent resumes via SIGCONT.
@@ -347,7 +353,7 @@ def test_specs_with_suspended_captured_process_pipeline_sigttin(
     works in either direction — see the ``_sigstop`` companion test for
     portable coverage.
     """
-    _check_suspended_pipeline(xonsh_session, suspended_pipeline)
+    _check_suspended_pipeline(pygwin_session, suspended_pipeline)
 
 
 @skip_if_on_windows
@@ -361,14 +367,14 @@ def test_specs_with_suspended_captured_process_pipeline_sigttin(
 )
 @pytest.mark.flaky(reruns=3, reruns_delay=1)
 def test_specs_with_suspended_captured_process_pipeline_sigstop(
-    xonsh_session, suspended_pipeline
+    pygwin_session, suspended_pipeline
 ):
     """Portable variant: SIGSTOP is uncatchable and stops the child on every
-    POSIX kernel xonsh supports. The xonsh code path under test is the same —
+    POSIX kernel pygwin supports. The pygwin code path under test is the same —
     detection of ``WIFSTOPPED`` via ``waitpid`` — so this is what guarantees
     suspended-pipeline detection is exercised on FreeBSD too.
     """
-    _check_suspended_pipeline(xonsh_session, suspended_pipeline)
+    _check_suspended_pipeline(pygwin_session, suspended_pipeline)
 
 
 @skip_if_on_windows
@@ -384,12 +390,12 @@ def test_specs_with_suspended_captured_process_pipeline_sigstop(
     ],
 )
 @pytest.mark.flaky(reruns=3, reruns_delay=1)
-def test_subproc_output_format(cmds, exp_stream_lines, exp_list_lines, xonsh_session):
-    xonsh_session.env["XONSH_SUBPROC_OUTPUT_FORMAT"] = "stream_lines"
+def test_subproc_output_format(cmds, exp_stream_lines, exp_list_lines, pygwin_session):
+    pygwin_session.env["PYGWIN_SUBPROC_OUTPUT_FORMAT"] = "stream_lines"
     output = run_subproc(cmds, "stdout")
     assert output == exp_stream_lines
 
-    xonsh_session.env["XONSH_SUBPROC_OUTPUT_FORMAT"] = "list_lines"
+    pygwin_session.env["PYGWIN_SUBPROC_OUTPUT_FORMAT"] = "list_lines"
     output = run_subproc(cmds, "stdout")
     assert output == exp_list_lines
 
@@ -404,9 +410,9 @@ def test_subproc_output_format(cmds, exp_stream_lines, exp_list_lines, xonsh_ses
         (False, True),
     ],
 )
-def test_run_subproc_background(captured, exp_is_none, xonsh_session):
+def test_run_subproc_background(captured, exp_is_none, pygwin_session):
     # Suppress job notification print from add_job()
-    xonsh_session.env["XONSH_INTERACTIVE"] = False
+    pygwin_session.env["PYGWIN_INTERACTIVE"] = False
     cmds = (["echo", "hello"], "&")
     return_val = run_subproc(cmds, captured)
     assert (return_val is None) == exp_is_none
@@ -418,17 +424,17 @@ def test_run_subproc_background(captured, exp_is_none, xonsh_session):
     [False, True],
     ids=["helper_only", "with_boolop_wrap"],
 )
-def test_subproc_uncaptured_background_does_not_block(wrap_boolop, xonsh_session):
+def test_subproc_uncaptured_background_does_not_block(wrap_boolop, pygwin_session):
     # Background jobs must return immediately even when
-    # $XONSH_SUBPROC_RAISE_ERROR=True. The error-check helpers used
+    # $PYGWIN_SUBPROC_RAISE_ERROR=True. The error-check helpers used
     # to read the blocking `returncode` property on the still-running
     # pipeline, stalling the shell until the child exited.
     import time as _time
 
-    from xonsh.built_ins import XSH, subproc_check_boolop, subproc_uncaptured
+    from pygwin.built_ins import XSH, subproc_check_boolop, subproc_uncaptured
 
-    xonsh_session.env["XONSH_INTERACTIVE"] = False
-    xonsh_session.env["XONSH_SUBPROC_RAISE_ERROR"] = True
+    pygwin_session.env["PYGWIN_INTERACTIVE"] = False
+    pygwin_session.env["PYGWIN_SUBPROC_RAISE_ERROR"] = True
 
     long_running = [sys.executable, "-c", "import time; time.sleep(30)"]
     cp = None
@@ -534,10 +540,10 @@ def test_spec_decorator_alias_output_format(xession):
 
 def test_spec_decorator_alias_repr():
     named = SpecAttrDecoratorAlias({"raise_subproc_error": True}, name="@error_raise")
-    assert repr(named) == "xonsh.procs.specs.SpecAttrDecoratorAlias('@error_raise')"
+    assert repr(named) == "pygwin.procs.specs.SpecAttrDecoratorAlias('@error_raise')"
 
     unnamed = SpecAttrDecoratorAlias({"raise_subproc_error": True})
-    assert repr(unnamed) == "xonsh.procs.specs.SpecAttrDecoratorAlias()"
+    assert repr(unnamed) == "pygwin.procs.specs.SpecAttrDecoratorAlias()"
 
 
 @pytest.mark.parametrize("thread_subprocs", [False, True])
@@ -588,7 +594,7 @@ def test_procproxy_not_captured(xession, captured):
 def test_on_command_not_found_fires(xession):
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=True,
+            PYGWIN_INTERACTIVE=True,
         )
     )
 
@@ -596,21 +602,21 @@ def test_on_command_not_found_fires(xession):
 
     def my_handler(cmd, **kwargs):
         nonlocal fired
-        assert cmd[0] == "xonshcommandnotfound"
+        assert cmd[0] == "pygwincommandnotfound"
         fired = True
 
     xession.builtins.events.on_command_not_found(my_handler)
-    subproc = SubprocSpec.build(["xonshcommandnotfound"])
-    with pytest.raises(XonshError) as expected:
+    subproc = SubprocSpec.build(["pygwincommandnotfound"])
+    with pytest.raises(PygwinError) as expected:
         subproc.run()
-    assert "command not found: 'xonshcommandnotfound'" in str(expected.value)
+    assert "command not found: 'pygwincommandnotfound'" in str(expected.value)
     assert fired
 
 
 def test_on_command_not_found_doesnt_fire_in_non_interactive_mode(xession):
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=False,
+            PYGWIN_INTERACTIVE=False,
         )
     )
 
@@ -618,14 +624,14 @@ def test_on_command_not_found_doesnt_fire_in_non_interactive_mode(xession):
 
     def my_handler(cmd, **kwargs):
         nonlocal fired
-        assert cmd[0] == "xonshcommandnotfound"
+        assert cmd[0] == "pygwincommandnotfound"
         fired = True
 
     xession.builtins.events.on_command_not_found(my_handler)
-    subproc = SubprocSpec.build(["xonshcommandnotfound"])
-    with pytest.raises(XonshError) as expected:
+    subproc = SubprocSpec.build(["pygwincommandnotfound"])
+    with pytest.raises(PygwinError) as expected:
         subproc.run()
-    assert "command not found: 'xonshcommandnotfound'" in str(expected.value)
+    assert "command not found: 'pygwincommandnotfound'" in str(expected.value)
     assert not fired
 
 
@@ -633,12 +639,12 @@ def test_on_command_not_found_replacement(xession):
     """Test that returning a command from handler replaces the original."""
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=True,
+            PYGWIN_INTERACTIVE=True,
         )
     )
 
     def replacement_handler(cmd, **kwargs):
-        if cmd[0] == "xonshcommandnotfound":
+        if cmd[0] == "pygwincommandnotfound":
             if ON_WINDOWS:
                 return ["cmd", "/c", "echo", "replaced"]
             return ["echo", "replaced"]
@@ -646,7 +652,7 @@ def test_on_command_not_found_replacement(xession):
 
     xession.builtins.events.on_command_not_found(replacement_handler)
     # Use run_subproc to capture output and verify replacement executed
-    out = run_subproc([["xonshcommandnotfound"]], captured="stdout")
+    out = run_subproc([["pygwincommandnotfound"]], captured="stdout")
     assert out.strip() == "replaced"
 
 
@@ -654,7 +660,7 @@ def test_on_command_not_found_no_replacement(xession):
     """Test that returning None still raises error."""
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=True,
+            PYGWIN_INTERACTIVE=True,
         )
     )
 
@@ -662,17 +668,17 @@ def test_on_command_not_found_no_replacement(xession):
         return None  # Don't replace
 
     xession.builtins.events.on_command_not_found(no_replacement_handler)
-    subproc = SubprocSpec.build(["xonshcommandnotfound"])
-    with pytest.raises(XonshError) as expected:
+    subproc = SubprocSpec.build(["pygwincommandnotfound"])
+    with pytest.raises(PygwinError) as expected:
         subproc.run()
-    assert "command not found: 'xonshcommandnotfound'" in str(expected.value)
+    assert "command not found: 'pygwincommandnotfound'" in str(expected.value)
 
 
 def test_on_command_not_found_invalid_replacement_ignored(xession):
     """Test that invalid replacements (non-list, empty) are ignored."""
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=True,
+            PYGWIN_INTERACTIVE=True,
         )
     )
 
@@ -681,17 +687,17 @@ def test_on_command_not_found_invalid_replacement_ignored(xession):
         return "not a list"  # Should be ignored
 
     xession.builtins.events.on_command_not_found(invalid_replacement_handler)
-    subproc = SubprocSpec.build(["xonshcommandnotfound"])
-    with pytest.raises(XonshError) as expected:
+    subproc = SubprocSpec.build(["pygwincommandnotfound"])
+    with pytest.raises(PygwinError) as expected:
         subproc.run()
-    assert "command not found: 'xonshcommandnotfound'" in str(expected.value)
+    assert "command not found: 'pygwincommandnotfound'" in str(expected.value)
 
 
 def test_on_command_not_found_fallback_on_bad_replacement(xession):
     """Test that if replacement command also doesn't exist, original error is shown."""
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=True,
+            PYGWIN_INTERACTIVE=True,
         )
     )
 
@@ -700,36 +706,36 @@ def test_on_command_not_found_fallback_on_bad_replacement(xession):
         return ["anotherfakecommand999"]
 
     xession.builtins.events.on_command_not_found(bad_replacement_handler)
-    subproc = SubprocSpec.build(["xonshcommandnotfound"])
-    with pytest.raises(XonshError) as expected:
+    subproc = SubprocSpec.build(["pygwincommandnotfound"])
+    with pytest.raises(PygwinError) as expected:
         subproc.run()
     # Should show original error, not error about the replacement
-    assert "command not found: 'xonshcommandnotfound'" in str(expected.value)
+    assert "command not found: 'pygwincommandnotfound'" in str(expected.value)
 
 
 def test_on_command_not_found_dict_replacement_with_env(xession):
     """Test that returning a dict with cmd and env sets the subprocess environment."""
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=True,
+            PYGWIN_INTERACTIVE=True,
         )
     )
 
     def dict_handler(cmd, **kwargs):
-        if cmd[0] == "xonshcommandnotfound":
+        if cmd[0] == "pygwincommandnotfound":
             if ON_WINDOWS:
                 return {
-                    "cmd": ["cmd", "/c", "echo", "%XONSH_TEST_VAR%"],
-                    "env": {"XONSH_TEST_VAR": "hello_from_env"},
+                    "cmd": ["cmd", "/c", "echo", "%PYGWIN_TEST_VAR%"],
+                    "env": {"PYGWIN_TEST_VAR": "hello_from_env"},
                 }
             return {
-                "cmd": ["sh", "-c", "echo $XONSH_TEST_VAR"],
-                "env": {"XONSH_TEST_VAR": "hello_from_env"},
+                "cmd": ["sh", "-c", "echo $PYGWIN_TEST_VAR"],
+                "env": {"PYGWIN_TEST_VAR": "hello_from_env"},
             }
         return None
 
     xession.builtins.events.on_command_not_found(dict_handler)
-    out = run_subproc([["xonshcommandnotfound"]], captured="stdout")
+    out = run_subproc([["pygwincommandnotfound"]], captured="stdout")
     assert "hello_from_env" in out.strip()
 
 
@@ -737,19 +743,19 @@ def test_on_command_not_found_dict_without_env(xession):
     """Test that returning a dict with only cmd (no env) works."""
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=True,
+            PYGWIN_INTERACTIVE=True,
         )
     )
 
     def dict_no_env_handler(cmd, **kwargs):
-        if cmd[0] == "xonshcommandnotfound":
+        if cmd[0] == "pygwincommandnotfound":
             if ON_WINDOWS:
                 return {"cmd": ["cmd", "/c", "echo", "dict_no_env"]}
             return {"cmd": ["echo", "dict_no_env"]}
         return None
 
     xession.builtins.events.on_command_not_found(dict_no_env_handler)
-    out = run_subproc([["xonshcommandnotfound"]], captured="stdout")
+    out = run_subproc([["pygwincommandnotfound"]], captured="stdout")
     assert out.strip() == "dict_no_env"
 
 
@@ -757,7 +763,7 @@ def test_on_command_not_found_dict_missing_cmd_ignored(xession):
     """Test that a dict without 'cmd' key is treated as invalid and ignored."""
     xession.env.update(
         dict(
-            XONSH_INTERACTIVE=True,
+            PYGWIN_INTERACTIVE=True,
         )
     )
 
@@ -765,8 +771,8 @@ def test_on_command_not_found_dict_missing_cmd_ignored(xession):
         return {"env": {"FOO": "bar"}}  # no 'cmd' key
 
     xession.builtins.events.on_command_not_found(bad_dict_handler)
-    subproc = SubprocSpec.build(["xonshcommandnotfound"])
-    with pytest.raises(XonshError):
+    subproc = SubprocSpec.build(["pygwincommandnotfound"])
+    with pytest.raises(PygwinError):
         subproc.run()
 
 
@@ -1110,18 +1116,18 @@ def test_get_script_subproc_command_shebang(tmpdir, inp, exp):
 
 @skip_if_on_windows
 @pytest.mark.parametrize("ext", [".xsh", ".py", ".pyw"])
-def test_get_script_subproc_command_no_shebang_xonsh_exts(tmpdir, ext):
-    """Shebang-less xonsh/Python scripts run with the current xonsh."""
+def test_get_script_subproc_command_no_shebang_pygwin_exts(tmpdir, ext):
+    """Shebang-less pygwin/Python scripts run with the current pygwin."""
     file = tmpdir / f"script{ext}"
     file.write_text("echo command", encoding="utf-8")
     file.chmod(0o755)
     cmd = get_script_subproc_command(str(file), ["--arg", "1"])
-    assert cmd == [sys.executable, "-m", "xonsh", str(file), "--arg", "1"]
+    assert cmd == [sys.executable, "-m", "pygwin", str(file), "--arg", "1"]
 
 
 def test_redirect_without_left_part(tmpdir):
     file = str(tmpdir / "test_redirect_without_left_part.txt")
-    with pytest.raises(XonshError) as expected:
+    with pytest.raises(PygwinError) as expected:
         SubprocSpec.build([(">", file)])
     assert "subprocess mode: command is empty" in str(expected.value)
 
@@ -1130,7 +1136,7 @@ def test_redirect_without_left_part(tmpdir):
 
 import subprocess as _subprocess  # noqa: E402
 
-from xonsh.procs.specs import _PIPE_ALL, _PIPE_ERR, _redirect_streams  # noqa: E402
+from pygwin.procs.specs import _PIPE_ALL, _PIPE_ERR, _redirect_streams  # noqa: E402
 
 
 @pytest.mark.parametrize("op", ["a>p", "all>p"])
@@ -1191,21 +1197,21 @@ def test_e2p_with_stdout_redirect_preserves_file(xession, tmpdir):
 @pytest.mark.parametrize("op", ["a>p", "e>p"])
 def test_pipe_redirect_without_pipe_errors(xession, op):
     cmds = [["echo", "hi", (op,)]]
-    with pytest.raises(XonshError, match=r"requires a following pipe"):
+    with pytest.raises(PygwinError, match=r"requires a following pipe"):
         cmds_to_specs(cmds, captured="hiddenobject")
 
 
 def test_a2p_conflict_with_o_redirect_errors(xession, tmpdir):
     outfile = str(tmpdir / "conflict.txt")
     cmds = [["echo", "hi", ("a>p",), ("o>", outfile)], "|", ["cat"]]
-    with pytest.raises(XonshError, match="Multiple redirections for stdout"):
+    with pytest.raises(PygwinError, match="Multiple redirections for stdout"):
         cmds_to_specs(cmds, captured="hiddenobject")
 
 
 def test_e2p_conflict_with_e_redirect_errors(xession, tmpdir):
     errfile = str(tmpdir / "conflict.txt")
     cmds = [["echo", "hi", ("e>p",), ("e>", errfile)], "|", ["cat"]]
-    with pytest.raises(XonshError, match="Multiple redirections for stderr"):
+    with pytest.raises(PygwinError, match="Multiple redirections for stderr"):
         cmds_to_specs(cmds, captured="hiddenobject")
 
 
@@ -1219,8 +1225,8 @@ def test_resolve_executable_commands_updates_binary_loc(tmpdir, xession):
     if not ON_WINDOWS:
         script.chmod(0o755)
     spec = SubprocSpec.build([str(script)])
-    # The command should be wrapped with an interpreter (python -m xonsh.main
-    # on Windows, or xonsh on POSIX)
+    # The command should be wrapped with an interpreter (python -m pygwin.main
+    # on Windows, or pygwin on POSIX)
     assert spec.cmd[0] != str(script), "script should be wrapped with interpreter"
     # binary_loc must match the interpreter, not the original script
     if spec.binary_loc is not None:

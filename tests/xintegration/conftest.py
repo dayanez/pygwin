@@ -1,4 +1,4 @@
-"""Shared utilities for integration tests that run xonsh in a subprocess."""
+"""Shared utilities for integration tests that run pygwin in a subprocess."""
 
 import os
 import shutil
@@ -22,17 +22,17 @@ skip_if_no_sleep = pytest.mark.skipif(
 
 base_env = {
     "PATH": PATH,
-    "XONSH_DEBUG": "0",
-    "XONSH_SHOW_TRACEBACK": "1",
-    "XONSH_SUBPROC_CMD_RAISE_ERROR": "0",
-    "XONSH_SUBPROC_RAISE_ERROR": "0",
+    "PYGWIN_DEBUG": "0",
+    "PYGWIN_SHOW_TRACEBACK": "1",
+    "PYGWIN_SUBPROC_CMD_RAISE_ERROR": "0",
+    "PYGWIN_SUBPROC_RAISE_ERROR": "0",
     "FOREIGN_ALIASES_SUPPRESS_SKIP_MESSAGE": "1",
     "PROMPT": "",
     "TERM": "linux",  # disable ansi escape codes
 }
 
 
-def run_xonsh(
+def run_pygwin(
     cmd,
     stdin=sp.PIPE,
     stdin_cmd=None,
@@ -45,7 +45,7 @@ def run_xonsh(
     timeout=20,
     env=None,
     blocking=True,
-    xonsh_cmd=None,
+    pygwin_cmd=None,
 ):
     # Env
     popen_env = dict(os.environ)
@@ -56,25 +56,25 @@ def run_xonsh(
         popen_env |= env
 
     # Args.
-    # Default to ``<sys.executable> -m xonsh`` so the subprocess uses the
+    # Default to ``<sys.executable> -m pygwin`` so the subprocess uses the
     # same interpreter that's running pytest. A bare ``"python"`` would
     # fail on build environments that only ship versioned binaries —
     # FreeBSD ports / poudriere jails being the canonical example, where
     # ``shutil.which("python")`` returns ``None`` and Popen later trips
     # over ``executable=None`` with a confusing ``TypeError`` from
     # ``os.fsencode``.
-    if xonsh_cmd is None:
-        xonsh_cmd = [sys.executable, "-m", "xonsh"]
+    if pygwin_cmd is None:
+        pygwin_cmd = [sys.executable, "-m", "pygwin"]
     else:
-        xonsh_cmd = xonsh_cmd.split()
-        resolved = shutil.which(xonsh_cmd[0], path=PATH)
+        pygwin_cmd = pygwin_cmd.split()
+        resolved = shutil.which(pygwin_cmd[0], path=PATH)
         if resolved is None:
             raise FileNotFoundError(
-                f"run_xonsh: cannot resolve {xonsh_cmd[0]!r} on PATH; "
-                f"pass an absolute path or use the default xonsh_cmd."
+                f"run_pygwin: cannot resolve {pygwin_cmd[0]!r} on PATH; "
+                f"pass an absolute path or use the default pygwin_cmd."
             )
-        xonsh_cmd[0] = resolved
-    popen_args = xonsh_cmd
+        pygwin_cmd[0] = resolved
+    popen_args = pygwin_cmd
 
     if not args:
         popen_args += ["--no-rc"]
@@ -117,11 +117,11 @@ def run_xonsh(
     return out, err, proc.returncode
 
 
-def check_run_xonsh(cmd, fmt, exp, exp_rtn=0):
+def check_run_pygwin(cmd, fmt, exp, exp_rtn=0):
     """The ``fmt`` parameter is a function
     that formats the output of cmd, can be None.
     """
-    out, err, rtn = run_xonsh(cmd, stderr=sp.PIPE)
+    out, err, rtn = run_pygwin(cmd, stderr=sp.PIPE)
     if callable(fmt):
         out = fmt(out)
     if callable(exp):

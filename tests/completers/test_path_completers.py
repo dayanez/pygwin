@@ -4,17 +4,17 @@ from unittest.mock import patch
 
 import pytest
 
-import xonsh.completers.path as xcp
+import pygwin.completers.path as xcp
 
 
 @pytest.fixture(autouse=True)
-def xonsh_execer_autouse(xession, xonsh_execer):
-    return xonsh_execer
+def pygwin_execer_autouse(xession, pygwin_execer):
+    return pygwin_execer
 
 
 def test_name_needs_quotes_smoke():
     # sanity check on the shared helper used by both path and bash completers
-    from xonsh.lib.completion_quoting import name_needs_quotes
+    from pygwin.lib.completion_quoting import name_needs_quotes
 
     assert name_needs_quotes("fi$le") is True
     assert name_needs_quotes("file") is False
@@ -305,7 +305,7 @@ def test_complete_path_control_chars(char, escape, position, xession):
                 )
 
 
-@patch("xonsh.completers.path._add_cdpaths")
+@patch("pygwin.completers.path._add_cdpaths")
 def test_cd_path_no_cd(mock_add_cdpaths, xession, completion_context_parse):
     xession.env = {
         "GLOB_SORTED": True,
@@ -394,7 +394,7 @@ def test_quote_paths_raw_string_trailing_backslash():
         real_dir = os.path.join(td, "somedir")
         os.makedirs(real_dir)
         with patch(
-            "xonsh.completers.path.XSH.expand_path",
+            "pygwin.completers.path.XSH.expand_path",
             side_effect=lambda s: os.path.join(td, s),
         ):
             out, _ = xcp._quote_paths({"somedir"}, 'r"', '"', append_end=True)

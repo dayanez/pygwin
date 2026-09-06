@@ -3,14 +3,14 @@ import os
 
 import pytest
 
-from xonsh.platform_info import DEFAULT_ENCODING
-from xonsh.xoreutils import cat
+from pygwin.platform_info import DEFAULT_ENCODING
+from pygwin.xoreutils import cat
 
 
 @pytest.fixture
 def cat_env_fixture(xession):
     with xession.env.swap(
-        XONSH_ENCODING=DEFAULT_ENCODING, XONSH_ENCODING_ERRORS="surrogateescape"
+        PYGWIN_ENCODING=DEFAULT_ENCODING, PYGWIN_ENCODING_ERRORS="surrogateescape"
     ):
         yield xession
 

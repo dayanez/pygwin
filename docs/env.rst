@@ -10,7 +10,7 @@ Environment variables are written as ``$`` followed by a name (e.g. ``$HOME``,
 ``$PWD``, ``$PATH``).  They can be set, deleted, and used just like regular
 Python variables:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $HOME
     '/home/snail'
@@ -22,7 +22,7 @@ Python variables:
 
 You can also build values from other variables:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $NUM = "123"
     @ $EXT = $NUM + "456"
@@ -36,7 +36,7 @@ You can also build values from other variables:
 
 .. note::
 
-   To update ``os.environ`` when the xonsh environment changes set
+   To update ``os.environ`` when the pygwin environment changes set
    :ref:`$UPDATE_OS_ENVIRON <update_os_environ>` to ``True``.
 
 
@@ -49,22 +49,22 @@ need to.
 
 To check whether a variable exists:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
    @ 'HOME' in @.env
    True
 
 To get help on a specific variable:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-   @ @.env.help('XONSH_DEBUG')
+   @ @.env.help('PYGWIN_DEBUG')
 
-You can also set a variable on the command line before launching xonsh:
+You can also set a variable on the command line before launching pygwin:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $HELLO='snail' xonsh -c 'echo Hello $HELLO'
+    @ $HELLO='snail' pygwin -c 'echo Hello $HELLO'
     Hello snail
 
 
@@ -75,7 +75,7 @@ Environment Lookup with ``${<expr>}``
 the name programmatically, use the ``${<expr>}`` operator -- any valid
 Python expression can go inside the curly braces:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ x = 'USER'
     @ ${x}
@@ -87,12 +87,12 @@ Python expression can go inside the curly braces:
 Environment Types
 -----------------
 
-Environment variables in xonsh are not limited to strings -- they can hold
+Environment variables in pygwin are not limited to strings -- they can hold
 any Python type: strings, numbers, lists, and arbitrary objects.  When a
-variable is used as a subprocess argument, xonsh converts it to a string
+variable is used as a subprocess argument, pygwin converts it to a string
 automatically:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $MY_STR = 'hello'
     @ $MY_NUM = 42
@@ -100,10 +100,10 @@ automatically:
     @ showcmd echo $MY_STR $MY_NUM $MY_LIST
     ['echo', 'hello', '42', '[1, 2, 3]']
 
-``$PATH`` is an :class:`~xonsh.environ.EnvPath` object -- a special list that makes it easy
+``$PATH`` is an :class:`~pygwin.environ.EnvPath` object -- a special list that makes it easy
 to add and remove directories:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $PATH
     ['/usr/local/bin', '/usr/bin', '/bin']
@@ -114,7 +114,7 @@ to add and remove directories:
     '/opt/mytools/bin']
 
 Any variable whose name ends in ``PATH`` or ``DIRS`` is automatically
-treated as an :class:`~xonsh.environ.EnvPath`.
+treated as an :class:`~pygwin.environ.EnvPath`.
 
 .. note:: In subprocess mode, referencing an undefined environment variable
           will produce an empty string.  In Python mode, however, a
@@ -122,10 +122,10 @@ treated as an :class:`~xonsh.environ.EnvPath`.
           environment.
 
 
-Xonsh Environment vs ``os.environ``
+Pygwin Environment vs ``os.environ``
 ------------------------------------
 
-Xonsh maintains its own environment (``@.env``) that is separate from
+Pygwin maintains its own environment (``@.env``) that is separate from
 Python's ``os.environ``.  The two differ in important ways:
 
 * **``os.environ``** is the standard OS process environment.  It only
@@ -133,19 +133,19 @@ Python's ``os.environ``.  The two differ in important ways:
   automatically.  Libraries like ``subprocess``, ``os.system``, and any
   C code that calls ``getenv()`` all read from it.
 
-* **``@.env``** is xonsh's rich environment.  It supports **typed
+* **``@.env``** is pygwin's rich environment.  It supports **typed
   values** -- lists for ``PATH`` variables, ints, bools, and even
   arbitrary Python objects.  It also provides defaults, validation,
   documentation, and the ``swap()`` context manager.
 
-When you set ``$MY_VAR = [1, 2, 3]`` in xonsh, the value lives in
+When you set ``$MY_VAR = [1, 2, 3]`` in pygwin, the value lives in
 ``@.env`` as a Python list.  But ``os.environ`` knows nothing about it
--- it still holds whatever was there when xonsh started.  This means
+-- it still holds whatever was there when pygwin started.  This means
 that child processes launched from Python code (e.g. via
-``subprocess.run()``) won't see xonsh-side changes by default.
+``subprocess.run()``) won't see pygwin-side changes by default.
 
-Subprocess commands launched through xonsh operators (``$()``, ``$[]``,
-etc.) **do** see the xonsh environment because xonsh detypes and passes
+Subprocess commands launched through pygwin operators (``$()``, ``$[]``,
+etc.) **do** see the pygwin environment because pygwin detypes and passes
 it explicitly.
 
 ``$UPDATE_OS_ENVIRON``
@@ -153,12 +153,12 @@ it explicitly.
 
 Set ``$UPDATE_OS_ENVIRON = True`` (default ``False``)
 to keep ``os.environ`` in sync with
-``@.env``.  When enabled, every change to the xonsh environment is
+``@.env``.  When enabled, every change to the pygwin environment is
 immediately written to ``os.environ`` (converted to a string).  This is
 useful when you rely on third-party Python libraries that read
 ``os.environ`` directly:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     $UPDATE_OS_ENVIRON = True
 
@@ -178,7 +178,7 @@ Use ``@.env.swap()`` to set environment variables for the duration of a
 ``with`` block.  The original values are restored automatically when the
 block exits, even if an exception is raised:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     with @.env.swap(PGPASSWORD=@.imp.getpass.getpass('pgpass:')):
         for db in ['db1', 'db2']:
@@ -188,7 +188,7 @@ block exits, even if an exception is raised:
 
 Multiple variables can be swapped at once:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     with @.env.swap(LANG='C', LC_ALL='C'):
         sort data.txt
@@ -201,7 +201,7 @@ or a single scope, not just override it. Assigning the sentinel
 ``@.env.DELETE_VAR`` does exactly that — the variable behaves as if it
 was never set for the duration of the surrounding scope:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $HOSTNAME='myhost'
     @ $HOSTNAME=@.env.DELETE_VAR env | grep -c '^HOSTNAME='
@@ -211,7 +211,7 @@ was never set for the duration of the surrounding scope:
 
 The sentinel works on every path where a variable can be set:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     # Inline prefix for a single subprocess
     $HTTPS_PROXY=@.env.DELETE_VAR curl https://example.com
@@ -240,10 +240,10 @@ Callable Environment Variables
 
 In some cases you may want an environment variable with a dynamically
 created value.  Define a class with a ``__repr__`` method and assign an
-instance to the variable -- xonsh will call ``repr()`` every time the
+instance to the variable -- pygwin will call ``repr()`` every time the
 variable is accessed:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ class Stamp:
          """Return current date as string representation."""
@@ -269,7 +269,7 @@ You can manually register environment variables to define their type and documen
 This is particularly useful for extensions or complex configurations. The documentation provided
 will be shown during tab-completion.
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     @.env.register('MY_VAR1', type='int', default=1, doc='Demo variable 1.')
     @.env.register('MY_VAR2', type='int', default=2, doc='Demo variable 2.')
@@ -279,9 +279,9 @@ Now, when you type ``$MY_<Tab>``, you will see the description.
 Available types: ``"bool"``, ``"str"``, ``"int"``, ``"float"``, ``"path"``,
 ``"env_path"``, ``"abs_path"``.  To get the current list:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ list(@.imp.xonsh.environ.ENSURERS.keys())
+    @ list(@.imp.pygwin.environ.ENSURERS.keys())
     ['bool', 'str', 'path', 'env_path', 'abs_path', 'float', 'int', 'var_pattern']
 
 Getting Help on a Variable
@@ -290,10 +290,10 @@ Getting Help on a Variable
 Use the ``$VAR?`` syntax to see the description, default value, and other
 metadata of any environment variable:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_COMMANDS_CACHE_READ_DIR_ONCE?
-    Name: $XONSH_COMMANDS_CACHE_READ_DIR_ONCE
+    @ $PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE?
+    Name: $PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE
     Description: List of directory prefixes whose contents are cached on first
     access and never re-read within the session.
     Default: []
@@ -304,18 +304,18 @@ This works for both built-in and registered variables.
 Variable Patterns (``VarPattern``)
 ----------------------------------
 
-Xonsh allows defining **pattern rules** that automatically apply type handling
+Pygwin allows defining **pattern rules** that automatically apply type handling
 to environment variables whose names match a regex pattern.  This is powered by
 the ``VarPattern`` class.
 
 Built-in patterns
 ^^^^^^^^^^^^^^^^^
 
-Xonsh ships with two default patterns:
+Pygwin ships with two default patterns:
 
-* ``$XONSH_ENV_PATTERN_PATH`` -- variables ending with ``PATH`` are treated as
+* ``$PYGWIN_ENV_PATTERN_PATH`` -- variables ending with ``PATH`` are treated as
   ``env_path`` (e.g. ``$MYPATH``, ``$LD_LIBRARY_PATH``).
-* ``$XONSH_ENV_PATTERN_DIRS`` -- variables ending with ``DIRS`` are treated as
+* ``$PYGWIN_ENV_PATTERN_DIRS`` -- variables ending with ``DIRS`` are treated as
   ``env_path`` (e.g. ``$XDG_DATA_DIRS``).
 
 Creating a pattern
@@ -323,18 +323,18 @@ Creating a pattern
 
 Set a ``VarPattern`` value directly:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
-    $XONSH_ENV_PATTERN_NUM = @.imp.xonsh.environ.VarPattern(r"\w*_NUM$", "int")
+    $PYGWIN_ENV_PATTERN_NUM = @.imp.pygwin.environ.VarPattern(r"\w*_NUM$", "int")
 
 Or register with a default value and documentation:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     @.env.register(
-        "XONSH_ENV_PATTERN_NUM",
+        "PYGWIN_ENV_PATTERN_NUM",
         type="var_pattern",
-        default=@.imp.xonsh.environ.VarPattern(r"\w*_NUM$", "int"),
+        default=@.imp.pygwin.environ.VarPattern(r"\w*_NUM$", "int"),
         doc="Pattern rule: env vars matching *_NUM are treated as int.",
     )
 
@@ -343,7 +343,7 @@ Usage
 
 Once a pattern is active, matching variables are automatically converted:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ $QWE_NUM = '42'
     @ type($QWE_NUM)
@@ -355,9 +355,9 @@ Excluding variables from a pattern
 Some variables may match a pattern but have different meaning.  Add them to
 the ``exclude`` list:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ $XONSH_ENV_PATTERN_DIRS.exclude.append('JUPYTER_PLATFORM_DIRS')
+    @ $PYGWIN_ENV_PATTERN_DIRS.exclude.append('JUPYTER_PLATFORM_DIRS')
     @ $JUPYTER_PLATFORM_DIRS = '1'
     @ $JUPYTER_PLATFORM_DIRS
     '1'
@@ -367,10 +367,10 @@ Disabling patterns
 
 Set a pattern variable to ``None`` to disable it entirely:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
-    $XONSH_ENV_PATTERN_DIRS = None
-    $XONSH_ENV_PATTERN_PATH = None
+    $PYGWIN_ENV_PATTERN_DIRS = None
+    $PYGWIN_ENV_PATTERN_PATH = None
 
 
 See also
@@ -379,4 +379,4 @@ See also
 * :doc:`envvars` -- full list of environment variables
 * :doc:`strings` -- environment variable substitution in strings
 * :doc:`launch` -- passing variables via ``-D`` at startup
-* :doc:`xonsh RC <xonshrc>` -- setting variables in RC files
+* :doc:`pygwin RC <pygwinrc>` -- setting variables in RC files

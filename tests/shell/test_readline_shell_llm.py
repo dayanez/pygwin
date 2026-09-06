@@ -4,8 +4,8 @@ import sys
 
 import pytest
 
-from xonsh.pytest.tools import skip_if_on_windows
-from xonsh.shells.readline_shell import _ensure_newline
+from pygwin.pytest.tools import skip_if_on_windows
+from pygwin.shells.readline_shell import _ensure_newline
 
 
 class _FakeStdin:

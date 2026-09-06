@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.xontribs``.
+"""Smoke tests for ``pygwin.xontribs``.
 
 Covers ``Xontrib`` introspection, ``xontrib_data`` / ``xontribs_loaded`` /
 ``xontribs_list`` formatting, and pure helpers like ``get_module_docstring``,
@@ -10,7 +10,7 @@ import sys
 
 import pytest
 
-from xonsh.xontribs import (
+from pygwin.xontribs import (
     ExitCode,
     Xontrib,
     XontribAlias,
@@ -71,7 +71,7 @@ def test_xontrib_is_auto_loaded_false_without_state(xession):
 
 
 def test_get_module_docstring_for_real_module():
-    doc = get_module_docstring("xonsh.xontribs")
+    doc = get_module_docstring("pygwin.xontribs")
     assert doc
     assert "xontrib" in doc.lower()
 

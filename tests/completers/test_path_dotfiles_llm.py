@@ -1,6 +1,6 @@
 """Tests for path completion through hidden (``.``-prefixed) segments.
 
-The path completer routes through ``xonsh.tools._case_insensitive_iglob``
+The path completer routes through ``pygwin.tools._case_insensitive_iglob``
 on POSIX. That helper used to filter out *every* listdir entry whose name
 started with ``.`` — including segments the user had typed literally —
 so ``cp ~/.xsh/<Tab>`` and ``cp ~/.xs<Tab>`` returned no completions.
@@ -16,12 +16,12 @@ import tempfile
 
 import pytest
 
-import xonsh.completers.path as xcp
+import pygwin.completers.path as xcp
 
 
 @pytest.fixture(autouse=True)
-def xonsh_execer_autouse(xession, xonsh_execer):
-    return xonsh_execer
+def pygwin_execer_autouse(xession, pygwin_execer):
+    return pygwin_execer
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def completer_env(xession):
             "SUGGEST_THRESHOLD": 3,
             "CDPATH": set(),
             "DOTGLOB": False,
-            "XONSH_COMPLETER_MODE": "substring_tier",
+            "PYGWIN_COMPLETER_MODE": "substring_tier",
         }
     )
     return xession.env
@@ -64,7 +64,7 @@ def test_completer_completes_hidden_prefix(completer_env):
     The wildcard pattern starts with ``.`` so dotfiles are visible."""
     with tempfile.TemporaryDirectory() as td:
         os.mkdir(os.path.join(td, ".xsh"))
-        os.mkdir(os.path.join(td, ".xonshrc.d"))
+        os.mkdir(os.path.join(td, ".pygwinrc.d"))
         open(os.path.join(td, "visible.txt"), "w").close()
 
         prefix = os.path.join(td, ".xs")

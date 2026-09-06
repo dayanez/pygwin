@@ -1,38 +1,38 @@
-.. _xonsh_session:
+.. _pygwin_session:
 
 ******************************
-Xonsh Session
+Pygwin Session
 ******************************
 
-When xonsh starts, it builds a long-lived **session** object that holds the
+When pygwin starts, it builds a long-lived **session** object that holds the
 environment, history, command pipeline, parser, executor, jobs and so on.
 Two Python objects expose this state:
 
-* :class:`xonsh.built_ins.XonshSessionInterface` — a small, **stable** surface
+* :class:`pygwin.built_ins.PygwinSessionInterface` — a small, **stable** surface
   intended for end users and scripts. Reachable through the
   ``@`` shortcut (``@.env``, ``@.history``, ``@.imp``, ``@.lastcmd``).
 
-* :class:`xonsh.built_ins.XonshSession` — the **internal** session container
-  with everything xonsh needs at runtime. Reachable as ``__xonsh__`` (or
-  ``xonsh.built_ins.XSH``). Useful when you are extending xonsh, writing
+* :class:`pygwin.built_ins.PygwinSession` — the **internal** session container
+  with everything pygwin needs at runtime. Reachable as ``__pygwin__`` (or
+  ``pygwin.built_ins.XSH``). Useful when you are extending pygwin, writing
   completers, hooks, or low-level integrations.
 
 This page documents both, with a focus on day-to-day use cases.
 
 
-``XonshSessionInterface`` and the ``@`` shortcut
+``PygwinSessionInterface`` and the ``@`` shortcut
 ================================================
 
-``XonshSessionInterface`` is the **public, narrow** surface of a xonsh session.
+``PygwinSessionInterface`` is the **public, narrow** surface of a pygwin session.
 It is exposed as a single-character shortcut: the ``@`` token.
 
 Internally, the parser rewrites every ``@.<name>`` into
-``__xonsh__.interface.<name>``, so the two are exactly equivalent. ``@`` on
+``__pygwin__.interface.<name>``, so the two are exactly equivalent. ``@`` on
 its own evaluates to the interface object itself.
 
 This means you can use ``@`` directly inside Python and subprocess mode:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     # Print the value of $HOME via the typed Env API
     echo @(@.env.get('HOME', '/tmp'))
@@ -46,13 +46,13 @@ This means you can use ``@`` directly inside Python and subprocess mode:
 ``@.env`` — current environment
 -------------------------------
 
-``@.env`` is the current :class:`xonsh.environ.Env` instance. Use it any
+``@.env`` is the current :class:`pygwin.environ.Env` instance. Use it any
 time you want a programmatic, typed read or write of an environment
 variable, instead of the shell-style ``$VAR`` form.
 
 Use cases:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     # Safe lookup with default
     home = @.env.get('HOME', '/tmp')
@@ -72,13 +72,13 @@ name in the source.
 ``@.history`` — history backend
 -------------------------------
 
-``@.history`` is the active :class:`xonsh.history.History` backend
+``@.history`` is the active :class:`pygwin.history.History` backend
 (``json``, ``sqlite``, or ``dummy``). It exposes the same API regardless
 of the configured backend.
 
 Use cases:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     # Last command typed in this session (raw input)
     print(@.history.inps[-1])
@@ -95,20 +95,20 @@ Use cases:
     # Force a flush to disk (same as `history flush`)
     @.history.flush()
 
-The ``history`` xonsh command is the user-facing wrapper around this
+The ``history`` pygwin command is the user-facing wrapper around this
 object. ``@.history`` is what you reach for when you need data, not text.
 
 ``@.imp`` — inline importer
 ---------------------------
 
-``@.imp`` is an :class:`xonsh.built_ins.InlineImporter` instance. It
+``@.imp`` is an :class:`pygwin.built_ins.InlineImporter` instance. It
 turns ``@.imp.<module>`` into ``__import__('<module>')`` on first
 attribute access, so you can pull in and use a stdlib (or third-party)
 module without a separate ``import`` line.
 
 Use cases:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     # One-liners that would otherwise need an import
     echo @(@.imp.time.time())
@@ -128,13 +128,13 @@ clearer; ``@.imp`` is for ad-hoc, one-shot calls where adding an
 ``@.lastcmd`` — last command pipeline
 -------------------------------------
 
-``@.lastcmd`` is the :class:`xonsh.procs.pipelines.CommandPipeline` of
+``@.lastcmd`` is the :class:`pygwin.procs.pipelines.CommandPipeline` of
 the most recently completed subprocess-mode command. It is updated every
 time you run a subprocess (``ls``, ``$(...)``, ``![...]``, etc.).
 
 Use cases:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     ls /nope
     print('exit:', @.lastcmd.rtn)        # exit code
@@ -150,21 +150,21 @@ Use cases:
 
 
 
-``XonshSession`` — the internal session
+``PygwinSession`` — the internal session
 =======================================
 
-``XonshSession`` is the *full* container that xonsh builds at startup.
+``PygwinSession`` is the *full* container that pygwin builds at startup.
 It is reachable in two equivalent ways:
 
-* ``__xonsh__`` — bound into ``builtins`` when the session loads, so
+* ``__pygwin__`` — bound into ``builtins`` when the session loads, so
   every executed scope sees it as a global.
-* ``xonsh.built_ins.XSH`` — the canonical module-level singleton.
+* ``pygwin.built_ins.XSH`` — the canonical module-level singleton.
 
 .. warning::
 
-    Most attributes here are internal. They are exposed because xonsh
+    Most attributes here are internal. They are exposed because pygwin
     needs them to talk to itself, but they are **not** part of the
-    stable API. Anything in :class:`XonshSessionInterface` (the ``@``
+    stable API. Anything in :class:`PygwinSessionInterface` (the ``@``
     shortcut) is meant to outlive releases; everything else here may
     change. Prefer ``@.<x>`` or ``XSH.interface`` whenever an equivalent exists.
 
@@ -172,87 +172,87 @@ Useful fields
 -------------
 
 The following attributes are the most commonly used by hooks,
-completers, and :doc:`xonsh RC <xonshrc>` automation. They are listed roughly in the
+completers, and :doc:`pygwin RC <pygwinrc>` automation. They are listed roughly in the
 order you are likely to need them.
 
-* ``__xonsh__.env`` — same :class:`xonsh.environ.Env` as ``@.env``;
-  populated by :meth:`XonshSession.load`.
+* ``__pygwin__.env`` — same :class:`pygwin.environ.Env` as ``@.env``;
+  populated by :meth:`PygwinSession.load`.
 
-* ``__xonsh__.history`` — same as ``@.history``.
+* ``__pygwin__.history`` — same as ``@.history``.
 
-* ``__xonsh__.aliases`` — the live :class:`xonsh.aliases.Aliases`
-  mapping. Setting ``__xonsh__.aliases['ll'] = 'ls -la'`` from
-  your :doc:`xonsh RC <xonshrc>` is the canonical way to define an alias. The property
+* ``__pygwin__.aliases`` — the live :class:`pygwin.aliases.Aliases`
+  mapping. Setting ``__pygwin__.aliases['ll'] = 'ls -la'`` from
+  your :doc:`pygwin RC <pygwinrc>` is the canonical way to define an alias. The property
   delegates to ``commands_cache.aliases`` and is read-only on the
   session itself; mutate the mapping in place.
 
-* ``__xonsh__.completers`` — ``OrderedDict`` of registered completer callables.
+* ``__pygwin__.completers`` — ``OrderedDict`` of registered completer callables.
   Lazily initialized on first access. Modify with the ``completer``
   command or by mutating the dict directly.
 
-* ``__xonsh__.shell`` — the active shell wrapper
-  (:class:`xonsh.shell.Shell`). The concrete implementation is in
-  ``__xonsh__.shell.shell`` (``PromptToolkitShell``, ``ReadlineShell``
+* ``__pygwin__.shell`` — the active shell wrapper
+  (:class:`pygwin.shell.Shell`). The concrete implementation is in
+  ``__pygwin__.shell.shell`` (``PromptToolkitShell``, ``ReadlineShell``
   or ``DumbShell``). Use this when you need to call a shell-specific
   method like ``print_color``.
 
-* ``__xonsh__.execer`` — the :class:`xonsh.execer.Execer`, which
-  parses, compiles, and runs xonsh source. Use ``execer.exec(src)`` /
-  ``execer.eval(src)`` to evaluate xonsh code from inside Python.
+* ``__pygwin__.execer`` — the :class:`pygwin.execer.Execer`, which
+  parses, compiles, and runs pygwin source. Use ``execer.exec(src)`` /
+  ``execer.eval(src)`` to evaluate pygwin code from inside Python.
 
-* ``__xonsh__.builtins`` — a ``SimpleNamespace`` containing the
-  xonsh-injected builtins: ``XonshError``, ``XonshCalledProcessError``,
+* ``__pygwin__.builtins`` — a ``SimpleNamespace`` containing the
+  pygwin-injected builtins: ``PygwinError``, ``PygwinCalledProcessError``,
   ``evalx``, ``execx``, ``compilex``, ``events``, ``print_color``,
   ``printx``.
 
-* ``__xonsh__.ctx`` — the global Python context dict that all xonsh
+* ``__pygwin__.ctx`` — the global Python context dict that all pygwin
   user code runs against. Equivalent to ``globals()`` for the REPL.
   Useful for completers and hooks that want to inspect what the user
   has defined.
 
-* ``__xonsh__.all_jobs`` — dict of background jobs keyed by job id.
+* ``__pygwin__.all_jobs`` — dict of background jobs keyed by job id.
   See ``jobs``, ``fg``, ``bg``.
 
-* ``__xonsh__.lastcmd`` — same as ``@.lastcmd``.
+* ``__pygwin__.lastcmd`` — same as ``@.lastcmd``.
 
-* ``__xonsh__.sessionid`` — UUID of the current session, used in
+* ``__pygwin__.sessionid`` — UUID of the current session, used in
   history filenames and similar.
 
-* ``__xonsh__.rc_files`` — list of :doc:`xonsh RC <xonshrc>` files actually loaded.
+* ``__pygwin__.rc_files`` — list of :doc:`pygwin RC <pygwinrc>` files actually loaded.
 
-* ``__xonsh__.builtins.events`` — the
-  :class:`xonsh.events.events` registry; how you subscribe to
+* ``__pygwin__.builtins.events`` — the
+  :class:`pygwin.events.events` registry; how you subscribe to
   ``on_postcommand``, ``on_pre_prompt``, ``on_chdir`` and friends.
 
-* ``__xonsh__.exit`` — set this to an integer from anywhere to ask
-  xonsh to exit on the next loop iteration with that return code.
+* ``__pygwin__.exit`` — set this to an integer from anywhere to ask
+  pygwin to exit on the next loop iteration with that return code.
 
 
 Lifecycle and helpers
 ---------------------
 
-These are the methods you call when *embedding* xonsh, hot-reloading
+These are the methods you call when *embedding* pygwin, hot-reloading
 the session in tests, or writing tooling that wraps it:
 
 * ``load(execer=None, ctx=None, inherit_env=True, **kwargs)`` — fully
   initialize the session: build the env, install builtins into Python,
   hook ``atexit`` for history flush, install signal handlers. Called
-  by ``main.main_xonsh`` once at startup.
+  by ``main.main_pygwin`` once at startup.
 * ``unload()`` — reverse of ``load``: undo env replacement, restore
-  Python's ``exit``/``quit``, flush history, remove ``__xonsh__`` from
+  Python's ``exit``/``quit``, flush history, remove ``__pygwin__`` from
   builtins.
 * ``link_builtins()`` / ``unlink_builtins()`` — rebind the proxy
-  builtins (``XonshError``, ``events``, etc.) into Python's
+  builtins (``PygwinError``, ``events``, etc.) into Python's
   ``builtins`` namespace. Used internally by ``load``/``unload``.
-* ``cmd(*args, **kwargs)`` — return a :class:`xonsh.built_ins.Cmd`
+* ``cmd(*args, **kwargs)`` — return a :class:`pygwin.built_ins.Cmd`
   *builder* that lets you compose a subprocess pipeline programmatically
   before dispatching it. See the next section.
 
 Subprocess dispatchers — how ``$()``, ``!()``, ``$[]``, ``![]`` map to Python
 ----------------------------------------------------------------------------
 
-Every subprocess-mode operator in xonsh is a thin parser sugar around a
-``XonshSession.subproc_*`` method. Knowing the mapping is what lets you
+Every subprocess-mode operator in pygwin is a thin parser sugar around a
+``PygwinSession.subproc_*`` method. Knowing the mapping is what lets you
 *construct commands programmatically* (for example from a list of
 arguments) and still get exactly the same semantics as the literal form.
 
@@ -265,29 +265,29 @@ arguments) and still get exactly the same semantics as the literal form.
      - Returns
      - Use it when
    * - ``$(cmd)``
-     - ``__xonsh__.subproc_captured_stdout``
-     - ``str`` (or ``list[str]`` if ``$XONSH_SUBPROC_OUTPUT_FORMAT='list_lines'``)
+     - ``__pygwin__.subproc_captured_stdout``
+     - ``str`` (or ``list[str]`` if ``$PYGWIN_SUBPROC_OUTPUT_FORMAT='list_lines'``)
      - You only want the captured **stdout** as a value to assign,
        interpolate, or pass on.
    * - ``!(cmd)``
-     - ``__xonsh__.subproc_captured_object``
-     - :class:`xonsh.procs.pipelines.CommandPipeline`
+     - ``__pygwin__.subproc_captured_object``
+     - :class:`pygwin.procs.pipelines.CommandPipeline`
      - You want the **whole result object**: exit code, stdout, stderr,
        timing, alias info. Truthy iff ``rtn == 0``.
    * - ``$[cmd]``
-     - ``__xonsh__.subproc_uncaptured``
+     - ``__pygwin__.subproc_uncaptured``
      - ``None``
      - You want output to go straight to the **terminal** with no
        capture. The "just run it" form.
    * - ``![cmd]``
-     - ``__xonsh__.subproc_captured_hiddenobject``
-     - :class:`xonsh.procs.pipelines.HiddenCommandPipeline`
+     - ``__pygwin__.subproc_captured_hiddenobject``
+     - :class:`pygwin.procs.pipelines.HiddenCommandPipeline`
      - Like ``!()`` but the object's ``repr`` does **not** dump the
        captured output to the screen. Useful inside hooks/scripts.
    * - ``@$(cmd)``
-     - ``__xonsh__.subproc_captured_inject``
+     - ``__pygwin__.subproc_captured_inject``
      - ``list[str]``
-     - You want the captured stdout split via xonsh's lexer (so it
+     - You want the captured stdout split via pygwin's lexer (so it
        respects quoting) and spliced as **arguments** into another
        command.
 
@@ -301,18 +301,18 @@ All of these forms accept the same ``cmds`` shape:
 So ``$(ls -la | grep .py)`` becomes
 ``subproc_captured_stdout(['ls', '-la'], '|', ['grep', '.py'])``.
 
-This is exactly what the :class:`xonsh.built_ins.Cmd` builder produces,
+This is exactly what the :class:`pygwin.built_ins.Cmd` builder produces,
 which is why you can write the same pipeline two ways:
 
-.. code-block:: xonsh
+.. code-block:: pygwin
 
     # As literal subprocess sugar
     out = $(git log --oneline -5 | head -3)
 
     # Or built explicitly via the Cmd helper
     out = (
-        @.imp.xonsh.built_ins
-        .Cmd(__xonsh__, 'git', 'log', '--oneline', '-5')
+        @.imp.pygwin.built_ins
+        .Cmd(__pygwin__, 'git', 'log', '--oneline', '-5')
         .pipe('head', '-3')
         .out()    # dispatches to subproc_captured_stdout
     )
@@ -331,7 +331,7 @@ from user input, generated in a loop, or driven by config.
 Other AST-invoked helpers
 -------------------------
 
-A few more attributes on ``__xonsh__`` exist because xonsh's parser
+A few more attributes on ``__pygwin__`` exist because pygwin's parser
 rewrites special syntax into calls on them. You normally do not call
 these directly, but it is useful to know they are there:
 
@@ -340,20 +340,20 @@ these directly, but it is useful to know they are there:
   ``g`glob```, etc.) and ``$VAR`` glob expansion.
 * ``glob`` — wrapper used by glob expansion in subproc mode.
 * ``expand_path`` — applied to bare path arguments.
-* ``call_macro`` / ``enter_macro`` — power xonsh **macro** calls
+* ``call_macro`` / ``enter_macro`` — power pygwin **macro** calls
   (``f!(...)``) and macro context managers.
 * ``path_literal`` — backs the ``p"..."`` Path literal syntax.
 * ``help`` / ``superhelp`` — back ``obj?`` and ``obj??`` for Python
   objects (the subproc-mode counterparts live in
-  ``xonsh.procs.specs`` and ``xonsh.aliases.print_alias_help``).
-* ``eval_fstring_field`` — backs xonsh's f-string field evaluation.
+  ``pygwin.procs.specs`` and ``pygwin.aliases.print_alias_help``).
+* ``eval_fstring_field`` — backs pygwin's f-string field evaluation.
 * ``list_of_strs_or_callables`` /
   ``list_of_list_of_strs_outer_product`` — flatten the heterogeneous
-  argument lists xonsh's parser produces before dispatching to
+  argument lists pygwin's parser produces before dispatching to
   subproc.
 
 When in doubt, prefer ``@.<x>`` (``XSH.interface``) for the four stable bits of the API,
-and treat everything on ``__xonsh__`` as power-user territory that
+and treat everything on ``__pygwin__`` as power-user territory that
 should be guarded with try/except and feature checks.
 
 

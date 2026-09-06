@@ -1,4 +1,4 @@
-"""LLM-generated tests for ``xonsh/pyghooks.py``.
+"""LLM-generated tests for ``pygwin/pyghooks.py``.
 
 Currently covers:
 
@@ -8,8 +8,8 @@ Currently covers:
   https://github.com/xonsh/xonsh/issues/6387 (``LS_COLORS`` carrying ANSI
   blink/reverse/hidden/strike codes used to crash pygments' ``StyleMeta``
   with ``AssertionError: wrong color format 'blink'`` at shell startup).
-* Plugin-mode lenient highlighting — when ``XonshLexer`` is loaded as a
-  pygments entry point outside a live xonsh session (Sphinx,
+* Plugin-mode lenient highlighting — when ``PygwinLexer`` is loaded as a
+  pygments entry point outside a live pygwin session (Sphinx,
   nbconvert, jupyter), runtime checks for ``$VAR`` / subprocess
   commands / ``@()`` names cannot succeed, so the lexer must emit the
   optimistic token instead of flooding rendered output with Error
@@ -24,14 +24,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from xonsh.environ import LsColors
-from xonsh.pyghooks import Token, XonshLexer, XonshStyle
+from pygwin.environ import LsColors
+from pygwin.pyghooks import PygwinLexer, PygwinStyle, Token
 
 
 @pytest.fixture(autouse=True)
 def _reset_bg_validation_globals():
     """Reset module-level bg-validation state before each test."""
-    from xonsh import pyghooks as ph
+    from pygwin import pyghooks as ph
 
     ph._cmd_valid_cache.clear()
     ph._pending_cmds.clear()
@@ -45,7 +45,7 @@ def _reset_bg_validation_globals():
 
 
 def test_stale_gen_still_caches():
-    from xonsh import pyghooks as ph
+    from pygwin import pyghooks as ph
 
     # Simulate: a command was scheduled at gen=1, but by the time
     # the bg thread runs, gen has moved to 5 (new keystrokes).
@@ -63,7 +63,7 @@ def test_stale_gen_still_caches():
 
 
 def test_stale_gen_skips_invalidation():
-    from xonsh import pyghooks as ph
+    from pygwin import pyghooks as ph
 
     mock_app = MagicMock()
     ph._ptk_app = mock_app
@@ -81,7 +81,7 @@ def test_stale_gen_skips_invalidation():
 
 
 def test_current_gen_caches_and_invalidates():
-    from xonsh import pyghooks as ph
+    from pygwin import pyghooks as ph
 
     mock_app = MagicMock()
     mock_app.layout.find_all_controls.return_value = []
@@ -103,12 +103,12 @@ def test_current_gen_caches_and_invalidates():
 
 @pytest.fixture
 def xs_LS_COLORS(xession, os_env, monkeypatch):
-    """Xonsh environment including default LS_COLORS."""
+    """Pygwin environment including default LS_COLORS."""
     monkeypatch.setattr(xession, "env", os_env)
     xession.env["LS_COLORS"] = LsColors(LsColors.default_settings)
     xession.env["INTENSIFY_COLORS_ON_WIN"] = False
     xession.shell.shell_type = "prompt_toolkit"
-    xession.shell.shell.styler = XonshStyle()
+    xession.shell.shell.styler = PygwinStyle()
     yield xession
 
 
@@ -126,22 +126,22 @@ def xs_LS_COLORS(xession, os_env, monkeypatch):
     ],
 )
 def test_strip_ptk_specific_modifiers(value, expected):
-    from xonsh.pyghooks import _strip_ptk_specific_modifiers
+    from pygwin.pyghooks import _strip_ptk_specific_modifiers
 
     assert _strip_ptk_specific_modifiers(value) == expected
 
 
-def test_xonsh_style_proxy_strips_ptk_modifiers_from_ls_colors(xs_LS_COLORS):
-    """``xonsh_style_proxy`` must sanitize PTK-only modifiers so pygments'
+def test_pygwin_style_proxy_strips_ptk_modifiers_from_ls_colors(xs_LS_COLORS):
+    """``pygwin_style_proxy`` must sanitize PTK-only modifiers so pygments'
     ``StyleMeta`` does not raise ``AssertionError: wrong color format``.
     """
-    from xonsh.pyghooks import (
+    from pygwin.pyghooks import (
         PTK_SPECIFIC_VALUES,
         color_token_by_name,
-        xonsh_style_proxy,
+        pygwin_style_proxy,
     )
 
-    xs = XonshStyle()
+    xs = PygwinStyle()
     # ANSI codes 5 (slow blink), 7 (reverse), 8 (hidden), 9 (strike) on red fg
     blink_token = color_token_by_name(("SLOWBLINK_RED",), xs.styles)
     reverse_token = color_token_by_name(("INVERT_RED",), xs.styles)
@@ -153,7 +153,7 @@ def test_xonsh_style_proxy_strips_ptk_modifiers_from_ls_colors(xs_LS_COLORS):
 
     # Building the proxy must not raise ``AssertionError`` from
     # pygments.style.colorformat — this is the actual bug.
-    proxy = xonsh_style_proxy(xs)
+    proxy = pygwin_style_proxy(xs)
 
     for token in (blink_token, reverse_token, hidden_token, strike_token):
         sanitized = proxy.styles[token]
@@ -169,14 +169,14 @@ def test_xonsh_style_proxy_strips_ptk_modifiers_from_ls_colors(xs_LS_COLORS):
 @pytest.fixture
 def plugin_mode_lexer(xession, monkeypatch):
     """Reproduce the state the lexer sees when loaded as a pygments
-    plugin outside a live xonsh session (Sphinx, nbconvert, jupyter):
+    plugin outside a live pygwin session (Sphinx, nbconvert, jupyter):
     ``XSH.commands_cache`` is None, ``XSH.env`` is the empty mock, and
     ``XSH.ctx`` is None. ``_is_plugin_mode`` keys off
     ``commands_cache is None``."""
     monkeypatch.setattr(xession, "commands_cache", None)
     monkeypatch.setattr(xession, "env", None)
     monkeypatch.setattr(xession, "ctx", None)
-    return XonshLexer()
+    return PygwinLexer()
 
 
 @pytest.mark.parametrize(
@@ -194,7 +194,7 @@ def test_plugin_mode_no_error_tokens(plugin_mode_lexer, code):
     no ctx).  In that mode the lexer must fall back to the optimistic
     token instead of marking everything as Error — otherwise rendered
     docs / notebooks are flooded with red error markers around tokens
-    that are perfectly valid xonsh code (regression for Sphinx-rendered
+    that are perfectly valid pygwin code (regression for Sphinx-rendered
     ``.xsh`` snippets in the docs build)."""
     tokens = list(plugin_mode_lexer.get_tokens(code))
     err_values = [v for t, v in tokens if t is Token.Error]
@@ -220,7 +220,7 @@ def test_unknown_env_var_still_error_in_live_session(xession):
     keeps the strict check — a typo in a ``$VAR`` reference is still
     surfaced as Error.  Regression guard for the plugin-mode fix."""
     assert getattr(xession, "commands_cache", None) is not None
-    lexer = XonshLexer()
+    lexer = PygwinLexer()
     tokens = list(lexer.get_tokens("$THIS_VAR_DOES_NOT_EXIST = 1\n"))
     err_values = [v for t, v in tokens if t is Token.Error]
     assert "$THIS_VAR_DOES_NOT_EXIST" in err_values
@@ -240,7 +240,7 @@ def test_unknown_env_var_still_error_in_live_session(xession):
 
 
 def test_join_fg_bg_drops_colliding_background():
-    from xonsh.pyghooks import _join_fg_bg
+    from pygwin.pyghooks import _join_fg_bg
 
     # identical fg/bg -> background dropped, foreground + modifiers preserved
     assert _join_fg_bg("bg:#ff0000", "#ff0000") == "#ff0000"
@@ -250,7 +250,7 @@ def test_join_fg_bg_drops_colliding_background():
 
 
 def test_join_fg_bg_preserves_distinct_colors():
-    from xonsh.pyghooks import _join_fg_bg
+    from pygwin.pyghooks import _join_fg_bg
 
     assert _join_fg_bg("bg:#ff0000", "#00ff00") == "bg:#ff0000 #00ff00"
     # a reset/default background is not a hex color -> never a collision
@@ -259,7 +259,7 @@ def test_join_fg_bg_preserves_distinct_colors():
 
 
 def test_join_fg_bg_collision_is_case_and_shorthand_insensitive():
-    from xonsh.pyghooks import _join_fg_bg
+    from pygwin.pyghooks import _join_fg_bg
 
     # some styles (vim, vs) store hexes uppercase
     assert _join_fg_bg("bg:#FF0000", "#ff0000") == "#ff0000"
@@ -279,15 +279,15 @@ def test_join_fg_bg_collision_is_case_and_shorthand_insensitive():
     ],
 )
 def test_code_by_name_guards_invisible_rrt_colors(name, exp):
-    from xonsh.pyghooks import STYLES, code_by_name
+    from pygwin.pyghooks import STYLES, code_by_name
 
     assert code_by_name(name, dict(STYLES["rrt"])) == exp
 
 
 def test_color_token_by_name_drops_colliding_background():
     """The runtime file-color path (used by ``on_lscolors_change`` and
-    ``XonshStyle``) must not cache a fg==bg style for device files."""
-    from xonsh.pyghooks import STYLES, Color, color_token_by_name
+    ``PygwinStyle``) must not cache a fg==bg style for device files."""
+    from pygwin.pyghooks import STYLES, Color, color_token_by_name
 
     styles = dict(STYLES["rrt"])
     ct = color_token_by_name(("BACKGROUND_BLACK", "YELLOW"), styles)
@@ -298,7 +298,7 @@ def test_color_token_by_name_drops_colliding_background():
 
 def test_no_builtin_style_renders_invisible_file_colors():
     """No built-in style may resolve a fg+bg file-type color to fg==bg."""
-    from xonsh.pyghooks import STYLES, code_by_name
+    from pygwin.pyghooks import STYLES, code_by_name
 
     combos = sorted(
         {"__".join(v) for v in LsColors.default_settings.values() if len(v) == 2}

@@ -1,4 +1,4 @@
-"""Smoke tests for ``xonsh.timings``.
+"""Smoke tests for ``pygwin.timings``.
 
 The module backs the ``timeit!`` alias and the ``--timings`` CLI flag. These
 tests target the pure helpers — ``format_time``, the lazy clock objects, and
@@ -7,7 +7,7 @@ tests target the pure helpers — ``format_time``, the lazy clock objects, and
 
 import time
 
-from xonsh.timings import (
+from pygwin.timings import (
     _HAVE_RESOURCE,
     Timer,
     clock,
@@ -124,7 +124,7 @@ def test_timer_repeat_returns_n_runs():
 
 def test_timeit_alias_no_args_returns_minus_one(capsys):
     """``timeit!`` with no args prints usage and returns -1."""
-    from xonsh.timings import timeit_alias
+    from pygwin.timings import timeit_alias
 
     rc = timeit_alias([])
     assert rc == -1

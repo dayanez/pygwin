@@ -24,7 +24,7 @@ Everyday User
     :titlesonly:
     :maxdepth: 2
 
-    xonshrc
+    pygwinrc
     envvars
     aliases
     events
@@ -43,7 +43,7 @@ Creator
 
     editors
     python_virtual_environments
-    xonsh_projects
+    pygwin_projects
     xontrib
     events_tutorial
     completers

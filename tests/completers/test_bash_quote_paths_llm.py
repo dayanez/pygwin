@@ -1,7 +1,7 @@
-"""Tests for :func:`xonsh.completers.bash_completion._bash_quote_paths`.
+"""Tests for :func:`pygwin.completers.bash_completion._bash_quote_paths`.
 
 Covers two behaviours, both mirroring the corresponding logic in the
-path completer (``xonsh.completers.path._quote_paths``):
+path completer (``pygwin.completers.path._quote_paths``):
 
 1. **Per-path quoting** — only paths that actually contain shell-special
    characters get quoted. A plain ``file`` sibling to ``fi$le`` stays
@@ -18,7 +18,7 @@ path completer (``xonsh.completers.path._quote_paths``):
 import os
 import tempfile
 
-from xonsh.completers.bash_completion import (
+from pygwin.completers.bash_completion import (
     _bash_get_sep,
     _bash_quote_paths,
     _bash_unescape,
@@ -142,7 +142,7 @@ def test_bash_escaped_space_is_unescaped_then_quoted_plainly():
             out, _ = _bash_quote_paths({r"foo\ bar/target"}, "'", "'")
         finally:
             os.chdir(old_cwd)
-    # The completion must be a valid xonsh single-quoted string with the
+    # The completion must be a valid pygwin single-quoted string with the
     # actual filesystem path inside — no leftover backslash, no ``r``
     # prefix, since single quotes already handle the space.
     assert out == {"'foo bar/target' "}, (

@@ -7,15 +7,15 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from xonsh.environ import LsColors
-from xonsh.platform_info import ON_WINDOWS
-from xonsh.pyghooks import (
+from pygwin.environ import LsColors
+from pygwin.platform_info import ON_WINDOWS
+from pygwin.pyghooks import (
     XSH,
     Color,
+    PygwinConsoleLexer,
+    PygwinLexer,
+    PygwinStyle,
     Token,
-    XonshConsoleLexer,
-    XonshLexer,
-    XonshStyle,
     code_by_name,
     color_file,
     color_name_to_pygments_code,
@@ -27,7 +27,7 @@ from xonsh.pyghooks import (
 
 @pytest.fixture
 def xs_LS_COLORS(xession, os_env, monkeypatch):
-    """Xonsh environment including LS_COLORS"""
+    """Pygwin environment including LS_COLORS"""
 
     # original env is needed on windows. since it will skip enhanced coloring
     # for some emulators
@@ -40,7 +40,7 @@ def xs_LS_COLORS(xession, os_env, monkeypatch):
     xession.env["INTENSIFY_COLORS_ON_WIN"] = False
 
     xession.shell.shell_type = "prompt_toolkit"
-    xession.shell.shell.styler = XonshStyle()  # default style
+    xession.shell.shell.styler = PygwinStyle()  # default style
 
     yield xession
 
@@ -169,9 +169,9 @@ def test_code_by_name(name, exp):
     ],
 )
 def test_color_token_by_name(in_tuple, exp_ct, exp_ansi_colors, xs_LS_COLORS):
-    from xonsh.pyghooks import XonshStyle, color_token_by_name
+    from pygwin.pyghooks import PygwinStyle, color_token_by_name
 
-    xs = XonshStyle()
+    xs = PygwinStyle()
     styles = xs.styles
     ct = color_token_by_name(in_tuple, styles)
     ansi_colors = styles[ct]  # if keyerror, ct was not cached
@@ -179,11 +179,11 @@ def test_color_token_by_name(in_tuple, exp_ct, exp_ansi_colors, xs_LS_COLORS):
     assert ansi_colors == exp_ansi_colors, "color token mapped to correct color string"
 
 
-def test_XonshStyle_init_file_color_tokens(xs_LS_COLORS, monkeypatch):
+def test_PygwinStyle_init_file_color_tokens(xs_LS_COLORS, monkeypatch):
     keys = list(file_color_tokens)
     for n in keys:
         monkeypatch.delitem(file_color_tokens, n)
-    xs = XonshStyle()
+    xs = PygwinStyle()
     assert xs.styles
     assert isinstance(file_color_tokens, dict)
     assert set(file_color_tokens.keys()) == set(xs_LS_COLORS.env["LS_COLORS"].keys())
@@ -361,14 +361,14 @@ def test_colorize_file_symlink(key, file_path, colorizable_files, xs_LS_COLORS):
     assert color_key == tar_color_key, "File classified as expected kind, via symlink"
 
 
-import xonsh.lib.lazyimps
+import pygwin.lib.lazyimps
 
 
 def test_colorize_file_ca(xs_LS_COLORS, monkeypatch):
     def mock_os_listxattr(*args, **kwards):
         return ["security.capability"]
 
-    monkeypatch.setattr(xonsh.pyghooks, "os_listxattr", mock_os_listxattr)
+    monkeypatch.setattr(pygwin.pyghooks, "os_listxattr", mock_os_listxattr)
 
     with TemporaryDirectory() as tmpdir:
         file_path = tmpdir + "/cap_file"
@@ -425,20 +425,20 @@ def test_register_custom_pygments_style(name, styles, refrules):
         assert style.styles[rule] == color
 
 
-def test_register_custom_style_inherits_xonsh_base():
-    """Custom style based on 'default' should inherit XONSH_BASE_STYLE ANSI names,
+def test_register_custom_style_inherits_pygwin_base():
+    """Custom style based on 'default' should inherit PYGWIN_BASE_STYLE ANSI names,
     not pygments' hex codes.
 
     Regression test for https://github.com/xonsh/xonsh/issues/5162
     """
     from pygments.token import Name
 
-    from xonsh.pyghooks import XONSH_BASE_STYLE
+    from pygwin.pyghooks import PYGWIN_BASE_STYLE
 
     register_custom_pygments_style("test_inherit", {}, base="default")
     style = get_style_by_name("test_inherit")
 
-    assert style.styles[Name.Variable] == XONSH_BASE_STYLE[Name.Variable]
+    assert style.styles[Name.Variable] == PYGWIN_BASE_STYLE[Name.Variable]
 
 
 def test_pygments_style_no_bg_in_palette():
@@ -446,7 +446,7 @@ def test_pygments_style_no_bg_in_palette():
 
     Regression test for https://github.com/xonsh/xonsh/issues/5001
     """
-    from xonsh.pyghooks import STYLES, pygments_style_by_name
+    from pygwin.pyghooks import STYLES, pygments_style_by_name
 
     # Clear cached style so it's regenerated with the fix
     STYLES.pop("gruvbox-dark", None)
@@ -471,9 +471,9 @@ def test_pygments_style_no_bg_in_palette():
 )
 def test_import_module_validation(code, expect_error):
     """Non-existent modules in import statements should be highlighted as Error."""
-    from xonsh.pyghooks import XonshLexer
+    from pygwin.pyghooks import PygwinLexer
 
-    lexer = XonshLexer()
+    lexer = PygwinLexer()
     tokens = list(lexer.get_tokens(code))
     has_error = any(t == Token.Error for t, _ in tokens)
     assert has_error == expect_error, f"{code!r}: tokens={tokens}"
@@ -490,34 +490,34 @@ def test_import_module_validation(code, expect_error):
 )
 def test_at_bracket_name_validation(name, expect_error, xession):
     """Undefined names inside @() should be highlighted as Error."""
-    from xonsh.pyghooks import XonshLexer
+    from pygwin.pyghooks import PygwinLexer
 
     xession.ctx["myvar"] = 42
-    lexer = XonshLexer()
+    lexer = PygwinLexer()
     tokens = list(lexer.get_tokens(f"echo @({name})"))
     has_error = any(t == Token.Error for t, _ in tokens)
     assert has_error == expect_error, f"@({name}): tokens={tokens}"
 
 
-def test_can_use_xonsh_lexer_without_xession(xession, monkeypatch):
-    # When Xonsh is used as a library and simply for its lexer plugin, the
+def test_can_use_pygwin_lexer_without_xession(xession, monkeypatch):
+    # When Pygwin is used as a library and simply for its lexer plugin, the
     # xession's env can be unset, so test that it can yield tokens without
     # that env being set.
     monkeypatch.setattr(xession, "env", None)
 
     assert XSH.env is None
-    lexer = XonshLexer()
+    lexer = PygwinLexer()
     assert XSH.env is not None
     list(lexer.get_tokens_unprocessed("  some text"))
 
 
 def _prompt_tokens(xsh_console_text):
     """Return the list of ``(token_type, value)`` tuples that
-    ``XonshConsoleLexer`` produces for a given multi-line console text."""
-    return list(XonshConsoleLexer().get_tokens(xsh_console_text))
+    ``PygwinConsoleLexer`` produces for a given multi-line console text."""
+    return list(PygwinConsoleLexer().get_tokens(xsh_console_text))
 
 
-def test_xonshcon_first_prompt_includes_trailing_space(xession):
+def test_pygwincon_first_prompt_includes_trailing_space(xession):
     """The first-line ``@ `` prompt must be tokenised as a single
     ``Generic.Prompt`` token that includes the trailing space, so that
     stripping prompts from copy-paste leaves the command with no orphan
@@ -527,7 +527,7 @@ def test_xonshcon_first_prompt_includes_trailing_space(xession):
     assert prompt == "@ "
 
 
-def test_xonshcon_continuation_prompt_symmetric_with_first(xession):
+def test_pygwincon_continuation_prompt_symmetric_with_first(xession):
     """Regression: a second ``@ ``-prefixed line used to be tokenised as
     ``(\\n@, Generic.Prompt)`` + ``( , Text)``, i.e. the leading newline
     was eaten by the prompt token while the trailing space was *not*.
@@ -545,7 +545,7 @@ def test_xonshcon_continuation_prompt_symmetric_with_first(xession):
     assert any(t is Token.Text and v == "\n" for t, v in tokens)
 
 
-def test_xonshcon_python_continuation_prompt_symmetric(xession):
+def test_pygwincon_python_continuation_prompt_symmetric(xession):
     """Same regression for Python interactive prompts (``>>>`` / ``...``)."""
     tokens = _prompt_tokens(">>> x = 1\n>>> print(x)\n")
     prompts = [v for t, v in tokens if t is Token.Generic.Prompt]
@@ -553,7 +553,7 @@ def test_xonshcon_python_continuation_prompt_symmetric(xession):
     assert any(t is Token.Text and v == "\n" for t, v in tokens)
 
 
-def test_xonshcon_copy_paste_strips_prompts_cleanly(xession):
+def test_pygwincon_copy_paste_strips_prompts_cleanly(xession):
     """End-to-end: stripping every ``Generic.Prompt`` token from the
     tokenised stream must yield the raw command text with correct line
     breaks and no orphan leading spaces."""
@@ -576,7 +576,7 @@ def _copy_simulated(text):
     )
 
 
-def test_xonshcon_output_hash_comment_is_output(xession):
+def test_pygwincon_output_hash_comment_is_output(xession):
     """A line starting with ``#`` at column 0 is tokenised as
     ``Generic.Output`` (rendered in grey and excluded from copy).
 
@@ -592,14 +592,14 @@ def test_xonshcon_output_hash_comment_is_output(xession):
     assert _copy_simulated("@ echo 1\n# 1 output line\n") == "echo 1\n"
 
 
-def test_xonshcon_indented_hash_not_output(xession):
+def test_pygwincon_indented_hash_not_output(xession):
     """A ``#`` comment *inside* a continuation body (preceded by the
     2-space prompt-width compensation) must be treated as a regular
     Python comment, NOT as a documented output line."""
     text = "@ def f():\n      # python comment\n      return 1\n"
     tokens = _prompt_tokens(text)
     # The "# python comment" should NOT be tokenised as Generic.Output —
-    # its leading 2 spaces get stripped and the rest flows into xonsh
+    # its leading 2 spaces get stripped and the rest flows into pygwin
     # highlighting as a Comment.
     outputs = [v for t, v in tokens if "Output" in str(t)]
     assert not any("python comment" in v for v in outputs)
@@ -609,7 +609,7 @@ def test_xonshcon_indented_hash_not_output(xession):
     assert "    return 1" in copied
 
 
-def test_xonshcon_two_space_continuation_becomes_prompt(xession):
+def test_pygwincon_two_space_continuation_becomes_prompt(xession):
     """Continuation body lines start with 2 spaces of prompt-width
     compensation. Those 2 spaces must be tokenised as ``Generic.Prompt``
     so they're stripped from copy-paste, leaving the body with its real
@@ -631,7 +631,7 @@ def test_xonshcon_two_space_continuation_becomes_prompt(xession):
     assert "  qwe()" not in copied
 
 
-def test_xonshcon_blank_line_preserved_in_copy(xession):
+def test_pygwincon_blank_line_preserved_in_copy(xession):
     """Blank lines between command blocks must survive clipboard-strip
     (the separator is important for readable Python)."""
     text = "@ def f():\n      return 1\n\n@ def g():\n      return 2\n"
@@ -640,8 +640,8 @@ def test_xonshcon_blank_line_preserved_in_copy(xession):
     assert copied == "def f():\n    return 1\n\ndef g():\n    return 2\n"
 
 
-def test_xonshcon_full_users_example(xession):
-    """End-to-end check of the canonical xonshcon convention the user
+def test_pygwincon_full_users_example(xession):
+    """End-to-end check of the canonical pygwincon convention the user
     wants: ``# ``-prefixed output lines, continuation lines with 2-space
     prompt-width compensation. Clipboard yields runnable Python."""
     text = (

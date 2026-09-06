@@ -42,9 +42,9 @@ Talks
 Articles
 =========
 
-* `First Impressions of Xonsh <https://www.fusionbox.com/blog/detail/thoughts-on-pycon-2016/606/>`_,
+* `First Impressions of Pygwin <https://www.fusionbox.com/blog/detail/thoughts-on-pycon-2016/606/>`_,
   FusionBox, June 20, 2016.
-* `InfoWorld on xonsh <http://www.infoworld.com/article/3078017/application-development/new-shell-packs-power-of-python-and-bash.html>`_,
+* `InfoWorld on pygwin <http://www.infoworld.com/article/3078017/application-development/new-shell-packs-power-of-python-and-bash.html>`_,
   Paul Krill, June 2nd, 2016.
-* `Slashdot on xonsh <https://developers.slashdot.org/story/16/06/04/0039245/pythonunix-hybrid-demoed-at-pycon>`_,
+* `Slashdot on pygwin <https://developers.slashdot.org/story/16/06/04/0039245/pythonunix-hybrid-demoed-at-pycon>`_,
   June 2016.

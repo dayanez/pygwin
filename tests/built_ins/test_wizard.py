@@ -1,10 +1,10 @@
-"""Tests the xonsh lexer."""
+"""Tests the pygwin lexer."""
 
 import os
 
 import pytest  # noqa F401
 
-from xonsh.wizard import (
+from pygwin.wizard import (
     FileInserter,
     Message,
     Pass,
@@ -66,7 +66,7 @@ def dump_xonfig_env_mock(path, value):
 def test_tuple_store_and_write():
     # setup
     sv = StateVisitor()
-    sv.store("/env/XONSH_HISTORY_SIZE", (1073741824, "b"))
+    sv.store("/env/PYGWIN_HISTORY_SIZE", (1073741824, "b"))
     dump_rules = {
         "/": None,
         "/env/": None,
@@ -74,8 +74,8 @@ def test_tuple_store_and_write():
         "/env/*/[0-9]*": None,
     }
     fi = FileInserter(
-        prefix="# XONSH WIZARD START",
-        suffix="# XONSH WIZARD END",
+        prefix="# PYGWIN WIZARD START",
+        suffix="# PYGWIN WIZARD END",
         dump_rules=dump_rules,
         default_file=None,
         check=False,
@@ -83,9 +83,9 @@ def test_tuple_store_and_write():
     )
     # run test
     exp = (
-        "# XONSH WIZARD START\n"
-        "$XONSH_HISTORY_SIZE = (1073741824, 'b')\n"
-        "# XONSH WIZARD END\n"
+        "# PYGWIN WIZARD START\n"
+        "$PYGWIN_HISTORY_SIZE = (1073741824, 'b')\n"
+        "# PYGWIN WIZARD END\n"
     )
     obs = fi.dumps(sv.flatten())
     assert exp == obs

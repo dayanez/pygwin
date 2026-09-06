@@ -17,7 +17,7 @@ import pytest
     ],
 )
 def test_xonfig(args, prefix, exp, xsh_with_aliases, monkeypatch, check_completer):
-    from xonsh import xonfig
+    from pygwin import xonfig
 
     monkeypatch.setattr(xonfig, "color_style_names", lambda: ["blue", "brown", "other"])
     assert check_completer(args, prefix=prefix) == exp
@@ -52,15 +52,15 @@ def test_xontrib(args, prefix, exp, exp_part, xsh_with_aliases, check_completer)
 
 
 def test_module_matcher(tmp_path, xession):
-    from xonsh.completers import commands
+    from pygwin.completers import commands
 
     for idx, ext in enumerate(commands.ModuleFinder.extensions):
-        (tmp_path / f"a{idx}{ext}").write_text("def xonsh_complete(): pass")
+        (tmp_path / f"a{idx}{ext}").write_text("def pygwin_complete(): pass")
 
     matcher = commands.ModuleFinder("xompletions", str(tmp_path))
-    assert matcher.get_module("pip").xonsh_complete
-    assert matcher.get_module("a0").xonsh_complete
+    assert matcher.get_module("pip").pygwin_complete
+    assert matcher.get_module("a0").pygwin_complete
     # todo: fix *.xsh import
     #  the import-hook returns None for some reason
-    #  -- xonsh/imphooks.py:247
-    # assert matcher.get_module("a1").xonsh_complete
+    #  -- pygwin/imphooks.py:247
+    # assert matcher.get_module("a1").pygwin_complete

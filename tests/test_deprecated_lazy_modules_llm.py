@@ -1,8 +1,8 @@
-"""Smoke tests for the deprecated ``xonsh.lazyimps`` / ``xonsh.lazyjson`` shims.
+"""Smoke tests for the deprecated ``pygwin.lazyimps`` / ``pygwin.lazyjson`` shims.
 
 Both modules emit a DeprecationWarning on import and re-export the names from
-``xonsh.lib.lazyimps`` / ``xonsh.lib.lazyjson``. The shims exist purely so old
-``from xonsh.lazyimps import …`` user code keeps working.
+``pygwin.lib.lazyimps`` / ``pygwin.lib.lazyjson``. The shims exist purely so old
+``from pygwin.lazyimps import …`` user code keeps working.
 """
 
 import importlib
@@ -20,10 +20,10 @@ def _reimport(name):
 
 
 def test_lazyimps_shim_warns_and_reexports():
-    mod, caught = _reimport("xonsh.lazyimps")
+    mod, caught = _reimport("pygwin.lazyimps")
     assert any(issubclass(w.category, DeprecationWarning) for w in caught)
-    # everything that lives in xonsh.lib.lazyimps is now reachable via the shim
-    from xonsh.lib import lazyimps as canonical
+    # everything that lives in pygwin.lib.lazyimps is now reachable via the shim
+    from pygwin.lib import lazyimps as canonical
 
     for name in ("pygments", "pyghooks", "pty", "termios"):
         if hasattr(canonical, name):
@@ -31,9 +31,9 @@ def test_lazyimps_shim_warns_and_reexports():
 
 
 def test_lazyjson_shim_warns_and_reexports():
-    mod, caught = _reimport("xonsh.lazyjson")
+    mod, caught = _reimport("pygwin.lazyjson")
     assert any(issubclass(w.category, DeprecationWarning) for w in caught)
-    from xonsh.lib import lazyjson as canonical
+    from pygwin.lib import lazyjson as canonical
 
     # the public API symbols all show up on the shim
     for name in ("LazyJSON", "LJNode", "ljdump", "ljload"):
@@ -43,12 +43,12 @@ def test_lazyjson_shim_warns_and_reexports():
 
 def test_lazyimps_shim_docstring_marks_deprecation():
     """The shim's module docstring tells users which canonical path to import."""
-    mod, _ = _reimport("xonsh.lazyimps")
+    mod, _ = _reimport("pygwin.lazyimps")
     assert mod.__doc__ is not None
     assert "DEPRECATED" in mod.__doc__.upper()
 
 
 def test_lazyjson_shim_docstring_marks_deprecation():
-    mod, _ = _reimport("xonsh.lazyjson")
+    mod, _ = _reimport("pygwin.lazyjson")
     assert mod.__doc__ is not None
     assert "DEPRECATED" in mod.__doc__.upper()

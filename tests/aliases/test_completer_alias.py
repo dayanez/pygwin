@@ -1,7 +1,7 @@
 import pytest
 
-from xonsh.completers._aliases import add_one_completer
-from xonsh.completers.tools import non_exclusive_completer
+from pygwin.completers._aliases import add_one_completer
+from pygwin.completers.tools import non_exclusive_completer
 
 SIMPLE = lambda: None
 NON_EXCLUSIVE = non_exclusive_completer(lambda: None)

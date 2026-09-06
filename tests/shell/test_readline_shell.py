@@ -2,9 +2,9 @@ import sys
 
 import pytest
 
-from xonsh.completers.tools import RichCompletion
-from xonsh.pytest.tools import skip_if_on_windows
-from xonsh.shells.readline_shell import (
+from pygwin.completers.tools import RichCompletion
+from pygwin.pytest.tools import skip_if_on_windows
+from pygwin.shells.readline_shell import (
     _ensure_newline,
     _parse_dsr_cursor_column,
     _render_completions,
@@ -204,10 +204,10 @@ def test_rl_prompt_cmdloop(line, exp, readline_shell, capsys):
     shell.stdin.write(f"{line}\nexit\n")  # note: terminate with '\n'
     shell.stdin.seek(0)
     # ``exit`` now propagates SystemExit out of the loop (issue #6426); in
-    # production ``main_xonsh`` catches it.
+    # production ``main_pygwin`` catches it.
     with pytest.raises(SystemExit):
         shell.cmdloop()
-    # xonsh, doesn't write all its output to shell.stdout
+    # pygwin, doesn't write all its output to shell.stdout
     # so capture sys.stdout
     out, err = capsys.readouterr()
 

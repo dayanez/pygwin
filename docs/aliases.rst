@@ -3,7 +3,7 @@
 ********************
 Built-in Aliases
 ********************
-This page describes the xonsh built-in commands and aliases.
+This page describes the pygwin built-in commands and aliases.
 
 Well-known commands
 ====================
@@ -34,36 +34,36 @@ Runs timing study on arguments. Similar to IPython's ``%timeit`` magic.
 ``exit``, ``quit``, ``EOF``
 ----------------------------------
 The commands ``exit``, ``EOF`` and ``quit`` all alias the same action, which is to
-leave xonsh in a safe manner. Typing ``Ctrl-d`` is the same as typing ``EOF`` and
+leave pygwin in a safe manner. Typing ``Ctrl-d`` is the same as typing ``EOF`` and
 pressing enter.
 
 ``exit N`` sets the shell's exit code to ``N`` and stops the rest of the
 current script:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
-    @ xonsh -c 'echo 1; exit 42; echo 3'
+    @ pygwin -c 'echo 1; exit 42; echo 3'
     1
     @ @.lastcmd.rtn
     42
 
 
-Xonsh-specific Aliases
+Pygwin-specific Aliases
 =======================
 
 ``history``
 --------------------
-Tools for dealing with xonsh history. See `the history tutorial <history.html>`_
+Tools for dealing with pygwin history. See `the history tutorial <history.html>`_
 for more information all the history command and all of its sub-commands.
 
-.. command-help:: xonsh.history.main.history_main
+.. command-help:: pygwin.history.main.history_main
 
 
 ``showcmd``
 --------------------
 Displays how commands and arguments are evaluated. Use ``-e`` to expand aliases.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ showcmd echo The @('args') @(['list', 'is']) $(echo here) "and" --say="hello" to @([]) you
     ['echo', 'The', 'args', 'list', 'is', 'here', 'and', '--say="hello"', 'to', 'you']
@@ -75,13 +75,13 @@ Displays how commands and arguments are evaluated. Use ``-e`` to expand aliases.
 
 ``xonfig``
 --------------------
-Manages xonsh configuration information.
+Manages pygwin configuration information.
 
-.. command-help:: xonsh.xonfig.xonfig_main
+.. command-help:: pygwin.xonfig.xonfig_main
 
 ``xontrib``
 --------------------
-Manages xonsh extensions. More information is available at :doc:`xontrib`
+Manages pygwin extensions. More information is available at :doc:`xontrib`
 
 
 .. _aliases-xcontext:
@@ -89,22 +89,22 @@ Manages xonsh extensions. More information is available at :doc:`xontrib`
 ``xcontext``
 --------------------
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ xcontext
-    [Current xonsh session]
-    xxonsh: /home/snail/.local/xonsh-env/bin/xonsh
-    xpython: /home/snail/.local/xonsh-env/bin/python # Python 3.12.10
-    xpip: /home/snail/.local/xonsh-env/bin/python -m pip
+    [Current pygwin session]
+    xpygwin: /home/snail/.local/pygwin-env/bin/pygwin
+    xpython: /home/snail/.local/pygwin-env/bin/python # Python 3.12.10
+    xpip: /home/snail/.local/pygwin-env/bin/python -m pip
 
     [Current commands environment]
-    xonsh: /home/snail/.local/xonsh-env/bin/xonsh
+    pygwin: /home/snail/.local/pygwin-env/bin/pygwin
     python: /usr/bin/python # Python 3.11.6
     pip: /usr/bin/pip
 
     CONDA_DEFAULT_ENV: my-env
 
-Report information about the current xonsh environment, including paths to the Python interpreter, pip, xonsh itself, and relevant environment variables.
+Report information about the current pygwin environment, including paths to the Python interpreter, pip, pygwin itself, and relevant environment variables.
 
 By default, symlinks in the displayed paths are resolved to their real targets; pass ``--no-resolve`` (``-n``) to show the raw paths instead.
 
@@ -113,27 +113,27 @@ By default, symlinks in the displayed paths are resolved to their real targets; 
 
 ``xpip``
 --------------------
-Runs the ``pip`` package manager for xonsh itself. Useful for installations where xonsh is in an
+Runs the ``pip`` package manager for pygwin itself. Useful for installations where pygwin is in an
 isolated environment (e.g. conda, mamba, homebrew).
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ which pip
     /usr/bin/pip  # system pip
     @ which xpip
-    /home/snail/.local/xonsh-env/bin/python -m pip  # current xonsh session pip
+    /home/snail/.local/pygwin-env/bin/python -m pip  # current pygwin session pip
     @ xpip install fire
     @ import fire
     @ fire
-    <module 'fire' from '/home/snail/.local/xonsh-env/lib/python3.11/site-packages/fire/__init__.py'>
+    <module 'fire' from '/home/snail/.local/pygwin-env/lib/python3.11/site-packages/fire/__init__.py'>
 
 
 ``xpython``
 --------------------
 
-Alias to the Python interpreter that is currently running xonsh (``sys.executable``). This is useful for running Python modules or scripts in the same environment as the shell itself, especially in complex setups like AppImage.
+Alias to the Python interpreter that is currently running pygwin (``sys.executable``). This is useful for running Python modules or scripts in the same environment as the shell itself, especially in complex setups like AppImage.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ python -V
     Python 3.12.10
@@ -142,26 +142,26 @@ Alias to the Python interpreter that is currently running xonsh (``sys.executabl
     @ which python
     /opt/homebrew/bin/python
     @ which xpython
-    /home/snail/.local/xonsh-env/bin/python
+    /home/snail/.local/pygwin-env/bin/python
 
 
-.. _aliases-xxonsh:
+.. _aliases-xpygwin:
 
-``xxonsh``
+``xpygwin``
 --------------------
 
-Launches exactly the same ``xonsh`` that was used to start the current session.
+Launches exactly the same ``pygwin`` that was used to start the current session.
 
-See :ref:`launch-xxonsh` for a worked example of using it as a building block to
-launch ``tmux`` with this exact xonsh (the ``xtmux`` recipe).
+See :ref:`launch-xpygwin` for a worked example of using it as a building block to
+launch ``tmux`` with this exact pygwin (the ``xtmux`` recipe).
 
-Mnemonic: think of the initial ‘x’ as ‘c’—xxonsh stands for (c)urrent xonsh.
+Mnemonic: think of the initial ‘x’ as ‘c’—xpygwin stands for (c)urrent pygwin.
 
 ``xreset``
 --------------------
-Clean the xonsh context. All user variables will be deleted.
+Clean the pygwin context. All user variables will be deleted.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
     @ a=1
     @ a
     1
@@ -174,13 +174,13 @@ Clean the xonsh context. All user variables will be deleted.
 --------------------
 Provides an interface to printing lines of source code prior to their execution.
 
-.. command-help:: xonsh.tracer.tracermain
+.. command-help:: pygwin.tracer.tracermain
 
 
 ``exec`` and  ``xexec``
 -------------------------
 
-.. command-help:: xonsh.aliases.xexec
+.. command-help:: pygwin.aliases.xexec
 
 
 .. _command-decorators:
@@ -191,13 +191,13 @@ Command Decorators
 ``@error_raise`` and ``@error_ignore``
 ----------------------------------------
 Use ``@error_raise`` to raise an exception if the command returns a non-zero exit code —
-similar to ``$XONSH_SUBPROC_CMD_RAISE_ERROR`` but scoped to a single command, and it
+similar to ``$PYGWIN_SUBPROC_CMD_RAISE_ERROR`` but scoped to a single command, and it
 raises unconditionally (even inside ``&&``/``||`` chains and even when
-``$XONSH_SUBPROC_RAISE_ERROR`` is disabled).  Use ``@error_ignore`` to explicitly suppress
+``$PYGWIN_SUBPROC_RAISE_ERROR`` is disabled).  Use ``@error_ignore`` to explicitly suppress
 the raise — it also wins over the chain-result check performed by
-``$XONSH_SUBPROC_RAISE_ERROR``.
+``$PYGWIN_SUBPROC_RAISE_ERROR``.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ r = !(@error_raise ls nonono)
     subprocess.CalledProcessError: Command '['@error_raise', 'ls', 'nonono']' returned non-zero exit status 1.
@@ -208,7 +208,7 @@ the raise — it also wins over the chain-result check performed by
 -----------------------------
 Use ``@thread`` and ``@unthread`` to run command as threadable or unthreadable e.g to have a result of SSH command:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ !(@thread ssh host -T "echo 1")
 
@@ -217,7 +217,7 @@ Use ``@thread`` and ``@unthread`` to run command as threadable or unthreadable e
 -----------------------------
 Use ``@path`` and ``@paths`` to get Path object(s) from the command output.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ dir = $(@path echo '/bin')
       dir.exists()
@@ -229,16 +229,16 @@ Use ``@path`` and ``@paths`` to get Path object(s) from the command output.
 -----------
 Return output as list of lines.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ lines = $(@lines cat file)
 
 
 ``@stream``
 -----------
-Return output as stream of lines. This is useful when ``$XONSH_SUBPROC_OUTPUT_FORMAT`` is set to ``list_lines``.
+Return output as stream of lines. This is useful when ``$PYGWIN_SUBPROC_OUTPUT_FORMAT`` is set to ``list_lines``.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ str = $(@stream cat file)
 
@@ -247,7 +247,7 @@ Return output as stream of lines. This is useful when ``$XONSH_SUBPROC_OUTPUT_FO
 ----------
 Parses JSON and returns a JSON object.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ data = $(@json curl https://example.com/data.json)
 
@@ -256,7 +256,7 @@ Parses JSON and returns a JSON object.
 -----------
 Parses JSON lines and returns a list of JSON objects.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ items = $(@jsonl cat data.jsonl)
 
@@ -265,7 +265,7 @@ Parses JSON lines and returns a list of JSON objects.
 ----------
 Parses YAML and returns a dict.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ config = $(@yaml cat config.yaml)
 
@@ -274,7 +274,7 @@ Parses YAML and returns a dict.
 ----------
 Parses TOML and returns a dict.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ config = $(@toml cat pyproject.toml)
 
@@ -284,7 +284,7 @@ Parses TOML and returns a dict.
 Parses XML and returns an :class:`xml.etree.ElementTree.Element`. Navigate it
 with ``.tag``, ``.attrib``, ``.text``, ``.find()``, ``.findall()``, etc.
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ feed = $(@xml curl -s https://github.com/xonsh/xonsh/releases.atom)
       ns = {'a': 'http://www.w3.org/2005/Atom'}
@@ -299,7 +299,7 @@ Adds full XPath, richer error messages, and faster parsing on top of the
 stdlib ``@xml``. Registered only when ``lxml`` is installed
 (``xpip install lxml``).
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ feed = $(@lxml curl -s https://github.com/xonsh/xonsh/releases.atom)
       ns = {'a': 'http://www.w3.org/2005/Atom'}
@@ -316,14 +316,14 @@ Directory Stack
 Adds a directory to the top of the directory stack, or rotates the stack,
 making the new top of the stack the current working directory.
 
-.. command-help:: xonsh.dirstack.pushd
+.. command-help:: pygwin.dirstack.pushd
 
 
 ``popd``
 --------------------
 Removes entries from the directory stack.
 
-.. command-help:: xonsh.dirstack.popd
+.. command-help:: pygwin.dirstack.popd
 
 
 ``dirs``
@@ -331,7 +331,7 @@ Removes entries from the directory stack.
 Displays the list of currently remembered directories.  Can also be used to clear the
 directory stack.
 
-.. command-help:: xonsh.dirstack.dirs
+.. command-help:: pygwin.dirstack.dirs
 
 
 Jobs
@@ -378,13 +378,13 @@ Source Aliases
 ``source``
 --------------------
 Executes the contents of the provided files in the current context. This, of course,
-only works on xonsh and Python files (``*.xsh``, ``*.py``). Use ``-e`` to ignore
+only works on pygwin and Python files (``*.xsh``, ``*.py``). Use ``-e`` to ignore
 extension.
 
 
 ``source-foreign``
 --------------------
-Like the ``source`` command but for files in foreign (non-xonsh) languages.
+Like the ``source`` command but for files in foreign (non-pygwin) languages.
 It will pick up the environment and any aliases.
 
 Supported shells: ``bash``, ``zsh``, ``sh`` (also ``dash``, ``ash``,
@@ -396,7 +396,7 @@ The convenience wrappers below pre-set the ``shell`` and ``--sourcer``
 arguments for the most common cases — every flag accepted by
 ``source-foreign`` is available on them as well.
 
-.. command-help:: xonsh.aliases.source_foreign
+.. command-help:: pygwin.aliases.source_foreign
 
 
 ``source-sh``
@@ -458,7 +458,7 @@ in cmd.exe.
 
 ``sudo`` on Windows
 ---------------------
-On Windows, if no executables named ``sudo`` are found, Xonsh adds a ``sudo`` alias
+On Windows, if no executables named ``sudo`` are found, Pygwin adds a ``sudo`` alias
 that poly fills the "run as Admin" behavior with the help of ``ShellExecuteEx`` and
 ``ctypes``. It doesn't support any actual ``sudo`` parameters and just takes the
 command to run.
@@ -472,7 +472,7 @@ dropdown next to the alias name, and in the ``cmd?`` / ``cmd??`` help output.
 
 For callable aliases, the function's docstring is used automatically:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ @aliases.register('qwe')
       def _qwe():
@@ -485,7 +485,7 @@ For callable aliases, the function's docstring is used automatically:
 For string and list aliases — which have nowhere to attach a docstring —
 use the dict form:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ aliases['qwe'] = {'alias': 'ls -la', 'doc': 'List files'}
     @ aliases |= {
@@ -501,7 +501,7 @@ When ``'doc'`` is set on a callable alias, it overrides the function's own
 ``__doc__`` — handy for showing a shorter summary in completions while
 keeping a longer docstring in the source:
 
-.. code-block:: xonshcon
+.. code-block:: pygwincon
 
     @ def _bar():
           """Long, detailed description of bar..."""
@@ -524,4 +524,4 @@ See also
 
 * :doc:`callable_aliases` -- writing callable aliases in depth
 * :doc:`subprocess` -- subprocess operators and capturing modes
-* :doc:`xonsh RC <xonshrc>` -- defining aliases in RC files
+* :doc:`pygwin RC <pygwinrc>` -- defining aliases in RC files

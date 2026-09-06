@@ -1,4 +1,4 @@
-"""Path-vs-operator completion in ``xonsh/completers/python.py``.
+"""Path-vs-operator completion in ``pygwin/completers/python.py``.
 
 For an unknown command, the Python completer splits ``--home=/`` on ``=`` and
 used to offer operator tokens (``/`` ``//`` ``/=`` ``//=``) for the trailing
@@ -11,13 +11,13 @@ import os
 
 import pytest
 
-from xonsh.completers.python import complete_python
-from xonsh.pytest.tools import skip_if_on_windows
+from pygwin.completers.python import complete_python
+from pygwin.pytest.tools import skip_if_on_windows
 
 
 @pytest.fixture(autouse=True)
-def xonsh_execer_autouse(xession, xonsh_execer):
-    return xonsh_execer
+def pygwin_execer_autouse(xession, pygwin_execer):
+    return pygwin_execer
 
 
 def _values(result):

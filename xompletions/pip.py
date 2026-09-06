@@ -1,10 +1,10 @@
 """Completers for pip."""
 
-from xonsh.completers.tools import comp_based_completer
-from xonsh.parsers.completion_context import CommandContext
+from pygwin.completers.tools import comp_based_completer
+from pygwin.parsers.completion_context import CommandContext
 
 
-def xonsh_complete(ctx: CommandContext):
+def pygwin_complete(ctx: CommandContext):
     """Completes python's package manager pip."""
 
     return comp_based_completer(ctx, PIP_AUTO_COMPLETE="1")
