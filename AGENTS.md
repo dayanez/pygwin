@@ -54,8 +54,17 @@ on it for this fork.
 ## Tests
 
 ```
-pytest
+python -m pytest --import-mode=importlib
 ```
+
+Both flags matter. Plain `pytest` (not invoked via `python -m`) fails to find the
+`xonsh.pytest.plugin` entry point in an editable install; `--import-mode=importlib` is
+needed because several files under `tests/parsers/` and `tests/xintegration/` do
+absolute `from tests.parsers.x import *`-style imports, and `tests/` has no
+`__init__.py` files, so pytest's default import mode cannot resolve them and silently
+fails to collect those files rather than erroring loudly. `--import-mode=importlib`
+collects everything correctly; without it you will see roughly two thirds of the
+suite pass, and the errors will look like a collection failure, not a test failure.
 
 Picks up `tests/` per `setup.cfg`'s `testpaths`. CI-gated: `.github/workflows/ci.yml`
 runs it on every push and pull request to `main`. That is the only workflow this fork

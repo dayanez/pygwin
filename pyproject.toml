@@ -99,7 +99,7 @@ mac = ["gnureadline"]
 linux = ["distro"]
 proctitle = ["setproctitle"]
 full = [
-    "xonsh[ptk,pygments]",
+    "pygwin[ptk,pygments]",
     "distro; platform_system=='Linux'",
     "setproctitle; platform_system=='Windows'",
     "gnureadline; platform_system=='Darwin'",
@@ -111,7 +111,7 @@ bestshell = [
     "pygments>=2.2",
 ]
 test = [
-    "xonsh[bestshell]",
+    "pygwin[bestshell]",
     "pytest>=7",
     "restructuredtext_lint",
     "pytest-cov",
@@ -127,13 +127,13 @@ test = [
     "requests",
 ]
 dev = [
-    "xonsh[test,doc]",
+    "pygwin[test,doc]",
     "pre-commit",
     "re-ver",
     "tomli",
 ]
 doc = [
-    "xonsh[bestshell]",
+    "pygwin[bestshell]",
     "furo",
     "numpydoc",
     "sphinx>=3.1",
@@ -276,5 +276,5 @@ convention = "numpy"
 
 [dependency-groups]
 dev = [
-    "xonsh[dev]",
+    "pygwin[dev]",
 ]

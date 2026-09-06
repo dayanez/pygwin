@@ -34,4 +34,4 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[test]"
-      - run: pytest
+      - run: python -m pytest --import-mode=importlib
