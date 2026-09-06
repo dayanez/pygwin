@@ -3212,7 +3212,7 @@ def unthreadable(f):
     on the main thread process. This is often needed for debuggers and
     profilers.
     """
-    f.__pygwin_threadable__ = False
+    f.__xonsh_threadable__ = False
     return f
 
 
@@ -3220,7 +3220,7 @@ def threadable(f):
     """Decorator that specifies that a callable alias should be run
     in a background thread. This is the default behavior.
     """
-    f.__pygwin_threadable__ = True
+    f.__xonsh_threadable__ = True
     return f
 
 
@@ -3229,7 +3229,7 @@ def uncapturable(f):
     any capturing. This is often needed if the alias call interactive
     subprocess, like pagers and text editors.
     """
-    f.__pygwin_capturable__ = False
+    f.__xonsh_capturable__ = False
     return f
 
 
@@ -3237,7 +3237,7 @@ def capturable(f):
     """Decorator that specifies that a callable alias should be run with
     capturing. This is the default behavior.
     """
-    f.__pygwin_capturable__ = True
+    f.__xonsh_capturable__ = True
     return f
 
 
