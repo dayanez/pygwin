@@ -10,7 +10,7 @@ from unittest import mock
 
 import pytest
 
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.xoreutils import xcontext
 
 # ---------------------------------------------------------------------------

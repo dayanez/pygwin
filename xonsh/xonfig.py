@@ -21,7 +21,7 @@ from xonsh.events import events
 from xonsh.foreign_shells import CANON_SHELL_NAMES
 from xonsh.lib.lazyasd import lazyobject
 from xonsh.parsers import ply
-from xonsh.platform import (
+from xonsh.platform_info import (
     DEFAULT_ENCODING,
     ON_CYGWIN,
     ON_DARWIN,

@@ -10,7 +10,7 @@ import xonsh.history.main as xhm
 from xonsh.built_ins import XSH
 from xonsh.events import events
 from xonsh.history.dummy import DummyHistory
-from xonsh.platform import (
+from xonsh.platform_info import (
     best_shell_type,
     has_prompt_toolkit,
     minimum_required_ptk_version,

@@ -33,7 +33,7 @@ from xonsh.foreign_shells import (
 )
 from xonsh.lib.lazyasd import lazyobject
 from xonsh.parsers.ast import isexpression
-from xonsh.platform import (
+from xonsh.platform_info import (
     IN_APPIMAGE,
     ON_ANACONDA,
     ON_DARWIN,

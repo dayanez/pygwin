@@ -10,7 +10,7 @@ First of all because a :doc:`Xonsh RC <xonshrc>` is plain Xonsh code, you can sh
 file across Linux, macOS, and Windows and gate snippets on platform and
 execution-mode flags.
 
-Platform flags are lazy booleans exposed by :mod:`xonsh.platform`:
+Platform flags are lazy booleans exposed by :mod:`xonsh.platform_info`:
 
 * ``ON_LINUX`` — Linux
 * ``ON_DARWIN`` — macOS
@@ -46,7 +46,7 @@ Typical pattern:
 
 .. code-block:: xonsh
 
-    from xonsh.platform import ON_LINUX, ON_DARWIN, ON_WINDOWS
+    from xonsh.platform_info import ON_LINUX, ON_DARWIN, ON_WINDOWS
 
     if $XONSH_INTERACTIVE:
         # Only in a live terminal — skipped when the RC is run as a script
@@ -329,7 +329,7 @@ Detecting Android in Xonsh RC
 
 .. code-block:: xonsh
 
-    from xonsh.platform import ON_ANDROID, ON_TERMUX
+    from xonsh.platform_info import ON_ANDROID, ON_TERMUX
 
     if ON_ANDROID:
         # Anything that should be tweaked for the Android sandbox in

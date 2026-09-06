@@ -9,7 +9,7 @@ import builtins
 import pytest
 
 import xonsh.main
-from xonsh.platform import HAS_PYGMENTS
+from xonsh.platform_info import HAS_PYGMENTS
 
 
 @pytest.fixture

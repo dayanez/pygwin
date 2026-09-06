@@ -3,7 +3,7 @@ locate the ``bash_completion`` framework script.
 
 The defaults used to live in two places:
 
-* ``xonsh.platform.BASH_COMPLETIONS_DEFAULT`` — the canonical default
+* ``xonsh.platform_info.BASH_COMPLETIONS_DEFAULT`` — the canonical default
   surfaced via the ``$BASH_COMPLETIONS`` env var.
 * ``xonsh.completers.bash_completion._bash_completion_paths_default``
   — a standalone fallback inside the bash-completion bridge.
@@ -22,7 +22,7 @@ import subprocess
 
 import pytest
 
-from xonsh import platform as plat_mod
+from xonsh import platform_info as plat_mod
 from xonsh.completers import bash_completion as bc_mod
 
 

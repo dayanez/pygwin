@@ -13,7 +13,7 @@ import ast
 from xonsh.parsers.fstring_rules_llm import FStringRules
 from xonsh.parsers.ply import yacc
 from xonsh.parsers.v39 import Parser as ThreeNineParser
-from xonsh.platform import PYTHON_VERSION_INFO
+from xonsh.platform_info import PYTHON_VERSION_INFO
 
 _HAS_TYPE_PARAMS = PYTHON_VERSION_INFO >= (3, 12)
 

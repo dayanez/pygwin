@@ -112,7 +112,7 @@ from ast import (  # noqa # pylint: disable=unused-import
 from typing import Optional
 
 from xonsh.built_ins import XSH
-from xonsh.platform import PYTHON_VERSION_INFO
+from xonsh.platform_info import PYTHON_VERSION_INFO
 from xonsh.tools import find_next_break, get_logical_line, subproc_toks
 
 STATEMENTS = (

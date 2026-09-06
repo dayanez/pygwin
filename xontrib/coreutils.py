@@ -16,7 +16,7 @@ tools are cross-platform.
 """
 
 from xonsh.built_ins import XonshSession
-from xonsh.platform import ON_POSIX
+from xonsh.platform_info import ON_POSIX
 from xonsh.xoreutils.cat import cat
 from xonsh.xoreutils.echo import echo
 from xonsh.xoreutils.pwd import pwd

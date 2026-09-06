@@ -2,7 +2,7 @@
 
 import collections
 
-import xonsh.platform as xp
+import xonsh.platform_info as xp
 from xonsh.completers._aliases import complete_aliases
 from xonsh.completers.base import complete_base
 from xonsh.completers.bash import complete_from_bash

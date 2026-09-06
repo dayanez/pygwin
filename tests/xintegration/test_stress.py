@@ -10,7 +10,7 @@ import re
 import pytest
 
 from tests.xintegration.conftest import run_xonsh
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.pytest.tools import skip_if_on_windows
 
 

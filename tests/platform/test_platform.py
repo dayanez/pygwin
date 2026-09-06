@@ -4,7 +4,7 @@ from unittest.mock import mock_open
 
 import pytest
 
-import xonsh.platform as xp
+import xonsh.platform_info as xp
 
 
 def test_githash_value_error(monkeypatch):

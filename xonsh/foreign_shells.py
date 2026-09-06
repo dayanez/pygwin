@@ -13,7 +13,7 @@ import warnings
 
 from xonsh.built_ins import XSH
 from xonsh.lib.lazyasd import lazyobject
-from xonsh.platform import ON_CYGWIN, ON_MSYS, ON_WINDOWS
+from xonsh.platform_info import ON_CYGWIN, ON_MSYS, ON_WINDOWS
 from xonsh.tools import ensure_string, to_bool
 
 COMMAND = """{seterrprevcmd}

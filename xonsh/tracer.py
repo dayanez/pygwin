@@ -14,7 +14,7 @@ from xonsh.cli_utils import Annotated, Arg, ArgParserAlias
 from xonsh.lib.inspectors import find_file
 from xonsh.lib.lazyasd import LazyObject
 from xonsh.lib.lazyimps import pyghooks, pygments
-from xonsh.platform import HAS_PYGMENTS
+from xonsh.platform_info import HAS_PYGMENTS
 from xonsh.tools import DefaultNotGiven, normabspath, print_color, to_bool
 
 terminal = LazyObject(

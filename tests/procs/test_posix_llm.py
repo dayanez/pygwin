@@ -9,7 +9,7 @@ import signal
 
 import pytest
 
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.procs.posix import PopenThread
 
 skip_if_not_on_windows = pytest.mark.skipif(

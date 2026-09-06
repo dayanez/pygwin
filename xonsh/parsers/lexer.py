@@ -40,7 +40,7 @@ from xonsh.parsers.tokenize import (
     TokenError,
     tokenize,
 )
-from xonsh.platform import PYTHON_VERSION_INFO
+from xonsh.platform_info import PYTHON_VERSION_INFO
 
 
 @lazyobject

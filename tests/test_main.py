@@ -16,7 +16,7 @@ import pytest
 
 import xonsh.main
 from xonsh.main import XonshMode
-from xonsh.platform import os_environ
+from xonsh.platform_info import os_environ
 from xonsh.pytest.tools import ON_WINDOWS, TEST_DIR, skip_if_on_windows
 
 

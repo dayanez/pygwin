@@ -19,7 +19,7 @@ from xonsh.commands_cache import (
     predict_shell,
     predict_true,
 )
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.pytest.tools import skip_if_on_windows
 
 PATHEXT_ENV = {"PATHEXT": [".COM", ".EXE", ".BAT"]}

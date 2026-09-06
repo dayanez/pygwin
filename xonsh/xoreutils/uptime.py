@@ -20,7 +20,7 @@ import sys
 import time
 
 import xonsh.lib.lazyimps as xlimps
-import xonsh.platform as xp
+import xonsh.platform_info as xp
 
 
 def _boot_time_osx() -> "float|None":

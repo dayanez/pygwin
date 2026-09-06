@@ -7,7 +7,7 @@ directory or absolute) and is never looked up in ``$PATH`` (gh-6532).
 
 import os
 
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.procs.executables import (
     is_explicit_path,
     locate_executable,

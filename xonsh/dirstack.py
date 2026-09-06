@@ -12,7 +12,7 @@ import typing as tp
 from xonsh.built_ins import XSH
 from xonsh.cli_utils import Annotated, Arg, ArgParserAlias
 from xonsh.events import events
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 
 DIRSTACK: list[str] = []
 """A list containing the currently remembered directories."""

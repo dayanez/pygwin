@@ -5,7 +5,7 @@ import functools
 import os
 
 import xonsh
-import xonsh.platform as xp
+import xonsh.platform_info as xp
 from xonsh.built_ins import XSH
 from xonsh.xoreutils import _which
 

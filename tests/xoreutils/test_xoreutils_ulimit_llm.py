@@ -10,7 +10,7 @@ import sys
 
 import pytest
 
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 
 pytestmark = pytest.mark.skipif(
     ON_WINDOWS, reason="ulimit (and the underlying `resource` module) is POSIX-only"

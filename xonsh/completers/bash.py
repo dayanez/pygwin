@@ -1,6 +1,6 @@
 """Xonsh hooks into bash completions."""
 
-import xonsh.platform as xp
+import xonsh.platform_info as xp
 import xonsh.tools as xt
 from xonsh.built_ins import XSH
 from xonsh.completers.bash_completion import bash_completions

@@ -23,7 +23,7 @@ from xonsh.codecache import (
 from xonsh.events import events
 from xonsh.execer import Execer
 from xonsh.lib.lazyasd import lazyobject
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.tools import print_warning
 
 

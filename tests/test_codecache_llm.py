@@ -20,7 +20,7 @@ from xonsh.codecache import (
     should_use_cache,
     update_cache,
 )
-from xonsh.platform import PYTHON_VERSION_INFO_BYTES
+from xonsh.platform_info import PYTHON_VERSION_INFO_BYTES
 
 
 @pytest.fixture(autouse=True)

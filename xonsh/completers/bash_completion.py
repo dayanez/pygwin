@@ -75,7 +75,7 @@ def _bash_completion_paths_default():
     """A possibly empty tuple with default paths to Bash completions known for
     the current platform.
 
-    Delegates to :data:`xonsh.platform.BASH_COMPLETIONS_DEFAULT` — the
+    Delegates to :data:`xonsh.platform_info.BASH_COMPLETIONS_DEFAULT` — the
     canonical default surfaced via ``$BASH_COMPLETIONS``. We had two
     parallel copies in the past; they drifted and one platform
     (Apple Silicon Macs) silently lost its Homebrew paths. The import
@@ -83,7 +83,7 @@ def _bash_completion_paths_default():
     import" rule — the path list is only computed when something
     actually asks for the fallback.
     """
-    from xonsh.platform import BASH_COMPLETIONS_DEFAULT
+    from xonsh.platform_info import BASH_COMPLETIONS_DEFAULT
 
     return tuple(BASH_COMPLETIONS_DEFAULT)
 

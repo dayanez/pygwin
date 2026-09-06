@@ -1,7 +1,7 @@
 import os
 
 from xonsh.environ import Env
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.procs import executables as executables_mod
 from xonsh.procs.executables import (
     _cached_dir_contains,

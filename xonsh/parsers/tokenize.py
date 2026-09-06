@@ -81,7 +81,7 @@ from token import (
 )
 
 from xonsh.lib.lazyasd import LazyObject
-from xonsh.platform import PYTHON_VERSION_INFO
+from xonsh.platform_info import PYTHON_VERSION_INFO
 
 cookie_re = LazyObject(
     lambda: re.compile(r"^[ \t\f]*#.*coding[:=][ \t]*([-\w.]+)", re.ASCII),

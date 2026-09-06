@@ -25,7 +25,7 @@ from prompt_toolkit.keys import Keys
 
 from xonsh.aliases import xonsh_exit
 from xonsh.built_ins import XSH
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.shell import deindent, transform_command
 from xonsh.tools import (
     check_for_partial_string,

@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from xonsh.platform import DEFAULT_ENCODING
+from xonsh.platform_info import DEFAULT_ENCODING
 from xonsh.xoreutils import cat
 
 

@@ -19,7 +19,7 @@ from xonsh.parsers.fstring_adaptor import FStringAdaptor
 from xonsh.parsers.lexer import Lexer, LexToken
 from xonsh.parsers.ply import yacc
 from xonsh.parsers.tokenize import SearchPath, StringPrefix
-from xonsh.platform import PYTHON_VERSION_INFO
+from xonsh.platform_info import PYTHON_VERSION_INFO
 
 RE_SEARCHPATH = LazyObject(lambda: re.compile(SearchPath), globals(), "RE_SEARCHPATH")
 RE_STRINGPREFIX = LazyObject(

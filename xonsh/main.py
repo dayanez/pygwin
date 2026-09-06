@@ -28,7 +28,7 @@ from xonsh.lib.lazyasd import lazyobject
 from xonsh.lib.lazyimps import pyghooks, pygments
 from xonsh.lib.pretty import pretty
 from xonsh.lib.string import unquote
-from xonsh.platform import HAS_PYGMENTS, ON_WINDOWS
+from xonsh.platform_info import HAS_PYGMENTS, ON_WINDOWS
 from xonsh.procs.jobs import ignore_sigtstp
 from xonsh.shell import Shell
 from xonsh.timings import setup_timings

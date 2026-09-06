@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 from xonsh.built_ins import XSH
 from xonsh.cli_utils import ArgParserAlias
-from xonsh.platform import IN_APPIMAGE
+from xonsh.platform_info import IN_APPIMAGE
 from xonsh.procs.executables import locate_executable, locate_relative_path
 from xonsh.tools import print_color
 

@@ -19,7 +19,7 @@ from xonsh.codecache import (
 from xonsh.completer import Completer
 from xonsh.events import events
 from xonsh.lib.lazyimps import pyghooks, pygments
-from xonsh.platform import HAS_PYGMENTS, ON_WINDOWS
+from xonsh.platform_info import HAS_PYGMENTS, ON_WINDOWS
 from xonsh.prompt.base import PromptFormatter, multiline_prompt
 from xonsh.shell import deindent, transform_command
 from xonsh.tools import (

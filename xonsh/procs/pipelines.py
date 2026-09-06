@@ -11,7 +11,7 @@ import threading
 import time
 
 import xonsh.lib.lazyasd as xl
-import xonsh.platform as xp
+import xonsh.platform_info as xp
 import xonsh.procs.jobs as xj
 import xonsh.tools as xt
 from xonsh.built_ins import XSH

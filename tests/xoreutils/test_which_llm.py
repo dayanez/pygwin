@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.xoreutils import which as xxw
 
 #: Name of the file created on ``$PATH``; on Windows the extension is needed

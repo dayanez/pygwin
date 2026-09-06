@@ -31,7 +31,7 @@ from xonsh.events import events
 from xonsh.lib.lazyasd import LazyObject, lazyobject
 from xonsh.lib.lazyimps import pyghooks, pygments, winutils
 from xonsh.lib.string import commonprefix
-from xonsh.platform import (
+from xonsh.platform_info import (
     ON_CYGWIN,
     ON_DARWIN,
     ON_MSYS,

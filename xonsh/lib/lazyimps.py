@@ -4,7 +4,7 @@ import importlib
 import os
 
 from xonsh.lib.lazyasd import LazyObject, lazyobject
-from xonsh.platform import ON_DARWIN, ON_WINDOWS
+from xonsh.platform_info import ON_DARWIN, ON_WINDOWS
 
 pygments = LazyObject(
     lambda: importlib.import_module("pygments"), globals(), "pygments"

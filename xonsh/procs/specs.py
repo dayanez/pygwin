@@ -14,7 +14,7 @@ import sys
 
 import xonsh.lib.lazyasd as xl
 import xonsh.lib.lazyimps as xli
-import xonsh.platform as xp
+import xonsh.platform_info as xp
 import xonsh.procs.jobs as xj
 import xonsh.tools as xt
 from xonsh.built_ins import XSH

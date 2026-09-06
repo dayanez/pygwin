@@ -13,7 +13,7 @@ import pytest
 
 from xonsh.history.main import history_main
 from xonsh.history.sqlite import SqliteHistory, _xh_sqlite_get_conn
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 
 hist_file_count = itertools.count(0)
 

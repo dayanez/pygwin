@@ -282,7 +282,7 @@ class RstHelpFormatter(ap.RawTextHelpFormatter):
 
 
 def get_argparse_formatter_class():
-    from xonsh.platform import HAS_PYGMENTS
+    from xonsh.platform_info import HAS_PYGMENTS
 
     if (
         hasattr(sys, "stderr")

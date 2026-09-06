@@ -32,7 +32,7 @@ from xonsh.debug import is_breakpoint_engine, to_breakpoint_engine
 from xonsh.dirstack import _get_cwd
 from xonsh.events import events
 from xonsh.lib.lazyasd import LazyBool, lazyobject
-from xonsh.platform import (
+from xonsh.platform_info import (
     BASH_COMPLETIONS_DEFAULT,
     DEFAULT_ENCODING,
     IN_FLATPAK,
@@ -2258,7 +2258,7 @@ class AutoCompletionSetting(Xettings):
         "a user to choose which bash executable to call for ``source-bash`` "
         "and any bash completions that are configured. "
         "This variable overrides the default settings in "
-        "``xonsh.platform.bash_command``.",
+        "``xonsh.platform_info.bash_command``.",
         doc_default="None",
     )
     XONSH_COMPLETER_DIRS = Var.with_default(

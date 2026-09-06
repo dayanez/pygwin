@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.procs.proxies import ProcProxy, ProcProxyThread, still_writable
 from xonsh.procs.readers import safe_fdclose
 

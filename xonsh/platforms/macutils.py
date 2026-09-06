@@ -2,7 +2,7 @@
 
 from ctypes import byref, c_uint, create_string_buffer
 
-from xonsh.platform import LIBC
+from xonsh.platform_info import LIBC
 
 
 def sysctlbyname(name, return_str=True):

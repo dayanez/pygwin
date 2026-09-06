@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from xonsh.environ import LsColors
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.pyghooks import (
     XSH,
     Color,

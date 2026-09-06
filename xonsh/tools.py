@@ -74,7 +74,7 @@ from xonsh import __version__
 from xonsh.lib.lazyasd import LazyDict, LazyObject, lazyobject
 from xonsh.lib.string import endswith_newline as endswith_newline
 from xonsh.lib.string import unquote as unquote
-from xonsh.platform import (
+from xonsh.platform_info import (
     DEFAULT_ENCODING,
     HAS_PYGMENTS,
     ON_LINUX,

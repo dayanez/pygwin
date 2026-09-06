@@ -3,7 +3,7 @@
 import os
 
 from xonsh.lib.lazyasd import lazyobject
-from xonsh.platform import PYTHON_VERSION_INFO
+from xonsh.platform_info import PYTHON_VERSION_INFO
 
 
 @lazyobject

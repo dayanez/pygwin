@@ -27,7 +27,7 @@ from operator import attrgetter as _attrgetter
 from xonsh.debug import XonshDebug
 from xonsh.lib.inspectors import Inspector
 from xonsh.lib.lazyasd import lazyobject
-from xonsh.platform import ON_POSIX, ON_WINDOWS
+from xonsh.platform_info import ON_POSIX, ON_WINDOWS
 from xonsh.tools import (
     XonshCalledProcessError,
     XonshError,

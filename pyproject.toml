@@ -266,7 +266,7 @@ convention = "numpy"
 "xonsh/xonfig.py" = ["E731"]
 "xontrib/vox.py" = ["F821"]
 "xonsh/inspectors.py" = ["E722"]
-"xonsh/platform.py" = ["F401"]
+"xonsh/platform_info.py" = ["F401"]
 "xonsh/parsers/*.py" = [
     "E741", # E741 Ambiguous variable name
 ]

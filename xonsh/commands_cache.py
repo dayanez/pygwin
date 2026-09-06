@@ -19,7 +19,7 @@ import typing as tp
 from pathlib import Path
 
 from xonsh.lib.lazyasd import lazyobject
-from xonsh.platform import ON_POSIX, ON_WINDOWS, pathbasename
+from xonsh.platform_info import ON_POSIX, ON_WINDOWS, pathbasename
 from xonsh.procs.executables import (
     get_paths,
     get_possible_names,

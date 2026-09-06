@@ -15,7 +15,7 @@ import sys
 import pytest
 
 import xonsh.main
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.pytest.tools import skip_if_on_windows
 
 skip_if_not_on_windows = pytest.mark.skipif(

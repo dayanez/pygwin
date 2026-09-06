@@ -17,7 +17,7 @@ from xonsh.color_tools import (
     warn_deprecated_no_color,
 )
 from xonsh.lib.lazyasd import LazyDict, lazyobject
-from xonsh.platform import HAS_PYGMENTS
+from xonsh.platform_info import HAS_PYGMENTS
 from xonsh.tools import FORMATTER
 
 # pygments modifier to ANSI escape code mapping

@@ -57,7 +57,7 @@ For those of you who want the gritty details.
     xonsh.events
     xonsh.lib
     xonsh.tools
-    xonsh.platform
+    xonsh.platform_info
     xonsh.lib.lazyjson
     xonsh.lib.lazyasd
     xonsh.lib.openpy

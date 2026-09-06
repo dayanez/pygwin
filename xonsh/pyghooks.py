@@ -44,7 +44,7 @@ from xonsh.events import events
 from xonsh.lib.lazyasd import LazyDict, LazyObject, lazyobject
 from xonsh.lib.lazyimps import html, os_listxattr, terminal256
 from xonsh.parsers.tokenize import SubprocCommentHighlight
-from xonsh.platform import (
+from xonsh.platform_info import (
     os_environ,
     ptk_version_info,
     pygments_version_info,

@@ -9,7 +9,7 @@ import pytest
 
 from xonsh import dirstack
 from xonsh.dirstack import DIRSTACK, _unc_tempDrives
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PARENT = os.path.dirname(HERE)

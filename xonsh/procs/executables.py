@@ -7,7 +7,7 @@ from pathlib import Path
 
 from xonsh.built_ins import XSH
 from xonsh.lib.itertools import unique_everseen
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 
 
 def get_possible_names(name, env=None):

@@ -7,7 +7,7 @@ import os
 import pytest
 
 from xonsh.aliases import Aliases
-from xonsh.platform import ON_WINDOWS
+from xonsh.platform_info import ON_WINDOWS
 from xonsh.procs.pipelines import CommandPipeline
 from xonsh.pytest.tools import (
     VER_MAJOR_MINOR,

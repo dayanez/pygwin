@@ -5,7 +5,7 @@ import sys
 import pyte
 import pytest
 
-from xonsh.platform import minimum_required_ptk_version
+from xonsh.platform_info import minimum_required_ptk_version
 from xonsh.shell import Shell
 from xonsh.shells.ptk_shell import tokenize_ansi
 from xonsh.shells.ptk_shell.history import PromptToolkitHistory
@@ -60,7 +60,9 @@ def test_prompt_toolkit_version_checks(
     monkeypatch.setattr(
         "xonsh.shell.ptk_above_min_supported", mock_ptk_above_min_supported
     )
-    monkeypatch.setattr("xonsh.platform.has_prompt_toolkit", mock_has_prompt_toolkit)
+    monkeypatch.setattr(
+        "xonsh.platform_info.has_prompt_toolkit", mock_has_prompt_toolkit
+    )
 
     old_syspath = sys.path.copy()
 
