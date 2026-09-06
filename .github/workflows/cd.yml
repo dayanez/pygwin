@@ -1,0 +1,49 @@
+name: cd
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pygwin and Nuitka
+        run: |
+          pip install -e ".[full]"
+          pip install nuitka
+
+      - name: Build standalone executable
+        run: >
+          python -m nuitka
+          --onefile
+          --standalone
+          --output-filename=pygwin.exe
+          --output-dir=dist
+          --assume-yes-for-downloads
+          --enable-plugin=no-qt
+          --windows-console-mode=force
+          xonsh/main.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pygwin-windows-exe
+          path: dist/pygwin.exe
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/pygwin.exe
+          generate_release_notes: true

@@ -1,0 +1,201 @@
+"""Xonsh AST tests."""
+
+import ast as pyast
+
+import pytest
+
+from xonsh.parsers import ast
+from xonsh.parsers.ast import BinOp, Call, Name, Store, Tuple, isexpression, min_line
+from xonsh.pytest.tools import nodes_equal
+
+
+@pytest.fixture(autouse=True)
+def xonsh_execer_autouse(xonsh_execer):
+    return xonsh_execer
+
+
+def test_gather_names_name():
+    node = Name(id="y", ctx=Store())
+    exp = {"y"}
+    obs = ast.gather_names(node)
+    assert exp == obs
+
+
+def test_gather_names_tuple():
+    node = Tuple(elts=[Name(id="y", ctx=Store()), Name(id="z", ctx=Store())])
+    exp = {"y", "z"}
+    obs = ast.gather_names(node)
+    assert exp == obs
+
+
+def test_gather_load_store_names_tuple():
+    node = Tuple(elts=[Name(id="y", ctx=Store()), Name(id="z", ctx=Store())])
+    lexp = set()
+    sexp = {"y", "z"}
+    lobs, sobs = ast.gather_load_store_names(node)
+    assert lexp == lobs
+    assert sexp == sobs
+
+
+@pytest.mark.parametrize(
+    "line1",
+    [
+        "x = 1",  # Both, ls and l remain undefined.
+        "ls = 1",  # l remains undefined.
+        "l = 1",  # ls remains undefined.
+    ],
+)
+def test_multilline_num(xonsh_execer_parse, line1):
+    # Subprocess transformation happens on the second line,
+    # because not all variables are known.
+    code = line1 + "\nls -l\n"
+    tree = xonsh_execer_parse(code)
+    lsnode = tree.body[1]
+    assert 2 == min_line(lsnode)
+    assert isinstance(lsnode.value, Call)
+
+
+def test_multilline_no_transform(xonsh_execer_parse):
+    # No subprocess transformations happen here, since all variables are known.
+    code = "ls = 1\nl = 1\nls -l\n"
+    tree = xonsh_execer_parse(code)
+    lsnode = tree.body[2]
+    assert 3 == min_line(lsnode)
+    assert isinstance(lsnode.value, BinOp)
+
+
+@pytest.mark.parametrize(
+    "inp",
+    [
+        """def f():
+    if True:
+        pass
+""",
+        """def f(x):
+    if x:
+        pass
+""",
+        """def f(*args):
+    if not args:
+        pass
+""",
+        """def f(*, y):
+    if y:
+        pass
+""",
+        """def f(**kwargs):
+    if not kwargs:
+        pass
+""",
+        """def f(k=42):
+    if not k:
+        pass
+""",
+        """def f(k=10, *, a, b=1, **kw):
+    if not kw and b:
+        pass
+""",
+        """def f(x, /):
+    if not x:
+        return 0
+    return x + 1
+""",
+        """import os
+path = '/path/to/wakka'
+paths = []
+for root, dirs, files in os.walk(path):
+    paths.extend(os.path.join(root, d) for d in dirs)
+    paths.extend(os.path.join(root, f) for f in files)
+""",
+        """lambda x: x + 1
+""",
+        """def f(x):
+    return [i for i in x if i is not None and i < 10]
+    """,
+    ],
+)
+def test_unmodified(inp, xonsh_execer_parse):
+    # Context sensitive parsing should not modify AST
+    exp = pyast.parse(inp)
+    obs = xonsh_execer_parse(inp)
+
+    assert nodes_equal(exp, obs)
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    ["echo; echo && echo\n", "echo; echo && echo a\n", "true && false && true\n"],
+)
+def test_whitespace_subproc(test_input, xonsh_execer_parse):
+    assert xonsh_execer_parse(test_input)
+
+
+def test_paren_boolop_no_subshell(xonsh_execer):
+    """``(cd subdir && ls)`` must not create a subshell that duplicates ``cd``.
+
+    Regression: the non-greedy ``subproc_toks`` result for ``ls`` was falsely
+    rejected by the consistency check because ``maxcol`` captured the closing
+    ``)``. This caused a greedy fallback that wrapped the entire line into
+    ``xonsh -c`` subshell, executing ``cd`` twice.
+    """
+    import builtins
+
+    ctx = set(dir(builtins))
+    tree = xonsh_execer.parse("(cd subdir && ls)\n", ctx=ctx)
+    assert tree is not None
+    # The AST should not contain 'xonsh' or '-c' strings (no subshell)
+    for node in pyast.walk(tree):
+        if isinstance(node, pyast.Constant) and node.value == "xonsh":
+            pytest.fail("Found subshell 'xonsh -c' in AST — cd would run twice")
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "cd /tmp/123 && ls\n",
+        "echo /tmp/123 && echo done\n",
+        "cd /tmp/123 || ls\n",
+    ],
+)
+def test_subproc_with_numeric_path_and_boolop(test_input, xonsh_execer_parse):
+    """Paths with numeric components like /tmp/123 must not be parsed as Python division.
+
+    See https://github.com/xonsh/xonsh/issues/5253
+    """
+    tree = xonsh_execer_parse(test_input)
+    assert tree is not None
+    # The AST should NOT contain BinOp(Div) — that would mean /tmp/123 was parsed as division
+    for node in pyast.walk(tree):
+        if isinstance(node, pyast.BinOp) and isinstance(node.op, pyast.Div):
+            pytest.fail(
+                f"Path with numeric component was incorrectly parsed as Python division: {test_input!r}"
+            )
+
+
+@pytest.mark.parametrize(
+    "inp,exp",
+    [
+        ("1+1", True),
+        ("1+1;", True),
+        ("1+1\n", True),
+        ("1+1; 2+2", False),
+        ("1+1; 2+2;", False),
+        ("1+1; 2+2\n", False),
+        ("1+1; 2+2;\n", False),
+        ("x = 42", False),
+    ],
+)
+def test_isexpression(xonsh_execer, inp, exp):
+    obs = isexpression(inp)
+    assert exp is obs
+
+
+def test_const_str_sets_is_raw():
+    """const_str must set is_raw on all Python versions so that
+    p_subproc_atom_str can distinguish raw strings from normal ones."""
+    raw = ast.const_str("hello", is_raw=True)
+    assert hasattr(raw, "is_raw")
+    assert raw.is_raw is True
+
+    normal = ast.const_str("hello", is_raw=False)
+    assert not getattr(normal, "is_raw", False)

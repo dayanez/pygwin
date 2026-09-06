@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pygwin</title>
+<style>
+  :root {
+    color-scheme: dark;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: #2b2b2b;
+    color: #f5f5f5;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 6rem 1.5rem 4rem;
+  }
+  h1 {
+    font-size: 2.75rem;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.02em;
+  }
+  p.tagline {
+    color: #cfcfcf;
+    font-size: 1.15rem;
+    margin: 0 0 2.5rem;
+  }
+  section {
+    margin-bottom: 2.5rem;
+  }
+  h2 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #a8a8a8;
+    margin: 0 0 0.75rem;
+    font-weight: 600;
+  }
+  p {
+    color: #f5f5f5;
+    margin: 0 0 0.75rem;
+  }
+  code {
+    background: #1e1e1e;
+    color: #f5f5f5;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.92em;
+  }
+  pre {
+    background: #1e1e1e;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    color: #f5f5f5;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+  }
+  ul.links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  ul.links a {
+    display: inline-block;
+    color: #f5f5f5;
+    text-decoration: none;
+    border: 1px solid #565656;
+    border-radius: 6px;
+    padding: 0.5rem 0.9rem;
+  }
+  ul.links a:hover {
+    border-color: #f5f5f5;
+  }
+  a {
+    color: #f5f5f5;
+  }
+  footer {
+    color: #a8a8a8;
+    font-size: 0.85rem;
+    border-top: 1px solid #444;
+    padding-top: 1.5rem;
+    margin-top: 3rem;
+  }
+  footer a {
+    color: #cfcfcf;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>pygwin</h1>
+  <p class="tagline">A Windows-first, Python-powered shell and system observability console. A light fork of xonsh.</p>
+
+  <ul class="links">
+    <li><a href="https://github.com/dayanez/pygwin">Source</a></li>
+    <li><a href="https://github.com/dayanez/pygwin/blob/main/README.md">README</a></li>
+    <li><a href="https://github.com/dayanez/pygwin/blob/main/ROADMAP.md">Roadmap</a></li>
+    <li><a href="https://github.com/dayanez/pygwin/releases">Releases</a></li>
+  </ul>
+
+  <section>
+    <h2>What it is</h2>
+    <p>
+      pygwin runs real Python, mixed freely with subprocess commands, in one
+      interactive shell. It is built on xonsh's parser and shell engine, with a
+      new name, a leaner default configuration in progress, and a different goal:
+      a shell that also watches your machine while you use it.
+    </p>
+  </section>
+
+  <section>
+    <h2>Install</h2>
+    <pre><code>git clone https://github.com/dayanez/pygwin.git
+cd pygwin
+pip install -e ".[full]"
+pygwin</code></pre>
+    <p>Or download the standalone <code>pygwin.exe</code> from the <a href="https://github.com/dayanez/pygwin/releases">Releases</a> page. No Python install required.</p>
+  </section>
+
+  <section>
+    <h2>Status</h2>
+    <p>
+      Early. The rebrand and the CI, release, and docs scaffolding are done.
+      The actual startup-time stripping and the live telemetry and process
+      auto-tuning features are still ahead, tracked openly in
+      <a href="https://github.com/dayanez/pygwin/blob/main/ROADMAP.md">ROADMAP.md</a>.
+    </p>
+  </section>
+
+  <footer>
+    Built on <a href="https://github.com/xonsh/xonsh">xonsh</a>. Licensed GPL-3.0-or-later, always open source.
+    See <a href="https://github.com/dayanez/pygwin/blob/main/CREDITS.md">CREDITS.md</a>.
+  </footer>
+</main>
+</body>
+</html>

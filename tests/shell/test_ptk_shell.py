@@ -1,0 +1,243 @@
+"""Test initialization of prompt_toolkit shell"""
+
+import sys
+
+import pyte
+import pytest
+
+from xonsh.platform import minimum_required_ptk_version
+from xonsh.shell import Shell
+from xonsh.shells.ptk_shell import tokenize_ansi
+from xonsh.shells.ptk_shell.history import PromptToolkitHistory
+
+# verify error if ptk not installed or below min
+
+
+@pytest.mark.parametrize(
+    "ptk_ver, ini_shell_type, exp_shell_type, warn_snip",
+    [
+        (None, "prompt_toolkit", "readline", None),
+        ((0, 5, 7), "prompt_toolkit", "readline", "is not supported"),
+        ((1, 0, 0), "prompt_toolkit", "readline", "is not supported"),
+        ((2, 0, 0), "prompt_toolkit", "prompt_toolkit", None),
+        ((2, 0, 0), "best", "prompt_toolkit", None),
+        ((2, 0, 0), "readline", "readline", None),
+        ((3, 0, 0), "prompt_toolkit", "prompt_toolkit", None),
+        ((3, 0, 0), "best", "prompt_toolkit", None),
+        ((3, 0, 0), "readline", "readline", None),
+        ((4, 0, 0), "prompt_toolkit", "prompt_toolkit", None),
+    ],
+)
+def test_prompt_toolkit_version_checks(
+    ptk_ver,
+    ini_shell_type,
+    exp_shell_type,
+    warn_snip,
+    monkeypatch,
+    xession,
+):
+    mocked_warn = ""
+
+    def mock_warning(msg, **_):
+        nonlocal mocked_warn
+        mocked_warn = msg
+        return
+
+    def mock_ptk_above_min_supported():
+        nonlocal ptk_ver
+        return ptk_ver and (ptk_ver[:3] >= minimum_required_ptk_version)
+
+    def mock_has_prompt_toolkit():
+        nonlocal ptk_ver
+        return ptk_ver is not None
+
+    monkeypatch.setattr(
+        "xonsh.shell.warnings.warn", mock_warning
+    )  # hardwon: patch the caller!
+    monkeypatch.setattr(
+        "xonsh.shell.ptk_above_min_supported", mock_ptk_above_min_supported
+    )  # have to patch both callers
+    monkeypatch.setattr(
+        "xonsh.shell.ptk_above_min_supported", mock_ptk_above_min_supported
+    )
+    monkeypatch.setattr("xonsh.platform.has_prompt_toolkit", mock_has_prompt_toolkit)
+
+    old_syspath = sys.path.copy()
+
+    act_shell_type = Shell.choose_shell_type(ini_shell_type, {})
+
+    assert len(old_syspath) == len(sys.path)
+
+    sys.path = old_syspath
+
+    assert act_shell_type == exp_shell_type
+
+    if warn_snip:
+        assert warn_snip in mocked_warn
+
+    pass
+
+
+@pytest.mark.parametrize(
+    "prompt_tokens, ansi_string_parts",
+    [
+        # no ansi, single token
+        ([("fake style", "no ansi here")], ["no ansi here"]),
+        # no ansi, multiple tokens
+        ([("s1", "no"), ("s2", "ansi here")], ["no", "ansi here"]),
+        # ansi only, multiple
+        ([("s1", "\x1b[33mansi \x1b[1monly")], ["", "ansi ", "only"]),
+        # mixed
+        (
+            [("s1", "no ansi"), ("s2", "mixed \x1b[33mansi")],
+            ["no ansi", "mixed ", "ansi"],
+        ),
+    ],
+)
+def test_tokenize_ansi(prompt_tokens, ansi_string_parts):
+    ansi_tokens = tokenize_ansi(prompt_tokens)
+    for token, text in zip(ansi_tokens, ansi_string_parts, strict=False):
+        assert token[1] == text
+
+
+@pytest.mark.parametrize(
+    "line, exp",
+    [
+        [repr("hello"), None],
+        ["2 * 3", "6"],
+    ],
+)
+def test_ptk_prompt(line, exp, ptk_shell, capsys):
+    inp, out, shell = ptk_shell
+    inp.send_text(f"{line}\nexit\n")  # note: terminate with '\n'
+    # ``exit`` now propagates SystemExit out of the loop (issue #6426); in
+    # production ``main_xonsh`` catches it.
+    with pytest.raises(SystemExit):
+        shell.cmdloop()
+    screen = pyte.Screen(80, 24)
+    stream = pyte.Stream(screen)
+
+    out, _ = capsys.readouterr()
+
+    # this will remove render any color codes
+    stream.feed(out.strip())
+    out = screen.display[0].strip()
+
+    assert out.strip() == (exp or line)
+
+
+@pytest.mark.parametrize(
+    "cmd,exp_append_history",
+    [
+        ("", False),
+        ("# a comment", False),
+        ("print('yes')", True),
+    ],
+)
+def test_ptk_default_append_history(cmd, exp_append_history, ptk_shell, monkeypatch):
+    """Test that running an empty line or a comment does not append to history.
+    This test is necessary because the prompt-toolkit shell uses a custom _push() method that is different from the base shell's push() method.
+    """
+    inp, out, shell = ptk_shell
+    append_history_calls = []
+
+    monkeypatch.setattr(
+        "xonsh.built_ins.XSH.history.append", append_history_calls.append
+    )
+    shell.default(cmd)
+    if exp_append_history:
+        assert len(append_history_calls) == 1
+    else:
+        assert len(append_history_calls) == 0
+
+
+@pytest.mark.parametrize(
+    "prefix",
+    ["  ", "\t", " \t "],
+)
+def test_ptk_push_compiles_indented_input(prefix, ptk_shell):
+    """``_push`` must lstrip before compile so leading whitespace from the
+    user's input doesn't turn ``echo 1`` into a ``SyntaxError: unexpected
+    indent``. The returned ``src`` still carries the original whitespace so
+    events like ``on_precommand`` see it unmodified.
+    """
+    _, _, shell = ptk_shell
+    src, code = shell.push(prefix + "print('test')\n")
+    assert code is not None
+    assert src.startswith(prefix)
+
+
+def test_ptk_default_executes_indented_input(ptk_shell, xession):
+    """Regression for #6294 follow-up: ``  echo 1`` in ptk shell must run
+    without raising ``SyntaxError: unexpected indent``.
+    """
+    _, _, shell = ptk_shell
+    fired = []
+
+    @xession.builtins.events.on_precommand
+    def capture(cmd, **_):
+        fired.append(cmd)
+
+    shell.default("  print('test')")
+    assert len(fired) == 1
+    assert fired[0].startswith("  print")
+
+
+def test_ptk_push_compiles_multiline_indented_block(ptk_shell):
+    """A multi-line paste with a common leading indent must compile —
+    ``lstrip()`` would only strip the first line and break inner
+    indentation, so the fix must use ``textwrap.dedent``.
+    """
+    _, _, shell = ptk_shell
+    block = "    if True:\n        x = 1\n    y = 2\n"
+    src, code = shell.push(block)
+    assert code is not None
+    assert src == block  # event-visible src is unchanged
+
+
+def test_ptk_combine_history(monkeypatch):
+    """Test that consecutive identical history items are combined into a single item
+    when loading xonsh history items into prompt-toolkit history."""
+
+    def all_items(*args, **kwargs):
+        lines = [
+            "one two three",
+            "four five six",
+            "four five six",
+            "one two three",
+        ]
+        for line in lines:
+            yield {"inp": line}
+
+    monkeypatch.setattr("xonsh.built_ins.XSH.history.all_items", all_items)
+
+    shell_hist = PromptToolkitHistory()
+    hist_strs = list(shell_hist.load_history_strings())
+    assert len(hist_strs) == 3
+
+
+def test_bottom_toolbar_cleared_when_empty(ptk_shell, xession):
+    """Setting $BOTTOM_TOOLBAR to '' must clear PTK's cached toolbar.
+
+    Regression test for https://github.com/xonsh/xonsh/issues/3810
+    """
+    _, _, shell = ptk_shell
+    env = xession.env
+
+    # Set a toolbar — the property should return a callable
+    env["BOTTOM_TOOLBAR"] = "some text"
+    assert shell.bottom_toolbar_tokens is not None
+
+    # Simulate what singleline() does: the callable is passed to PTK
+    shell.prompter.bottom_toolbar = shell.bottom_toolbar_tokens
+
+    # Now clear the toolbar
+    env["BOTTOM_TOOLBAR"] = ""
+    tokens = shell.bottom_toolbar_tokens
+    assert tokens is None
+
+    # The fix: singleline() explicitly resets the PTK attribute
+    if tokens is None:
+        shell.prompter.bottom_toolbar = None
+
+    assert shell.prompter.bottom_toolbar is None
