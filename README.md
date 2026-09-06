@@ -271,7 +271,7 @@ To build locally:
 ```
 pip install -e ".[full]"
 pip install nuitka
-python -m nuitka --standalone --onefile --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution pygwin/main.py
+python -m nuitka --standalone --onefile --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution pygwin/__main__.py
 ```
 
 The current release is a baseline: it compiles today's codebase as-is, not the

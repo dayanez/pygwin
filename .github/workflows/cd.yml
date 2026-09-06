@@ -35,7 +35,7 @@ jobs:
           --enable-plugin=no-qt
           --windows-console-mode=force
           --no-deployment-flag=self-execution
-          pygwin/main.py
+          pygwin/__main__.py
 
       - uses: actions/upload-artifact@v4
         with:

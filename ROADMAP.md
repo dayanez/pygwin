@@ -71,10 +71,18 @@ not a checklist to rush through in one pass.
 
 ### Distribution
 
-- [ ] A Nuitka standalone build that a user can download and double-click, no Python
-      install required, once phase two has actually trimmed what gets compiled in.
-- [ ] Re-evaluate release size and startup time after the phase-two work above lands;
-      the first Nuitka release (see the Releases page) is a baseline, not the target.
+- [x] A working Nuitka onefile build: `pygwin.exe`, no Python install required.
+      Getting here took two real fixes beyond just running the compile: the Nuitka
+      module-name-collision bug documented in SYNCING.md (`platform.py` to
+      `platform_info.py`), and Nuitka needs to be pointed at `pygwin/__main__.py`,
+      not `pygwin/main.py`, since `main.py` only defines `main()` and never calls
+      it, the actual `if __name__ == "__main__"`-equivalent call lives in
+      `__main__.py`. Verified against the actual compiled binary, not just source:
+      `--version`, `-c` execution, subprocess capture, subshells, `$ENVVAR` access,
+      and path literals all work.
+- [ ] Re-evaluate release size and startup time after the phase-two work below
+      lands; the current build is a baseline (compiles today's codebase as-is, not
+      yet stripped down), not the target.
 
 All of this belongs in new files under `xontrib/`, `xompletions/`, or a new top-level
 module where that's a real option, per AGENTS.md's one rule. It does not belong in
