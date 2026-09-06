@@ -191,7 +191,7 @@ def _xhj_pull_items(pull_times, src_sessionid=None):
         except (JSONDecodeError, ValueError):
             continue
 
-        sessionid = os.path.split(path)[-1][6:-5]
+        sessionid = os.path.split(path)[-1][7:-5]
         cmds = lj["cmds"]
         if len(cmds) == 0:
             continue
