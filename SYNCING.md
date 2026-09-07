@@ -15,19 +15,25 @@ will not be.
 
 Every file under what is now `pygwin/` (originally `xonsh/`) had every occurrence of
 `xonsh` (in any casing: `xonsh`, `Xonsh`, `XONSH`) mechanically renamed to `pygwin`
-(`pygwin`, `Pygwin`, `PYGWIN`), with two deliberate, narrow exceptions kept for
-compatibility with the wider xonsh plugin ecosystem:
+(`pygwin`, `Pygwin`, `PYGWIN`).
 
-- The callable-alias protocol attributes `__xonsh_threadable__` and
-  `__xonsh_capturable__`, a documented convention from upstream xonsh that a
-  third-party alias function may already rely on. Renaming pygwin's own check for
-  these would silently stop honoring that convention for anyone reusing an
-  existing xonsh alias, with no error, just wrong behavior. See `pygwin/aliases.py`
-  and `pygwin/procs/specs.py`.
-- Shebang and interpreter-name recognition: a script whose shebang says
-  `#!/usr/bin/env xonsh`, or a shebang-less script resolved via the POSIX no-shebang
-  fallback, is still recognized and run with `python -m pygwin`. See
-  `pygwin/procs/specs.py`'s `_un_shebang` and `get_script_subproc_command`.
+The rename originally kept two narrow exceptions for compatibility with the wider
+xonsh plugin ecosystem: the callable-alias protocol attributes
+(`__xonsh_threadable__`/`__xonsh_capturable__`) and shebang/interpreter-name
+recognition of the literal word `xonsh`. Both were removed later, deliberately, at
+this project owner's explicit request: pygwin no longer recognizes anything named
+`xonsh` at runtime, full stop, even at the cost of a third-party xonsh alias's
+`__xonsh_threadable__`/`__xonsh_capturable__` attributes silently going unread, or a
+`#!/usr/bin/env xonsh` shebang no longer being redirected to pygwin's own
+interpreter. If you are porting a third-party xonsh alias or script, update it to
+use `__pygwin_threadable__`/`__pygwin_capturable__` and a `pygwin` shebang instead.
+See `pygwin/aliases.py`, `pygwin/tools.py`, and `pygwin/procs/specs.py`.
+
+Likewise, the `~/.pygwinrc` run control file no longer falls back to an existing
+`~/.xonshrc`; `get_home_pygwinrc_path()` in `pygwin/environ.py` only ever looks for
+`~/.pygwinrc` now. An old `.xonshrc` (including xontrib names it loads, like
+xonsh's `sysstats`, which pygwin does not ship) is simply not read anymore; migrate
+its contents into a `~/.pygwinrc` by hand.
 
 Everything else that said `xonsh` now says `pygwin`, including:
 
@@ -42,11 +48,9 @@ Everything else that said `xonsh` now says `pygwin`, including:
   `$PYGWIN_DATA_DIR`, `$PYGWIN_HISTORY_BACKEND`, and about ninety others). The
   default data, cache, and config directories that used to be named `xonsh` on disk
   (`$XDG_DATA_HOME/xonsh`, `/etc/xonsh`, and so on) are named `pygwin` now.
-- The run control file. The primary path is `~/.pygwinrc`
-  (`$PYGWIN_CONFIG_DIR/rc.xsh` is the XDG-style equivalent); `get_home_xonshrc_path()`
-  in `pygwin/environ.py` falls back to `~/.xonshrc` if a `.pygwinrc` doesn't exist but
-  a `.xonshrc` does, so an existing xonsh rc file keeps working without a manual
-  migration step.
+- The run control file. The primary (and only) path is `~/.pygwinrc`
+  (`$PYGWIN_CONFIG_DIR/rc.xsh` is the XDG-style equivalent); see the note above
+  about the removed `.xonshrc` fallback.
 - Every `Xonsh`-prefixed class and exception name (`XonshSession` to
   `PygwinSession`, `XonshError` to `PygwinError`, `XonshLexer` to `PygwinLexer`, and
   about twenty others).
@@ -56,19 +60,22 @@ Everything else that said `xonsh` now says `pygwin`, including:
   (`xonsh_session` to `pygwin_session`, `xonsh_execer` to `pygwin_execer`).
 - User-facing strings: error message prefixes (`"xonsh: ..."` to `"pygwin: ..."`),
   the process title set via `setproctitle`, the pygments lexer name and aliases
-  (`pygwin` and `pygwincon` added alongside the kept `xonsh`/`xonshcon` aliases so
-  existing ```` ```xonsh ```` code fences keep highlighting), the `pytest11`,
+  (`PygwinLexer`'s aliases are `["pygwin", "xsh"]`, `PygwinConsoleLexer`'s is
+  `["pygwincon"]`; no `xonsh`/`xonshcon` alias is registered, so an existing
+  ```` ```xonsh ```` code fence will not get pygwin's highlighting), the `pytest11`,
   `virtualenv.activate`, and `xonsh.xontribs`-style entry-point group names in
   `pyproject.toml` (the xontrib entry-point group is `pygwin.xontribs` now; see
   `pygwin/xontribs.py`).
 - Real citations to specific historical PRs, issues, and third-party projects by
   name or URL (`https://github.com/xonsh/xonsh/issues/NNNN`, `xonsh PR #6192`, the
-  `anki-code/xonsh-flatpak` project) were deliberately left unrenamed, because they
-  are factual references to the real upstream project, not this fork.
-- One pun-based Easter-egg tagline block in `pygwin/xonfig.py` (the ones built
-  around "xonsh" sounding like "conch") was deliberately left unrenamed too, since
-  the jokes don't survive translation and are worth keeping as a nod to where this
-  shell came from.
+  `anki-code/xonsh-flatpak` project, the `xonsh/awesome-xontribs` and
+  `xonsh/xontrib-template` links in `pygwin/webconfig/routes.py`) are deliberately
+  left unrenamed, because they are factual references to the real upstream project
+  and its ecosystem, not this fork; renaming them would just produce broken links.
+- The pun-based Easter-egg taglines in `pygwin/xonfig.py` built around "xonsh"
+  sounding like "conch" (`TAGLINES`) were removed outright rather than translated,
+  since the jokes do not survive translation and this project's owner asked for no
+  `xonsh` name to remain anywhere in the shell's own runtime behavior or output.
 
 The practical upshot: `pygwin/` is no longer a near-identical copy of xonsh's
 `xonsh/` with a couple of branding strings changed. It is a genuine fork with a

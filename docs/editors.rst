@@ -5,48 +5,50 @@ Editor and IDE
 
 Sublime Text
 ============
-There is a `pygwin package`_ for **Sublime Text 4** (build > 4075). To install:
+There is an `xonsh package`_ for **Sublime Text 4** (build > 4075), which also
+works for editing pygwin's `.xsh` scripts since they share the same underlying
+syntax. To install:
 
-- Via **Package Control**: open (``^``/``⌘`` ``⇧`` ``P``) ``Command Palette`` → ``Package Control: Install Package`` → ``pygwin``
-- **Manually**: clone the repository to your `Sublime Text packages`_ directory and rename it to ``pygwin``
+- Via **Package Control**: open (``^``/``⌘`` ``⇧`` ``P``) ``Command Palette`` → ``Package Control: Install Package`` → ``xonsh``
+- **Manually**: clone the repository to your `Sublime Text packages`_ directory
 
   .. code-block:: sh
 
     cd /path/to/sublime/packages/directory
     git clone https://github.com/eugenesvk/sublime-xonsh.git
-    mv sublime-pygwin pygwin
 
-.. _pygwin package: https://packagecontrol.io/packages/xonsh
+.. _xonsh package: https://packagecontrol.io/packages/xonsh
 .. _Sublime Text packages: https://www.sublimetext.com/docs/packages.html
 
 
 Visual Studio Code (VS Code)
 ============================
-There is a `pygwin extension for VS Code`_. To install search "pygwin" using extensions
-menu or just press ``F1`` and run without `>` preceding:
+There is an `xonsh extension for VS Code`_, which also highlights pygwin's `.xsh`
+scripts. To install search "xonsh" using the extensions menu or just press ``F1``
+and run without `>` preceding:
 
 .. code-block::
 
-    ext install jnoortheen.pygwin
+    ext install jnoortheen.xonsh
 
 .. https://github.com/microsoft/vscode/issues/200374
 
 Since version 1.86 of VS Code, the editor also supports loading the environment for users with pygwin as their default shell.
 
-.. _pygwin extension for VS Code: https://marketplace.visualstudio.com/items?itemName=jnoortheen.xonsh
+.. _xonsh extension for VS Code: https://marketplace.visualstudio.com/items?itemName=jnoortheen.xonsh
 
 
 JetBrains: IntelliJ IDEA, PyCharm
 ========================================
-There is a `pygwin-jetbrains <https://github.com/nahoj/xonsh-jetbrains>`_ plugin for JetBrains products.
+There is an `xonsh-jetbrains <https://github.com/nahoj/xonsh-jetbrains>`_ plugin for JetBrains products, which also works for pygwin's `.xsh` scripts.
 
 Emacs
 =====
 
-Emacs Pygwin mode
+Emacs xonsh-mode
 ----------------
 
-There is an emacs mode for editing pygwin scripts available from the
+There is an emacs mode (`xonsh-mode`) for editing pygwin scripts available from the
 `MELPA repository`_. If you are not familiar see the installation
 instructions there.
 
@@ -54,7 +56,7 @@ Then just add this line to your emacs configuration file:
 
 .. code-block:: emacs-lisp
 
-    (require 'pygwin-mode)
+    (require 'xonsh-mode)
 
 
 .. _MELPA repository: https://melpa.org/#/xonsh-mode
@@ -93,13 +95,14 @@ start up ``ansi-term``.
 Vim
 ===
 
-There is `pygwin syntax file for vim`_. To install run:
+There is an `xonsh syntax file for vim`_, which also works for pygwin's `.xsh`
+scripts. To install run:
 
 .. code-block::
 
     git clone --depth 1 https://github.com/linkinpark342/xonsh-vim ~/.vim
 
-.. _pygwin syntax file for vim: https://github.com/linkinpark342/xonsh-vim
+.. _xonsh syntax file for vim: https://github.com/linkinpark342/xonsh-vim
 
 
 Formatting pygwin code

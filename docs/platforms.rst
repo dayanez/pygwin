@@ -636,10 +636,6 @@ Windows Terminal):
 
    > <xpython> -m pip install --upgrade pygwin
 
-If you installed Pygwin via the
-`WinGet installer <https://github.com/xonsh/xonsh-winget/releases>`_,
-download the latest installer and run it — it will upgrade in place.
-
 See also :ref:`Updating Pygwin <updating_pygwin>` in the installation guide
 for more details.
 

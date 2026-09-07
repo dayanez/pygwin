@@ -126,10 +126,12 @@ CLI app on Pygwin
 Building a command-line application on Pygwin is easy: you write and package it
 like any other Python project, so it is installable, testable, and
 distributable out of the box. For a basic implementation to start from, see the
-`pygwin-awesome-cli-app`_ template — fork it and add your own commands.
+`xonsh-awesome-cli-app`_ template (built for xonsh, and equally usable as a
+starting point for pygwin since they share the same underlying language) — fork
+it and add your own commands.
 
 For commands that live inside a session rather than a standalone app, Pygwin also
 ships built-in :ref:`Click CLI Integration <click_cli_integration>` that
 registers a Click command as an alias.
 
-.. _pygwin-awesome-cli-app: https://github.com/anki-code/xonsh-awesome-cli-app/
+.. _xonsh-awesome-cli-app: https://github.com/anki-code/xonsh-awesome-cli-app/

@@ -149,7 +149,7 @@ def _normalize_return_command_result(val, alias_repr):
 class FuncAlias:
     """Provides a callable alias for pygwin commands."""
 
-    attributes_show = ["__xonsh_threadable__", "__xonsh_capturable__", "return_what"]
+    attributes_show = ["__pygwin_threadable__", "__pygwin_capturable__", "return_what"]
     attributes_inherit = attributes_show + ["__doc__"]
     return_what: Literal["command", "result"] = "result"
 
@@ -252,8 +252,8 @@ def print_alias_help(name: str, superhelp: bool = False) -> None:
     if superhelp:
         # FuncAlias-only metadata.
         if func is not None:
-            threadable = getattr(alias, "__xonsh_threadable__", None)
-            capturable = getattr(alias, "__xonsh_capturable__", None)
+            threadable = getattr(alias, "__pygwin_threadable__", None)
+            capturable = getattr(alias, "__pygwin_capturable__", None)
             if threadable is not None:
                 lines.append(f"{_label('Threadable:')} {threadable}")
             if capturable is not None:

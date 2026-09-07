@@ -19,6 +19,13 @@ tests/testfile
 build/
 dist/
 pygwin.egg-info/
+
+# Local Nuitka build output (see README's "Building the standalone executable")
+__main__.build/
+__main__.dist/
+__main__.onefile-build/
+pygwin.exe
+.build-venv/
 __pycache__/
 docs/_build/
 docs/envvarsbody

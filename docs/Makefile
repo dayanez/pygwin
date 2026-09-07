@@ -13,10 +13,6 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -T -v -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-DOCREPONAME = xonsh-docs
-DOCREPOURL  = git@github.com:xonsh/xonsh-docs.git
-DOCREPOBRANCH = gh-pages
-
 .PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes linkcheck doctest
 
 help:
@@ -94,41 +90,6 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
-
-push-latest:
-	cd $(BUILDDIR) && \
-	test -d $(DOCREPONAME) || git clone $(DOCREPOURL) $(DOCREPONAME) && \
-	cd $(DOCREPONAME) && \
-	git pull origin $(DOCREPOBRANCH) && \
-	test -d latest || mkdir latest && touch latest/_ && \
-	rm -r latest/* && \
-	cp -r ../html/* latest/ && \
-	git add latest/ && \
-	git commit -am "Pushed latest docs at $(date)" && \
-	git push
-
-push-release:
-	cd $(BUILDDIR) && \
-	test -d $(DOCREPONAME) || git clone $(DOCREPOURL) $(DOCREPONAME) && \
-	cd $(DOCREPONAME) && \
-	git pull origin $(DOCREPOBRANCH) && \
-	test -d $(RELEASE) || mkdir $(RELEASE) && touch $(RELEASE)/_ && \
-	rm -r $(RELEASE)/* && \
-	cp -r ../html/* $(RELEASE)/ && \
-	git add $(RELEASE)/ && \
-	git commit -am "Pushed $(RELEASE) docs at $(date)" && \
-	git push
-
-push-root:
-	cd $(BUILDDIR) && \
-	test -d $(DOCREPONAME) || git clone $(DOCREPOURL) $(DOCREPONAME) && \
-	cd $(DOCREPONAME) && \
-	git pull origin $(DOCREPOBRANCH) && \
-	rm -rf api previous _sources _static *.html *.js *.inv  && \
-	cp -r ../html/* . && \
-	git add . && \
-	git commit -am "Pushed root-level docs at $(date)" && \
-	git push
 
 landing:
 	cp _templates/index.html $(BUILDDIR)/html/index.html

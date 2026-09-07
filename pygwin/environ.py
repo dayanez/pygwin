@@ -818,18 +818,8 @@ def pygwinconfig(env):
 
 
 def get_home_pygwinrc_path():
-    """Cross-platform implementation of getting the ``~/.pygwinrc`` path.
-
-    Falls back to ``~/.pygwinrc`` when a ``~/.pygwinrc`` doesn't exist but an
-    ``~/.pygwinrc`` does, so an existing pygwin rc file keeps working here.
-    """
-    pygwinrc = (Path("~") / ".pygwinrc").expanduser()
-    if pygwinrc.is_file():
-        return str(pygwinrc)
-    pygwinrc = (Path("~") / ".pygwinrc").expanduser()
-    if pygwinrc.is_file():
-        return str(pygwinrc)
-    return str(pygwinrc)
+    """Cross-platform implementation of getting the ``~/.pygwinrc`` path."""
+    return str((Path("~") / ".pygwinrc").expanduser())
 
 
 @default_value

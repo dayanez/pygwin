@@ -1974,7 +1974,7 @@ class PygwinLexer(Python3Lexer):
     """Pygwin console lexer for pygments."""
 
     name = "Pygwin lexer"
-    aliases = ["pygwin", "pygwin", "xsh"]
+    aliases = ["pygwin", "xsh"]
     filenames = ["*.xsh", "*pygwinrc"]
 
     # Class-level opt-in for offline renderers (Sphinx conf.py,
@@ -2244,7 +2244,7 @@ class PygwinConsoleLexer(PygwinLexer):
     """
 
     name = "Pygwin console lexer"
-    aliases = ["pygwincon", "pygwincon"]
+    aliases = ["pygwincon"]
     filenames: list[str] = []
 
     tokens = {

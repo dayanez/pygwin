@@ -175,11 +175,12 @@ pygwin myscript.xsh
 pygwin is a fork of xonsh's parser, execer, and shell engine, not a rewrite. Every
 function does what its xonsh equivalent did; the whole codebase, including the
 Python package name, the environment variable names, and internal class names, was
-renamed from xonsh to pygwin throughout. See [SYNCING.md](SYNCING.md) for exactly
-what that rename touched, what was deliberately kept for compatibility (a couple of
-xonsh's plugin-alias protocol details, and recognizing `#!/usr/bin/env xonsh`
-shebangs), and what it costs going forward (pulling in upstream xonsh fixes now means
-porting them by hand, not a clean merge).
+renamed from xonsh to pygwin throughout, with no compatibility shims left for the
+word `xonsh` itself: no `__xonsh_threadable__`/`__xonsh_capturable__` alias
+attributes, no `#!/usr/bin/env xonsh` shebang recognition, no `~/.xonshrc` fallback.
+See [SYNCING.md](SYNCING.md) for exactly what that rename touched and what it costs
+going forward (pulling in upstream xonsh fixes now means porting them by hand, not a
+clean merge).
 
 Practically, this means almost everything written about xonsh's own language and
 semantics still applies to pygwin: Python-in-the-shell syntax, subprocess mode,
@@ -191,11 +192,14 @@ different: the name, the defaults, and the roadmap.
 
 ### Configuration
 
-pygwin's primary run control file is `~/.pygwinrc`. If that doesn't exist but an
-`~/.xonshrc` does (carried over from xonsh, or from an older pygwin install), pygwin
-reads that instead, so nothing breaks on upgrade. Anything you could put in a
-`.xonshrc` file works in a `.pygwinrc` too: environment variables, aliases, prompt
-customization, and xontrib loading.
+pygwin's run control file is `~/.pygwinrc`, and only `~/.pygwinrc`; an existing
+`~/.xonshrc` from a real xonsh install (or an older pygwin install) is not read
+automatically, so migrate anything you want kept into a new `~/.pygwinrc` by hand.
+Anything you could put in a `.xonshrc` file works in a `.pygwinrc` too: environment
+variables, aliases, prompt customization, and xontrib loading, as long as the
+xontrib itself is one pygwin actually ships (real xonsh xontribs like `sysstats`
+are not bundled; pygwin's own equivalent for live CPU/memory telemetry is
+`sysinfo`, see below).
 
 A minimal example:
 

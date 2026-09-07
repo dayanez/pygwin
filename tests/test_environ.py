@@ -22,6 +22,7 @@ from pygwin.environ import (
     Var,
     default_env,
     default_value,
+    get_home_pygwinrc_path,
     locate_binary,
     make_args_env,
     pygwin_cache_dir,
@@ -779,6 +780,14 @@ def test_pygwin_dir_vars():
     assert pygwin_config_dir(env), "/config"
     assert pygwin_cache_dir(env), "/cache"
     assert pygwin_data_dir(env), "/data"
+
+
+def test_get_home_pygwinrc_path_always_points_at_pygwinrc(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    assert get_home_pygwinrc_path() == str(tmp_path / ".pygwinrc")
+    (tmp_path / ".pygwinrc").write_text("")
+    assert get_home_pygwinrc_path() == str(tmp_path / ".pygwinrc")
 
 
 def test_numerical_envvar_defined():

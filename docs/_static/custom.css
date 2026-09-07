@@ -31,14 +31,14 @@ li > p:last-child {
 }
 
 /* Disable red-on-white error highlighting from Pygments for unrecognized tokens
-   (e.g. xonsh $VAR syntax in python/xonshcon code blocks). */
+   (e.g. pygwin $VAR syntax in python/pygwincon code blocks). */
 .highlight .err {
     color: inherit !important;
     background-color: inherit !important;
     border: none !important;
 }
 
-/* Xonsh / Python console prompt (``@ ``, ``>>> ``, ``... `` — Pygments'
+/* Pygwin / Python console prompt (``@ ``, ``>>> ``, ``... `` — Pygments'
    Generic.Prompt token). ``user-select: none`` is applied in both themes
    so the prompt is stripped from mouse-copy everywhere. */
 .highlight .gp {
@@ -62,9 +62,9 @@ body[data-theme="dark"] .highlight .gp {
     }
 }
 
-/* Xonsh console output comments (``# ...`` lines inside ``xonshcon`` blocks):
+/* Pygwin console output comments (``# ...`` lines inside ``pygwincon`` blocks):
    render in muted grey and exclude from native text selection so that
-   mouse-copy of a xonshcon block yields only the code, not the ``# output``
+   mouse-copy of a pygwincon block yields only the code, not the ``# output``
    annotations. Matches pygments' Generic.Output token class. */
 .highlight .go {
     color: #888 !important;

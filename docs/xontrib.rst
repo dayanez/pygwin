@@ -206,7 +206,7 @@ Tell Us About Your Xontrib!
 To register a xontrib, create a ``PullRequest`` at
 `awesome-xontribs <https://github.com/xonsh/awesome-xontribs>`_
 repository. Also, if you use Github to host your code,
-please add `pygwin <https://github.com/topics/xonsh>`_ and `xontrib <https://github.com/topics/xontrib>`_
+please add `xonsh <https://github.com/topics/xonsh>`_ and `xontrib <https://github.com/topics/xontrib>`_
 to the topics.
 
 All of this let's users know that your xontrib is out there, ready to be used.

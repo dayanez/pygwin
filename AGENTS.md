@@ -24,19 +24,20 @@ Concretely:
   the way a missing regular import does; it fails at the first subprocess call, path
   literal, or macro a user runs, with a bare `NameError` on `__pygwin__`.
 - Environment variables are `$PYGWIN_*`, not `$XONSH_*` (`$PYGWIN_INTERACTIVE`,
-  `$PYGWIN_DATA_DIR`, and so on). The run control file is `~/.pygwinrc`, falling back
-  to `~/.xonshrc` if a pygwinrc doesn't exist but a xonshrc does.
+  `$PYGWIN_DATA_DIR`, and so on). The run control file is `~/.pygwinrc` only; there
+  is no fallback to `~/.xonshrc` (there used to be one; it was removed on request,
+  see SYNCING.md).
 - Internal classes are `Pygwin*`, not `Xonsh*` (`PygwinSession`, `PygwinError`,
   `PygwinLexer`, and so on).
 - Third-party xontribs and scripts written for real xonsh (importing `xonsh.*`,
-  reading `$XONSH_*`, checking `__xonsh_threadable__`-style attributes) are not
-  automatically compatible. Two exceptions were kept on purpose for compatibility:
-  the callable-alias protocol attributes `__xonsh_threadable__` and
-  `__xonsh_capturable__` (a documented convention from the wider xonsh ecosystem;
-  see `pygwin/aliases.py` and `pygwin/procs/specs.py`), and shebang/interpreter
-  recognition of the literal word `xonsh` alongside `pygwin` (see
-  `pygwin/procs/specs.py`'s `_un_shebang`), so a `#!/usr/bin/env xonsh` script still
-  runs. Everything else is pygwin-only now.
+  reading `$XONSH_*`, checking `__xonsh_threadable__`-style attributes, a
+  `#!/usr/bin/env xonsh` shebang) are not automatically compatible, and never will
+  be treated as such: pygwin used to keep two narrow compatibility exceptions (the
+  callable-alias protocol attributes and shebang recognition of the word `xonsh`),
+  but both were removed on request so that nothing named `xonsh` is recognized by
+  pygwin at runtime anymore. The equivalents are `__pygwin_threadable__` and
+  `__pygwin_capturable__` (see `pygwin/aliases.py`, `pygwin/tools.py`, and
+  `pygwin/procs/specs.py`) and a `pygwin` shebang. Everything is pygwin-only now.
 
 This is now a genuinely large diff against upstream. A future `git merge
 upstream/main` (see SYNCING.md) will conflict on nearly every file that changed on

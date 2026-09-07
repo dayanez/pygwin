@@ -92,12 +92,10 @@ def _un_shebang(x):
         x = os.path.basename(x)
     elif x.endswith("python") or x.endswith("python.exe"):
         x = "python"
-    if x in ("pygwin", "xonsh"):
-        # Recognize "xonsh" too: a script's shebang may say
-        # ``#!/usr/bin/env xonsh`` (written for, or copied from, the wider
-        # xonsh ecosystem this fork is built on). Either way, run it with
-        # this interpreter's own ``-m pygwin``, not whatever ``xonsh``
-        # happens to resolve to on $PATH (which may not even exist here).
+    if x == "pygwin":
+        # Run it with this interpreter's own ``-m pygwin``, not whatever
+        # ``pygwin`` happens to resolve to on $PATH (which may not even
+        # exist here).
         return [sys.executable, "-m", "pygwin"]
     return [x]
 
@@ -173,7 +171,7 @@ def get_script_subproc_command(fname, args):
         # No shebang (or an empty one).
         _, ext = os.path.splitext(fname)
         if ext.lower() in {".xsh", ".py", ".pyw"}:
-            # xonsh/Python scripts run with the current pygwin interpreter,
+            # pygwin/Python scripts run with the current pygwin interpreter,
             # mirroring the Windows branch above.
             interp = ["pygwin"]
         else:
@@ -182,9 +180,9 @@ def get_script_subproc_command(fname, args):
             # text file without a shebang is run as a ``sh`` script
             # (https://github.com/xonsh/xonsh/issues/5843).
             interp = [xp.path_bshell()]
-    if interp[:1] in (["pygwin"], ["xonsh"]):
-        # Run with the current pygwin rather than whatever ``pygwin`` (or
-        # ``xonsh``, from a script's shebang) happens to be first on $PATH.
+    if interp[:1] == ["pygwin"]:
+        # Run with the current pygwin rather than whatever ``pygwin`` (from a
+        # script's shebang) happens to be first on $PATH.
         interp = [sys.executable, "-m", "pygwin"] + interp[1:]
     return interp + [fname] + args
 
@@ -1178,7 +1176,7 @@ def _make_last_spec_captured(last: SubprocSpec):
 
 def _update_proc_alias_threadable(proc):
     threadable = XSH.env.get("THREAD_SUBPROCS") and getattr(
-        proc.alias, "__xonsh_threadable__", True
+        proc.alias, "__pygwin_threadable__", True
     )
     if proc.force_threadable is not None:
         threadable = proc.force_threadable
@@ -1187,7 +1185,7 @@ def _update_proc_alias_threadable(proc):
 
 
 def _update_proc_alias_captured(proc):
-    proc.captured = getattr(proc.alias, "__xonsh_capturable__", proc.captured)
+    proc.captured = getattr(proc.alias, "__pygwin_capturable__", proc.captured)
 
 
 def _trace_specs(trace, specs, cmds, captured):
