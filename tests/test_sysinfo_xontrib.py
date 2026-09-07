@@ -2,6 +2,7 @@
 its prompt fields, and the ``pygwin-top`` alias registration.
 """
 
+import sys
 import time
 
 import pytest
@@ -17,6 +18,24 @@ def _stop_telemetry_after():
 
 def test_telemetry_start_returns_true_when_psutil_present():
     assert sysinfo._telemetry.start() is True
+
+
+def test_telemetry_start_returns_false_when_psutil_missing(monkeypatch):
+    # sys.modules[name] = None makes `import name` raise ImportError, the
+    # standard way to simulate a missing module without actually uninstalling it.
+    monkeypatch.setitem(sys.modules, "psutil", None)
+    assert sysinfo._telemetry.start() is False
+    assert sysinfo._telemetry._thread is None
+
+
+def test_load_xontrib_prints_and_skips_when_psutil_missing(xession, monkeypatch, capsys):
+    monkeypatch.setitem(sys.modules, "psutil", None)
+    sysinfo._load_xontrib_(xession)
+    fields = xession.env["PROMPT_FIELDS"]
+    assert "cpu" not in fields
+    assert "mem" not in fields
+    assert "pygwin-top" not in xession.aliases
+    assert "psutil is not installed" in capsys.readouterr().out
 
 
 def test_telemetry_snapshot_populates_after_a_poll():

@@ -117,7 +117,7 @@ bestshell = [
     "pygments>=2.2",
 ]
 test = [
-    "pygwin[bestshell]",
+    "pygwin[bestshell,observability]",
     "pytest>=7",
     "restructuredtext_lint",
     "pytest-cov",
