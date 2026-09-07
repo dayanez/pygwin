@@ -10,7 +10,9 @@ place information that does not belong in the user's guide or the library
 reference but is useful or necessary for the next people that come along to
 develop pygwin.
 
-.. note:: All code changes must go through the pull request review procedure.
+.. note:: pygwin is a personal daily-driver project maintained by one person,
+   not a team codebase; see AGENTS.md in the repository root for how changes
+   are actually made (no pull request review process, no issue tracker).
 
 
 Making Your First Change
@@ -19,22 +21,14 @@ Making Your First Change
 Terminal-based workflow
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The simplified terminal-based workflow to contribute to pygwin:
+The simplified terminal-based workflow to work on pygwin:
 
 .. code-block:: bash
 
     mkdir -p ~/git && cd ~/git
-    # For example your name is `snail` and you forked https://github.com/xonsh/xonsh on Github
-    git clone git@github.com:snail/pygwin.git
+    git clone https://github.com/dayanez/pygwin.git
     # You can setup IDE (see next section) to extremely speed up the work and test.
     cd pygwin
-
-    # Set git user name. Without `--global` it will work in local repository.
-    git config user.name "Snail"
-    git config user.email "snail@email.com"
-
-    # Create your feature or fix branch.
-    git checkout -b my_awesome_feature
 
     # Install dev packages.
     # python -m ensurepip --upgrade  # install pip if you have python without pip
@@ -43,7 +37,6 @@ The simplified terminal-based workflow to contribute to pygwin:
 
     # Make changes: add new environment variable.
     vim pygwin/environ.py
-    git add pygwin/environ.py
 
     # Create test.
     vim tests/environ.py
@@ -52,14 +45,9 @@ The simplified terminal-based workflow to contribute to pygwin:
     # Live test.
     python -m pygwin --no-rc
 
-    # Push
-    git commit -m "My new environment variable!"
-    git push
-
-    # Open https://github.com/xonsh/xonsh/pulls
-    # Use green button to open Pull Request (PR)
-    # Use Conventional Commits naming e.g.
-    # "feat: New env variable $SNAIL"
+    # Commit locally.
+    git add pygwin/environ.py tests/environ.py
+    git commit -m "Add new environment variable"
 
 IDE-based workflow
 ^^^^^^^^^^^^^^^^^^
@@ -67,7 +55,7 @@ IDE-based workflow
 You can also use IDE like PyCharm:
 
 1. Install IDE e.g. `PyCharm <https://www.jetbrains.com/pycharm/>`_.
-2. Go to ``File -> Project from Version Control -> URL`` https://github.com/xonsh/xonsh
+2. Go to ``File -> Project from Version Control -> URL`` https://github.com/dayanez/pygwin
 3. Go to the terminal and update pip and install full dependencies:
 
    .. code-block:: pygwin
@@ -97,16 +85,15 @@ You can also use IDE like PyCharm:
        Run `echo 1` and now you're in the debug mode on the breakpoint.
        Press F8 to step forward. Good luck!
 
-5. Create git branch and solve `good first issue <https://github.com/xonsh/xonsh/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+sort%3Areactions-%2B1-desc>`_ or `popular issue <https://github.com/xonsh/xonsh/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc>`_.
-6. Create pull request to pygwin.
+5. Create a git branch for your change and test it live in the debugger.
 
 
 Changelog
 ----------
 
-1. Use `conventional commits <https://www.conventionalcommits.org/en/v1.0.0/>`_ for your git commits and Pull-Request titles
-2. `CHANGELOG.md <CHANGELOG.md>`_ is automatically generated from these commit messages using `release-please-action <https://github.com/googleapis/release-please-action>`_
-3. We squash the Pull-Request commits when merging to maintain linear history. So it is important to use
+`CHANGELOG.md <CHANGELOG.md>`_ is maintained by hand, not generated from commit
+messages. Add an entry under ``## Unreleased`` describing what changed and why
+as part of the same change.
 
 
 Style Guide
@@ -360,12 +347,10 @@ favorite browser, e.g.:
 
     firefox _build/html/index.html
 
-Once the developer is satisfied with the changes, the changes should be
-committed and pull-requested per usual. The docs are built and deployed using
-GitHub Actions.
-
-Docs associated with the latest release are hosted at `https://xon.sh <https://xon.sh>`_
-while docs for the current ``main`` branch are available at `https://xon.sh/dev <https://xon.sh/dev>`_.
+This Sphinx documentation tree is not built or served by anything in this
+repository; pygwin's real GitHub Pages site is the separate, plain
+``docs/index.html`` (see AGENTS.md). Building it locally as above is useful as
+a reference while writing docs, even though nothing publishes the result.
 
 
 Branches and Releases
@@ -390,9 +375,11 @@ created by unit testing by running:
 Performing the Release
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Releases are automated via `GitHub Actions <https://github.com/xonsh/xonsh/tree/main/.github/workflows>`_.
-All workflows for testing, building Python packages, and producing AppImage
-binaries live in the ``.github/workflows`` directory of the repository.
+pygwin has no automated release pipeline; releases are cut manually. Tagging a
+release runs ``.github/workflows/cd.yml``, which builds a Nuitka-compiled
+``pygwin.exe`` for Windows and attaches it to the GitHub release. See
+SYNCING.md for what upstream's release automation looked like and why it
+doesn't apply here.
 
 Cross-platform testing
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -423,121 +410,20 @@ but they should not in any way violate the Github Action policies.
 Testing pygwin on Different Operating Systems
 ---------------------------------------------
 
-Nix
-^^^
-
-If you have Nix package manager installed on your system, you can use it instead
-of Docker to build and run your "work in progress version". If Nix is configured
-with experimental features ``nix-command`` and ``flakes`` enabled, it is as simple
-as running this in the project directory:
-
-.. code-block:: bash
-
-    # build and run with a single command
-    nix run
-
-    # or build and then run
-    nix build  # this builds the package and creates a `result` symlink
-    ./result/bin/pygwin
-
-This will build and run the current state of the repository with Nix. Optionally add
-``-L`` to the Nix commands to see detailed output when building. If you have
-new files created and need them to build, make sure they're added to Git (e.g. using
-``git add``), or Nix won't be aware of them when building the package from flake.
-
-If you prefer not to use flakes, it can also be done in a legacy way:
-
-.. code-block:: bash
-
-    nix-build nix/ -A pygwin
-    ./result/bin/pygwin
-
-The default Python version used follows the default of ``nixpkgs-unstable`` (it is
-3.13 at the time of writing this). There are variants using different Python versions
-declared in ``nix/default.nix``. For example, to use Python 3.14:
-
-.. code-block:: bash
-
-    # build and run
-    nix run '.#pygwin-py314'
-
-    # build only
-    nix build '.#pygwin-py314'
-
-    # build with legacy nix
-    nix-build nix/ -A pygwin-py314
-
-
-Binary cache
-""""""""""""
-
-Building pygwin from the flake compiles it from source, which takes a while.
-Every push to ``main`` is built by CI and the results are pushed to the
-`pygwin.cachix.org <https://app.cachix.org/cache/xonsh>`_ binary cache. To use it:
-
-.. code-block:: bash
-
-    nix run nixpkgs#cachix -- use pygwin
-
-Or declare the substituter yourself, e.g. on NixOS:
-
-.. code-block:: nix
-
-    nix.settings = {
-      substituters = [ "https://xonsh.cachix.org" ];
-      trusted-public-keys = [ "pygwin.cachix.org-1:wwdHGMixIz1oZB0MtubjhZyCfWMWRLTQTT9zLO+DyMY=" ];
-    };
-
-The ``cachix`` branch always points at the newest commit of ``main`` that was
-built successfully, so following it guarantees a cache hit instead of a local
-build:
-
-.. code-block:: bash
-
-    nix run github:pygwin/pygwin/cachix
-
+pygwin dropped upstream xonsh's Nix (flake), conda, and Docker-in-Docker demo
+infrastructure as not applicable to a Windows-first, Nuitka-distributed
+personal shell; see SYNCING.md for the full list of what was removed and why.
+There is no Nix package, no cachix binary cache, and no ``pygwin-in-docker.py``
+helper script for this fork.
 
 Container
 ^^^^^^^^^
 
 It is often useful to try pygwin in a clean environment on a distribution
 other than your own — for example to reproduce a bug report or to
-validate a change against a pristine setup. The recipes below use
-rootless ``podman`` containers; ``docker`` would work just as well if
-you prefer it.
-
-Script to run in Container
-""""""""""""""""""""""""""
-
-If you want to run your "work in progress version" without installing
-and in a fresh environment you can use Docker. If Docker is installed
-you just have to run this:
-
-.. code-block:: bash
-
-    python pygwin-in-docker.py
-
-This will build and run the current state of the repository in an isolated
-container (it may take a while the first time you run it). You can override
-the default Python and ``prompt_toolkit`` versions with ``--python`` and
-``--ptk``:
-
-.. code-block:: bash
-
-    python pygwin-in-docker.py --python 3.13 --ptk 3.0.52
-
-Ensure your cwd is the root directory of the project (i.e., the one containing the
-.git directory).
-
-Nix Container
-"""""""""""""
-
-.. code-block:: bash
-
-    podman run --rm -it nixos/nix
-    nix-channel --update && nix-shell -p pygwin
-    pygwin
-    xcontext
+validate a change against a pristine setup. The recipe below uses a
+rootless ``podman`` container; ``docker`` would work just as well if you
+prefer it.
 
 Arch Linux Container
 """"""""""""""""""""
@@ -547,7 +433,7 @@ Arch Linux Container
     podman run --rm -it archlinux/archlinux
     pacman -Syu git python-pip
     pacman -Syu man-db man-pages bash-completion
-    git clone https://github.com/xonsh/xonsh
+    git clone https://github.com/dayanez/pygwin.git
     cd pygwin
     pip install --break-system-packages '.[dev]' '.[test]' '.[doc]'
     python -m pytest

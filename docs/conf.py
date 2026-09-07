@@ -67,7 +67,6 @@ extensions = [
     "numpydoc",
     "extensions.cmdhelp",
     "extensions.softwaresourcecode",
-    "runthis.sphinxext",
     "extensions.jinja_rst_ext",
     "myst_parser",  # *.md - https://myst-parser.readthedocs.io/
     "sphinx_prompt",
@@ -195,7 +194,7 @@ if not on_rtd:
     html_theme = "furo"
 
     html_theme_options = {
-        "source_repository": "https://github.com/xonsh/xonsh/",
+        "source_repository": "https://github.com/dayanez/pygwin/",
         "source_branch": "main",
         "source_directory": "docs/",
     }
@@ -302,9 +301,6 @@ autosummary_generate = True
 
 # Prevent numpy from making silly tables
 numpydoc_show_class_members = False
-
-# runthis
-runthis_server = "https://runthis.xonsh.org:80"
 
 #
 # Auto-generate some docs

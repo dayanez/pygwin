@@ -136,10 +136,6 @@ This page provides pygwin equivalents for common patterns in Bash.
     * - Display completions as list
       - ``$COMPLETIONS_DISPLAY = 'readline'``
       - Display completions will emulate the behavior of readline.
-    * - ``podman run -it bash``
-      - ``podman run -it pygwin/pygwin:slim``
-      - Pygwin publishes a handful of containers, primarily targeting CI and automation use cases.
-        All of them are published on `Docker Hub <https://hub.docker.com/u/xonsh>`_.
     * - ``exit 1``
       - ``exit 1`` or ``exit(1)``
       - Exiting from the current script.

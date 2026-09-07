@@ -10,10 +10,10 @@ def _quit_awesome(args, stdin=None):
     for pid in pids:
         kill @(pid)
 
-# some customization options, see https://xon.sh/envvars.html for details
+# some customization options, see envvars.rst for details
 $MULTILINE_PROMPT = '`·.,¸,.·*¯`·.,¸,.·*¯'
-$XONSH_SHOW_TRACEBACK = True
-$XONSH_STORE_STDOUT = True
-$XONSH_HISTORY_MATCH_ANYWHERE = True
+$PYGWIN_SHOW_TRACEBACK = True
+$PYGWIN_STORE_STDOUT = True
+$PYGWIN_HISTORY_MATCH_ANYWHERE = True
 $COMPLETIONS_CONFIRM = True
-$XONSH_AUTOPAIR = True
+$PYGWIN_AUTOPAIR = True

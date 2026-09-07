@@ -74,7 +74,6 @@ xontrib = ["*.xsh"]
     "js/app.min.js",
     "js/bootstrap.min.css",
     "js/LICENSE-bootstrap",
-    "js/xonsh_sticker_mini.png",
 ]
 
 [project.entry-points]
@@ -147,7 +146,6 @@ doc = [
     "pyzmq",
     "matplotlib",
     "tornado",
-    "runthis-sphinxext",
     "myst-parser",
     "sphinx-autobuild",
     "sphinx-prompt",

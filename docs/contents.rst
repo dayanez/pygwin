@@ -29,7 +29,6 @@ step by step and helps you build a solid foundation for working in the shell.
     python
     error_handling
     Extensions on Github <https://github.com/topics/xontrib>
-    Ask question <https://github.com/xonsh/xonsh/discussions>
 
 Regular User
 -------------
@@ -55,7 +54,6 @@ and streamline your command-line experience.
     pygwin_session
     launch
     platforms
-    Open technical issue <https://github.com/xonsh/xonsh>
 
 Creator
 -------
@@ -101,18 +99,10 @@ and collaborating with others.
 * `Developer’s Guide <developer.html>`_
 * `Pygwin Library Reference <lib/index.html>`_
 * `History Backend <history_backend.html>`_
-* `Contribute to documentation <https://github.com/xonsh/xonsh/tree/main/docs>`_
-* Write a note or an article about Pygwin.
-* Send a link to Pygwin to your favorite blogger.
-* Add Pygwin support in third party tool: `package manager <https://github.com/topics/package-manager>`_, `terminal emulator <https://github.com/topics/terminal-emulators>`_, `console tool <https://github.com/topics/console>`_, `IDE <https://github.com/topics/ide>`_.
-* Give a star to `pygwin repository <https://github.com/xonsh/xonsh>`_ and to `xontribs <https://github.com/topics/xontrib>`_ you like.
-* Solve a `popular issue <https://github.com/xonsh/xonsh/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc>`_ or `high priority issue <https://github.com/xonsh/xonsh/issues?q=is%3Aopen+is%3Aissue+label%3Apriority-high+sort%3Areactions-%2B1-desc>`_ or a `good first issue <https://github.com/xonsh/xonsh/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+sort%3Areactions-%2B1-desc>`_.
-* Take an `idea <https://github.com/xonsh/xontrib-template/issues?q=is%3Aopen+is%3Aissue+label%3Aidea+sort%3Areactions-%2B1-desc>`_ and `create a new xontrib <https://github.com/xonsh/xontrib-template#why-use-this-template>`_.
-* Contribute to `Pygwin Public API <https://github.com/xonsh/xonsh/tree/main/pygwin/api>`_.
-* Test Pygwin with compiler, interpreter, optimizer and report upstream issues e.g. `Nuitka <https://github.com/xonsh/xonsh/issues/2895#issuecomment-3665753657>`_, `RustPython <https://github.com/xonsh/xonsh/issues/5082#issue-1611837062>`_.
-* Use high quality LLMs with max effort and testing to dive into the core, suggest improvements, refactor and fix issues.
-* Design more `logos and images <https://github.com/xonsh/logo>`_, `improve <https://github.com/xonsh/xonsh/blob/12f12ce94f1b6c92218e22fbdaaa846e16ac8b2d/docs/_templates/index.html#L9>`_ `pygwin website <https://xon.sh/>`_.
-* `Become a sponsor to Pygwin <https://github.com/sponsors/xonsh>`_.
+
+Pygwin is a personal daily-driver project built and maintained by one person,
+not a community project: see AGENTS.md in the repository root for how it
+handles contributions (it doesn't accept pull requests or issues).
 
 
 Links
@@ -121,7 +111,3 @@ Links
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-* `Pygwin Community <https://xonsh.zulipchat.com/join/hbvue5rimpdkwkdjuiqfs7tv/>`_
-* `Pygwin Fediverse <https://mastodon.online/@xonsh>`_
-* `Pygwin Matrix <https://matrix.to/#/#xonsh:matrix.org>`_
-* `Pygwin Merch <https://www.hellotux.com/xonsh>`_
