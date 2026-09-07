@@ -40,14 +40,38 @@ precedence, or writing to a distinct filename), the workaround is
 
 ## Phase two: the actual point of pygwin
 
-None of this is done yet. It is what pygwin is for, and it is real, multi-session work,
-not a checklist to rush through in one pass.
+This is what pygwin is for, and it is real, multi-session work, not a checklist to
+rush through in one pass.
 
 ### Startup and memory
 
-- [ ] Make `readline` the default interactive shell backend instead of `prompt_toolkit`,
-      and make prompt_toolkit strictly opt-in (`pygwin[full]`) rather than the default
-      install target.
+- [x] Make `readline` the default interactive shell backend instead of `prompt_toolkit`.
+      `$SHELL_TYPE` now defaults to `readline` instead of `best`; `best` still means
+      "richest shell actually available" for anyone who explicitly asks for it.
+      prompt_toolkit was never a required dependency (`dependencies = []`, it only
+      arrives via the `full`/`ptk`/`bestshell` extras), so this was really about the
+      *runtime* default, not the install-time one.
+      Found a second, more important bug on the way: `$PROMPT`'s default value was
+      computed eagerly at class-definition time (`pygwin/environ.py`'s `PromptSetting`
+      called `prompt.default_prompt()` inline), and on Windows that function checks
+      `win_ansi_support()`, which imports prompt_toolkit outright if it happens to be
+      installed, regardless of which shell backend actually gets used. So merely
+      importing `pygwin.environ` (every launch does) paid prompt_toolkit's import cost
+      even under the new "readline by default" setting. Fixed by deferring it through
+      the existing `@default_value` lazy-default mechanism (see `_default_prompt_value`
+      in `environ.py`), the same pattern already used for `$XONSH_DATA_DIR` and friends.
+      Also found, while measuring: Windows ships no stdlib `readline` module at all, so
+      making readline the default only works if there's a real implementation behind
+      it. Added `pyreadline3` as a Windows-conditional *base* dependency (not an opt-in
+      extra the way upstream xonsh treats `gnureadline` on macOS), since a "Windows-first"
+      shell whose default backend silently degrades to no line editing on Windows
+      defeats the point.
+      Measured with `scripts/measure_shell_startup.py` (median of 7 runs, cold
+      subprocess each time, `prompt_toolkit` installed via `[full]` so the old default
+      genuinely would have picked it): `best` (old default) ~322ms to construct the
+      shell object vs `readline` (new default) ~246-249ms. About a 75ms, 23% cut, from
+      this one change plus its two follow-on fixes. The 30-60ms target in the README
+      is the *end* state after the rest of this section too, not from this alone.
 - [ ] Lazy-import heavy modules (subprocess helpers, `inspect`, `json`, `pathlib` usage
       in cold paths, the ply-based parser) so they load on first use, not on every launch.
 - [ ] Skip foreign shell (bash/zsh/cmd) environment probing on startup unless explicitly

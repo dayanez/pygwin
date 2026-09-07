@@ -918,6 +918,20 @@ def default_prompt_fields(env):
     return prompt.PromptFields(XSH)
 
 
+@default_value
+def _default_prompt_value(env):
+    """``pygwin.prompt.base.default_prompt()``
+
+    Deferred to first access rather than called at class-body/import time:
+    on Windows, picking the default prompt checks ``win_ansi_support()``,
+    which imports prompt_toolkit if it happens to be installed, regardless
+    of which shell backend actually gets used. Importing pygwin.environ
+    (which every launch does) must not pay that cost just to know what
+    $PROMPT defaults to.
+    """
+    return prompt.default_prompt()
+
+
 class Var(tp.NamedTuple):
     """Named tuples whose elements represent environment variable
     validation, conversion, detyping; default values; and documentation.
@@ -1809,7 +1823,7 @@ class PromptSetting(Xettings):
         is_string_or_callable,
         ensure_string,
         ensure_string,
-        prompt.default_prompt(),
+        _default_prompt_value,
         "The prompt text. May contain keyword arguments which are "
         "auto-formatted, see 'Customizing the Prompt' at "
         "http://xon.sh/tutorial.html#customizing-the-prompt. "
@@ -1864,18 +1878,23 @@ class PromptSetting(Xettings):
         "prompt-toolkit shell.",
     )
     SHELL_TYPE = Var.with_default(
-        "best",
+        "readline",
         "Which shell is used. Currently two base shell types are supported:\n\n"
         "- ``readline`` - backed by Python's readline module\n"
         "- ``prompt_toolkit`` - uses external library of the same name\n"
         "- ``random`` - selects a random shell from the above on startup\n"
         "- ``best`` - selects the most feature-rich shell available on the user's system\n\n"
-        "To use the ``prompt_toolkit`` shell you need to have the "
+        "pygwin defaults to ``readline`` rather than ``best``: prompt_toolkit is "
+        "strictly opt-in here, even when it is installed, because importing it "
+        "costs real startup time that most invocations should not pay for by "
+        "default. To use the ``prompt_toolkit`` shell you need to have the "
         "`prompt_toolkit <https://github.com/jonathanslenders/python-prompt-toolkit>`_"
-        " library installed. To specify which shell should be used, do so in "
-        "the run control file. "
+        " library installed (see the ``full`` install extra) and set "
+        "``$SHELL_TYPE = 'prompt_toolkit'`` (or ``'best'``, which behaves the same "
+        "way it always did: the richest shell actually available) in the run "
+        "control file. "
         "It also accepts a class type that inherits from ``pygwin.shells.base_shell.BaseShell``.",
-        doc_default="``best``",
+        doc_default="``readline``",
     )
     SUGGEST_COMMANDS = Var.with_default(
         True,

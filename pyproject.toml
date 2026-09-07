@@ -13,7 +13,15 @@ authors = [{ name = "Dominick", email = "dommcpro@gmail.com" }]
 maintainers = [{ name = "Dominick", email = "dommcpro@gmail.com" }]
 license = { text = "GPL-3.0-or-later" }
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    # Windows ships no stdlib readline module at all. Since readline is
+    # pygwin's default interactive backend (not prompt_toolkit, kept
+    # strictly opt-in for startup-time reasons), a Windows install needs a
+    # real readline implementation out of the box, not as an opt-in extra
+    # the way upstream xonsh treats it: without this, the default shell on
+    # this project's primary platform degrades to no line editing at all.
+    "pyreadline3; platform_system=='Windows'",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "pygwin.__version__"}

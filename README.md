@@ -66,12 +66,15 @@ pygwin is in an early, honest state. What exists today:
   on release.
 - This README, [ROADMAP.md](ROADMAP.md), [SYNCING.md](SYNCING.md), and
   [AGENTS.md](AGENTS.md) as the documentation and process backbone.
+- `readline`, not `prompt_toolkit`, as the default interactive backend, with
+  `prompt_toolkit` strictly opt-in even when it's installed (see
+  [Performance philosophy](#performance-philosophy)).
 
 What does not exist yet, and is tracked honestly rather than oversold:
 
-- The actual startup-time and memory stripping work (dropping `prompt_toolkit` as the
-  default backend, lazy imports, a lighter history backend). Today's release still
-  starts up like xonsh does, because it mostly still is xonsh.
+- The rest of the startup-time and memory stripping work: lazy imports beyond the
+  prompt/shell-selection path, skipping foreign-shell probing by default, a lighter
+  default history backend.
 - The live telemetry prompt, process auto-tuning, and cached subprocess proxying
   features that motivate this project in the first place.
 
@@ -94,8 +97,13 @@ pip install -e ".[full]"
 ```
 
 The `[full]` extra pulls in the interactive line editor (`prompt_toolkit`) and syntax
-highlighting (`pygments`). Without it, pygwin still runs, using Python's built-in
-readline-style input instead.
+highlighting (`pygments`). pygwin still defaults to its own fast `readline` backend
+even with `[full]` installed; add `$SHELL_TYPE = 'prompt_toolkit'` (or `'best'`) to
+your [`~/.pygwinrc`](#configuration) to actually use the richer editor once it's
+installed. On Windows, plain `pip install pygwin` (no extras) also pulls in
+[`pyreadline3`](https://pypi.org/project/pyreadline3/), since Windows ships no
+`readline` module of its own and the default backend needs a real one to be worth
+using.
 
 ### Standalone executable
 
@@ -250,10 +258,15 @@ backend, and the xontrib plugin scanner, all before you type anything.
 pygwin's position is not that a Python shell should try to match a native C or Go
 shell's single-digit-millisecond startup. That is not a fight Python wins, and chasing
 it would mean stripping away the parts of xonsh that make it worth using in the first
-place. The realistic target, once the work described in [ROADMAP.md](ROADMAP.md) lands,
-is closer to 30 to 60 milliseconds: a readline-based default backend instead of
-`prompt_toolkit`, lazy imports for anything not needed on the cold path, no foreign
-shell probing unless asked for, and a lighter default history backend.
+place. The realistic target, once the rest of the work described in
+[ROADMAP.md](ROADMAP.md) lands, is closer to 30 to 60 milliseconds. The first piece is
+done: `readline`, not `prompt_toolkit`, is now the default backend, `prompt_toolkit`
+stays strictly opt-in even when it's installed, and getting there also meant fixing an
+eager import that pulled in `prompt_toolkit` just to compute the default `$PROMPT`,
+regardless of which backend was actually selected. That alone cut shell construction
+from about 322ms to about 246ms in local measurements (see ROADMAP.md for the exact
+methodology). What's left: lazy imports for anything not needed on the cold path, no
+foreign shell probing unless asked for, and a lighter default history backend.
 
 Where pygwin spends its complexity budget instead is observability: a background
 telemetry thread, transparent process tuning for heavy commands, and cached binary
