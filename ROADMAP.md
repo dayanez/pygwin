@@ -195,9 +195,51 @@ rush through in one pass.
 
 ### System observability (pygwin's actual differentiator)
 
-- [ ] A background `psutil`-backed telemetry thread (CPU, memory, thermals where
-      available) that never blocks the prompt, exposed as prompt fields and a
-      `pygwin-top`-style command.
+- [x] A background `psutil`-backed telemetry thread (CPU, memory) that never blocks
+      the prompt, exposed as prompt fields and a `pygwin-top`-style command. Shipped
+      as a new, self-contained `xontrib/sysinfo.py` (not loaded by default; requires
+      `psutil`, added as the new `observability` extra and pulled into `full`),
+      following AGENTS.md's rule rather than touching `pygwin/prompt/base.py` or
+      `environ.py` directly.
+      Design: a `SysTelemetry` class owns one daemon thread and a lock-protected
+      snapshot (cpu percent, memory percent, memory used/total in GiB), polled every
+      2 seconds. `psutil.cpu_percent(interval=None)` reports the delta since the
+      previous call rather than sleeping to measure, so the only blocking wait in the
+      whole design is the background thread's own `Event.wait()` between polls;
+      anything reading `snapshot()` (prompt fields, in particular) only ever touches
+      an already-computed value behind a lock held for microseconds. Two prompt
+      fields (`cpu`, `mem`) are registered directly into `$PROMPT_FIELDS` from
+      `_load_xontrib_`, the same public mechanism the docs already tell end users to
+      use for their own custom fields (see `docs/prompt.rst`), rather than editing
+      `PromptFields.load_initial()`. If `psutil` is not installed, `_load_xontrib_`
+      prints one explanatory line and returns without starting anything, rather than
+      failing loudly or leaving a half-registered field.
+      `pygwin-top` reuses the same `psutil` dependency but intentionally does not
+      read the shared snapshot: it is a foreground command the user runs on purpose,
+      so unlike the passive telemetry thread it is allowed to block on its own 1
+      second refresh loop until Ctrl+C, and it also tracks per-process CPU% (which
+      the prompt-field snapshot does not). Found and fixed a real bug while building
+      it: `psutil.process_iter()` hands back a fresh `Process` object every call, and
+      `Process.cpu_percent()` needs two calls on the *same* object to report a real
+      delta, so a naive `process_iter(["cpu_percent"])` loop silently reports 0.0%
+      for every process on every refresh. Fixed by keeping one persistent
+      `{pid: Process}` dict across refreshes. Verified against the real dev machine,
+      not just tests: watched `pygwin-top` correctly rank `python.exe` and `dwm.exe`
+      above idle processes across two live refreshes.
+      Tested with a real background thread and a real mocked `xession` fixture in
+      `tests/test_sysinfo_xontrib.py` (9 tests: thread start/stop/idempotency, a real
+      snapshot populating within a 2 second deadline, prompt-field registration and
+      removal on load/unload, and the zero-vs-none formatting distinction, since
+      `PromptField`'s default `__format__` treats a real `0%` reading the same as
+      "no value yet" and had to be overridden).
+      Not done in this bullet, and deliberately left for later: thermals (`psutil`'s
+      `sensors_temperatures()` is Linux-only in practice and does not exist at all in
+      some `psutil` builds on Windows, so "where available" in the original roadmap
+      wording means "not on this project's primary platform today"), and whether
+      `sysinfo` should be autoloaded by default rather than opt-in (`coreutils`, the
+      only other in-tree xontrib, is also opt-in only, so this matches existing
+      precedent rather than introducing a new one; worth revisiting once there is
+      real usage to react to).
 - [ ] Smart process auto-tuning: detect known-heavy commands (compiles, renders,
       encodes) and offer to adjust their priority or CPU affinity, transparently and
       reversibly, never silently.

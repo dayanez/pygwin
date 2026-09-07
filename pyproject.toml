@@ -103,8 +103,9 @@ pygments = ["pygments>=2.2"]
 mac = ["gnureadline"]
 linux = ["distro"]
 proctitle = ["setproctitle"]
+observability = ["psutil>=5.9"]
 full = [
-    "pygwin[ptk,pygments]",
+    "pygwin[ptk,pygments,observability]",
     "distro; platform_system=='Linux'",
     "setproctitle; platform_system=='Windows'",
     "gnureadline; platform_system=='Darwin'",

@@ -28,6 +28,7 @@ how to use what is already built.
   - [Configuration](#configuration)
   - [Extending pygwin: xontribs](#extending-pygwin-xontribs)
   - [The coreutils bundled in](#the-coreutils-bundled-in)
+  - [System observability: the sysinfo xontrib](#system-observability-the-sysinfo-xontrib)
   - [Command line reference](#command-line-reference)
 - [Performance philosophy](#performance-philosophy)
 - [Building the standalone executable](#building-the-standalone-executable)
@@ -69,14 +70,15 @@ pygwin is in an early, honest state. What exists today:
 - `readline`, not `prompt_toolkit`, as the default interactive backend, with
   `prompt_toolkit` strictly opt-in even when it's installed (see
   [Performance philosophy](#performance-philosophy)).
+- Pre-built, bundled parser tables, so the first command you run doesn't pay a
+  one-time ~1.8 second parser-table generation cost.
+- A live CPU and memory telemetry thread and `pygwin-top`, as the opt-in `sysinfo`
+  xontrib (see [System observability: the sysinfo xontrib](#system-observability-the-sysinfo-xontrib)).
 
 What does not exist yet, and is tracked honestly rather than oversold:
 
-- The rest of the startup-time and memory stripping work: lazy imports beyond the
-  prompt/shell-selection path, skipping foreign-shell probing by default, a lighter
-  default history backend.
-- The live telemetry prompt, process auto-tuning, and cached subprocess proxying
-  features that motivate this project in the first place.
+- Process auto-tuning and cached binary/environment lookups, the other two pieces of
+  the observability work this project exists for.
 
 Read [ROADMAP.md](ROADMAP.md) for the full plan and its reasoning. This is a
 daily-driver project built and maintained by one person, not a company or a team, so
@@ -240,6 +242,35 @@ xontrib load coreutils
 
 These avoid spawning a real subprocess for simple operations and work identically on
 Windows, macOS, and Linux.
+
+### System observability: the sysinfo xontrib
+
+The first piece of pygwin's actual differentiator: live CPU and memory telemetry,
+exposed both in the prompt and as a `pygwin-top` command. It ships in the box but is
+not loaded by default, since it needs `psutil`, an optional dependency:
+
+```
+pip install "pygwin[observability]"   # or pip install "pygwin[full]", which includes it
+xontrib load sysinfo
+```
+
+Once loaded, a background thread polls CPU and memory usage every couple of seconds
+and never blocks the prompt: reading the latest sample is a cheap in-memory lookup,
+not a fresh syscall. Two new prompt fields become available:
+
+```xsh
+$PROMPT = $PROMPT.replace("{prompt_end}", "{cpu}% cpu {mem}% mem {prompt_end}")
+```
+
+And a live-refreshing process view, similar to `top` or `htop`, is available as:
+
+```
+pygwin-top
+```
+
+Press Ctrl+C to exit it. It is a separate, on-demand foreground command: unlike the
+prompt-field telemetry thread, it is allowed to block while it runs, since the user
+asked for it directly.
 
 ### Command line reference
 
