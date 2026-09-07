@@ -284,8 +284,43 @@ rush through in one pass.
       confirming the real `on_post_spec_run` event delivers `spec`/`proc` in the
       shape this code assumes and the transparency message prints for real.
       14 tests in `tests/test_autotune_xontrib.py`.
-- [ ] Cached binary path and environment lookups, so resolving external commands does
+- [x] Cached binary path and environment lookups, so resolving external commands does
       not repeat filesystem work every single invocation.
+      Measured first, per this file's own rule: `pygwin.procs.executables.locate_executable`
+      is the real hot path (called from `procs/specs.py` for every subprocess command),
+      and there was already a `CommandsCache` class with mtime-based directory caching,
+      but its own docstring says it is "NOT RECOMMENDED" for single-command resolution
+      in favor of `locate_executable`, which turned out not to use that cache at all.
+      Timed directly on a dev machine with a real 35-entry `$PATH`: 200 calls to
+      `locate_executable("git")` took ~10.06ms each, of which ~9.28ms was
+      `clear_paths()` (`os.path.realpath` + `os.path.isdir` on every `$PATH` entry),
+      re-run from scratch on every single call even though `$PATH` essentially never
+      changes mid-session.
+      First fix attempt cached `get_paths()`, the function `CommandsCache` calls, but
+      re-measuring showed almost no change (~9.93ms). Reading `locate_file_in_path_env`
+      (what `locate_executable` actually calls) showed why: it calls `clear_paths()`
+      directly and never goes through `get_paths()` at all, so the two functions were
+      duplicating the same filesystem work independently. Added one shared,
+      order-preserving cache (`_cached_clear_paths`, keyed on the raw `$PATH` tuple) and
+      had both call sites use it; `get_paths()` still reverses its result afterward,
+      preserving its existing contract for `CommandsCache` and other callers, while
+      `locate_file_in_path_env` gets the un-reversed, priority-preserving order it
+      always relied on. Respects the existing `$ENABLE_COMMANDS_CACHE` toggle, matching
+      its documented "disables the caching mechanism" behavior.
+      Re-measured after the real fix: `locate_executable("git")` dropped to ~1.27ms per
+      call, an ~87% reduction. The remaining cost is the actual per-name stat check
+      across `$PATH` directories, not redundant re-validation of `$PATH` itself; going
+      further would mean giving every directory the same always-on listing cache
+      `$PYGWIN_COMMANDS_CACHE_READ_DIR_ONCE` already offers as an opt-in today, which is
+      a bigger correctness-sensitive change (stale listings if a directory's contents
+      change mid-session) left for later rather than folded into this fix.
+      Verified the cache actually caches and actually invalidates, not just that the
+      numbers looked right: `tests/procs/test_executables.py` gained tests that count
+      real `clear_paths()` calls (asserting an unchanged `$PATH` triggers exactly one),
+      confirm a `$PATH` change is picked up on the very next call with no manual
+      cache-reset, confirm `locate_executable` itself (not just `get_paths()`) finds a
+      newly-added `$PATH` directory immediately, and confirm `$ENABLE_COMMANDS_CACHE =
+      False` bypasses the cache entirely.
 
 ### Distribution
 

@@ -34,6 +34,77 @@ def test_get_paths(tmpdir):
     assert get_paths(env) == (bindir2, bindir1)
 
 
+def test_cached_clear_paths_reuses_result_until_path_changes(tmpdir, monkeypatch):
+    """clear_paths() does real realpath()/isdir() filesystem work; it should
+    only be re-run when the raw $PATH value actually changes, not on every
+    single call with the same $PATH."""
+    bindir1 = str(tmpdir.mkdir("bindir1"))
+    bindir2 = str(tmpdir.mkdir("bindir2"))
+    env = Env(PATH=[bindir1, bindir2])
+
+    calls = []
+    real_clear_paths = executables_mod.clear_paths
+
+    def counting_clear_paths(paths):
+        calls.append(tuple(paths))
+        return real_clear_paths(paths)
+
+    monkeypatch.setattr(executables_mod, "clear_paths", counting_clear_paths)
+    executables_mod._clear_paths_cache_key = None
+
+    first = get_paths(env)
+    second = get_paths(env)
+    assert first == second == (bindir2, bindir1)
+    assert len(calls) == 1, "unchanged $PATH must not be re-scanned"
+
+    # Changing $PATH must be picked up immediately, without any manual
+    # cache-clearing.
+    bindir3 = str(tmpdir.mkdir("bindir3"))
+    env.update({"PATH": [bindir1, bindir3]})
+    third = get_paths(env)
+    assert third == (bindir3, bindir1)
+    assert len(calls) == 2, "a changed $PATH must trigger a re-scan"
+
+
+def test_cached_clear_paths_respects_enable_commands_cache(tmpdir, monkeypatch):
+    """Setting $ENABLE_COMMANDS_CACHE = False must disable this cache too,
+    matching its documented "disables the caching mechanism" behavior."""
+    bindir = str(tmpdir.mkdir("bindir"))
+    env = Env(PATH=[bindir], ENABLE_COMMANDS_CACHE=False)
+
+    calls = []
+    real_clear_paths = executables_mod.clear_paths
+    monkeypatch.setattr(
+        executables_mod,
+        "clear_paths",
+        lambda paths: (calls.append(1) or real_clear_paths(paths)),
+    )
+    executables_mod._clear_paths_cache_key = None
+
+    get_paths(env)
+    get_paths(env)
+    assert len(calls) == 2, "caching must be bypassed when disabled"
+
+
+def test_locate_executable_finds_newly_added_path_dir(tmpdir, xession):
+    """The hot path used to resolve every subprocess command must also
+    benefit from the cache, and must still notice a $PATH change without
+    needing an explicit cache reset."""
+    bindir1 = tmpdir.mkdir("bindir1")
+    bindir2 = tmpdir.mkdir("bindir2")
+    name = "onlyinbindir2.EXE" if ON_WINDOWS else "onlyinbindir2"
+    (f := bindir2 / name).write_text("binary", encoding="utf8")
+    os.chmod(f, 0o777)
+    pathext = [".EXE"] if ON_WINDOWS else []
+
+    executables_mod._clear_paths_cache_key = None
+
+    with xession.env.swap(PATH=[str(bindir1)], PATHEXT=pathext):
+        assert locate_executable(name) is None
+        with xession.env.swap(PATH=[str(bindir1), str(bindir2)], PATHEXT=pathext):
+            assert locate_executable(name) is not None
+
+
 def test_locate_executable(tmpdir, xession):
     bindir0 = tmpdir.mkdir("bindir0")  # current working directory
     bindir1 = tmpdir.mkdir("bindir1")
