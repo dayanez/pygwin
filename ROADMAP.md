@@ -240,9 +240,50 @@ rush through in one pass.
       only other in-tree xontrib, is also opt-in only, so this matches existing
       precedent rather than introducing a new one; worth revisiting once there is
       real usage to react to).
-- [ ] Smart process auto-tuning: detect known-heavy commands (compiles, renders,
+- [x] Smart process auto-tuning: detect known-heavy commands (compiles, renders,
       encodes) and offer to adjust their priority or CPU affinity, transparently and
       reversibly, never silently.
+      Shipped as another new, self-contained xontrib, `xontrib/autotune.py`, again
+      not loaded by default, needing no edits to `pygwin/procs/specs.py` or any other
+      core file: `SubprocSpec.run()` already fires an `on_post_spec_run` event
+      (`spec=`, `proc=`) right after every subprocess spawns, which turned out to be
+      exactly the extension point this needed, built for general-purpose use rather
+      than for this feature specifically.
+      Detection is name-based, matching the roadmap wording ("known-heavy commands")
+      rather than a live CPU-usage heuristic: a fixed set of compiler, build-tool,
+      renderer, encoder, and archiver basenames (`gcc`, `rustc`, `cargo`, `msbuild`,
+      `ffmpeg`, `blender`, `7z`, `docker`, and others), overridable via
+      `$PYGWIN_AUTOTUNE_COMMANDS` without a formal `environ.py` entry, the same
+      pattern `sysinfo` already established for its poll interval.
+      The adjustment itself is a priority nudge, not CPU-affinity pinning: on Windows,
+      `psutil.Process.nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)`; on POSIX, a niceness
+      of 10. Deliberately not touching affinity in this first pass, since forcing a
+      heavy process onto a subset of cores can genuinely slow it down on some
+      workloads rather than just deprioritize it, a real tradeoff that needs its own
+      justification, not a default.
+      "Transparently and reversibly, never silently" is met by construction rather
+      than by an interactive confirmation prompt: the whole feature is opt-in
+      (`xontrib load autotune`), every adjustment prints exactly what changed and the
+      command to undo it, and undoing it is a real, tested round trip
+      (`pygwin-tune restore <pid>`, or `pygwin-tune list` to see what is currently
+      adjusted). A blocking yes/no prompt was considered and rejected: it would
+      steal stdin from the very command it's asking about, and would be actively
+      hostile in scripts and pipelines.
+      Found the single highest-stakes bug case by reading `pygwin/procs/proxies.py`
+      before writing any code, per AGENTS.md's note that `pygwin/procs/` deserves
+      execution-safety-level care: `ProcProxy` (the Popen stand-in for unthreadable
+      callable aliases) sets its own `.pid` to `os.getpid()`, pygwin's own process.
+      A naive implementation would, on the right alias name match, deprioritize the
+      entire running shell. Guarded explicitly against `pid == os.getpid()`, and
+      wrote a test that fakes `psutil.Process` to raise if it is ever called at all
+      for that case, not just asserting the end state.
+      Verified two ways beyond unit tests: a real subprocess spawned in-test, reniced,
+      confirmed changed via `psutil`, and confirmed restored to its exact original
+      value; and a real end-to-end run through an actual compiled pygwin session
+      (`pygwin -c "..."`, `xontrib load autotune` then a matched subprocess),
+      confirming the real `on_post_spec_run` event delivers `spec`/`proc` in the
+      shape this code assumes and the transparency message prints for real.
+      14 tests in `tests/test_autotune_xontrib.py`.
 - [ ] Cached binary path and environment lookups, so resolving external commands does
       not repeat filesystem work every single invocation.
 

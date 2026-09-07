@@ -29,6 +29,7 @@ how to use what is already built.
   - [Extending pygwin: xontribs](#extending-pygwin-xontribs)
   - [The coreutils bundled in](#the-coreutils-bundled-in)
   - [System observability: the sysinfo xontrib](#system-observability-the-sysinfo-xontrib)
+  - [Process auto-tuning: the autotune xontrib](#process-auto-tuning-the-autotune-xontrib)
   - [Command line reference](#command-line-reference)
 - [Performance philosophy](#performance-philosophy)
 - [Building the standalone executable](#building-the-standalone-executable)
@@ -74,11 +75,14 @@ pygwin is in an early, honest state. What exists today:
   one-time ~1.8 second parser-table generation cost.
 - A live CPU and memory telemetry thread and `pygwin-top`, as the opt-in `sysinfo`
   xontrib (see [System observability: the sysinfo xontrib](#system-observability-the-sysinfo-xontrib)).
+- Transparent, reversible process auto-tuning for known CPU-heavy commands, as the
+  opt-in `autotune` xontrib (see
+  [Process auto-tuning: the autotune xontrib](#process-auto-tuning-the-autotune-xontrib)).
 
 What does not exist yet, and is tracked honestly rather than oversold:
 
-- Process auto-tuning and cached binary/environment lookups, the other two pieces of
-  the observability work this project exists for.
+- Cached binary path and environment lookups, the last piece of the observability
+  work this project exists for.
 
 Read [ROADMAP.md](ROADMAP.md) for the full plan and its reasoning. This is a
 daily-driver project built and maintained by one person, not a company or a team, so
@@ -271,6 +275,36 @@ pygwin-top
 Press Ctrl+C to exit it. It is a separate, on-demand foreground command: unlike the
 prompt-field telemetry thread, it is allowed to block while it runs, since the user
 asked for it directly.
+
+### Process auto-tuning: the autotune xontrib
+
+Also opt-in, also needs `psutil` (the same `observability` extra covers it):
+
+```
+xontrib load autotune
+```
+
+Once loaded, right after any command known to be typically CPU-heavy (compilers,
+build tools, renderers, encoders, archivers, a fixed list covering things like
+`gcc`, `rustc`, `cargo`, `msbuild`, `ffmpeg`, `blender`, `7z`, `docker`) finishes
+launching, pygwin nudges its OS priority down a notch so it doesn't make the rest of
+the shell feel sluggish while it runs. It never does this quietly:
+
+```
+pygwin: lowered priority of 'ffmpeg.exe' (pid 12345) to keep the shell responsive.
+Run 'pygwin-tune restore 12345' to undo.
+```
+
+```
+pygwin-tune list             # see everything currently adjusted this session
+pygwin-tune restore 12345    # put one process back to its original priority
+pygwin-tune restore all      # put everything back
+```
+
+Nothing here is permanent: it only ever changes a live process's own priority, which
+disappears the moment that process exits either way. The list of recognized command
+names can be overridden with `$PYGWIN_AUTOTUNE_COMMANDS` (an iterable of names) if
+the defaults don't match what actually runs heavy on your machine.
 
 ### Command line reference
 
