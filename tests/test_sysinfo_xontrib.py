@@ -28,7 +28,9 @@ def test_telemetry_start_returns_false_when_psutil_missing(monkeypatch):
     assert sysinfo._telemetry._thread is None
 
 
-def test_load_xontrib_prints_and_skips_when_psutil_missing(xession, monkeypatch, capsys):
+def test_load_xontrib_prints_and_skips_when_psutil_missing(
+    xession, monkeypatch, capsys
+):
     monkeypatch.setitem(sys.modules, "psutil", None)
     sysinfo._load_xontrib_(xession)
     fields = xession.env["PROMPT_FIELDS"]
