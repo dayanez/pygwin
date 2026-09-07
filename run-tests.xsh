@@ -9,8 +9,8 @@ from pygwin.tools import print_color
 import itertools
 
 
-$XONSH_SUBPROC_CMD_RAISE_ERROR = True
-# $XONSH_SUBPROC_TRACE = True
+$PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
+# $PYGWIN_SUBPROC_TRACE = True
 
 
 def colored_tracer(cmds, **_):
