@@ -18,17 +18,16 @@ from pygwin.history.json import JsonHistory
 
 HISTORY_BACKENDS = {"dummy": DummyHistory, "json": JsonHistory}
 
-try:
-    from pygwin.history.sqlite import SqliteHistory
-
-    HISTORY_BACKENDS |= {"sqlite": SqliteHistory}
-except Exception:
-    """
-    On some linux systems (e.g. alt linux) sqlite3 is not installed
-    and it's hard to install it and maybe user can't install it.
-    We need to just go forward.
-    """
-    pass
+# "sqlite" is deliberately *not* imported here. json is the default backend
+# (see construct_history below), so every launch was paying sqlite3's real
+# import cost (loading _sqlite3, a compiled extension) whether or not
+# anyone ever picks sqlite history. construct_history() imports
+# pygwin.history.sqlite lazily, only when "sqlite" is actually requested.
+# This also preserves the original behavior for the case sqlite3 isn't
+# available at all on some systems (e.g. alt linux): the ImportError is
+# still swallowed, just deferred to first use instead of eagerly at
+# startup.
+HISTORY_BACKENDS["sqlite"] = "pygwin.history.sqlite.SqliteHistory"
 
 
 def construct_history(backend=None, **kwargs) -> "History":
@@ -37,6 +36,23 @@ def construct_history(backend=None, **kwargs) -> "History":
     backend = backend or env.get("PYGWIN_HISTORY_BACKEND", "json")
     if isinstance(backend, str) and backend in HISTORY_BACKENDS:
         kls_history = HISTORY_BACKENDS[backend]
+        if isinstance(kls_history, str):
+            # Lazy entry ("module.path.ClassName"): resolve on first actual
+            # use, not at pygwin.history.main import time. See the comment
+            # by HISTORY_BACKENDS above.
+            mod_name, _, cls_name = kls_history.rpartition(".")
+            try:
+                import importlib
+
+                kls_history = getattr(importlib.import_module(mod_name), cls_name)
+            except Exception as e:
+                xt.print_exception(
+                    f"Error loading history backend {backend!r}: {e}\n"
+                    f"Set $PYGWIN_HISTORY_BACKEND='dummy' to disable history.\n"
+                    f"History disabled."
+                )
+                return DummyHistory()
+            HISTORY_BACKENDS[backend] = kls_history
     elif xt.is_class(backend):
         kls_history = backend
     elif isinstance(backend, History):

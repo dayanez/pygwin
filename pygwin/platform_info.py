@@ -39,12 +39,19 @@ def distro():
 #
 # OS
 #
-ON_DARWIN = LazyBool(lambda: platform.system() == "Darwin", globals(), "ON_DARWIN")
+ON_DARWIN = LazyBool(lambda: sys.platform == "darwin", globals(), "ON_DARWIN")
 """``True`` if executed on a Darwin platform, else ``False``. """
-ON_LINUX = LazyBool(lambda: platform.system() == "Linux", globals(), "ON_LINUX")
+ON_LINUX = LazyBool(lambda: sys.platform.startswith("linux"), globals(), "ON_LINUX")
 """``True`` if executed on a Linux platform, else ``False``. """
-ON_WINDOWS = LazyBool(lambda: platform.system() == "Windows", globals(), "ON_WINDOWS")
+ON_WINDOWS = LazyBool(lambda: sys.platform == "win32", globals(), "ON_WINDOWS")
 """``True`` if executed on a native Windows platform, else ``False``. """
+# These three used platform.system() until profiling turned up that, on
+# Windows with Python 3.12+, platform.system() calls uname() which shells
+# out to WMI (_wmi.exec_query) and alone cost ~85ms of pygwin's own startup,
+# forced eager immediately anyway by `if ON_WINDOWS:` blocks at module scope
+# further down this file. sys.platform is a plain string set once at
+# interpreter startup: free to check, and exactly what ON_CYGWIN/ON_MSYS/the
+# BSD variants below already correctly use.
 ON_CYGWIN = LazyBool(lambda: sys.platform == "cygwin", globals(), "ON_CYGWIN")
 """``True`` if executed on a Cygwin Windows platform, else ``False``. """
 ON_MSYS = LazyBool(lambda: sys.platform == "msys", globals(), "ON_MSYS")

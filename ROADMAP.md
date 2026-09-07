@@ -74,6 +74,28 @@ rush through in one pass.
       is the *end* state after the rest of this section too, not from this alone.
 - [ ] Lazy-import heavy modules (subprocess helpers, `inspect`, `json`, `pathlib` usage
       in cold paths, the ply-based parser) so they load on first use, not on every launch.
+      Two concrete wins landed so far, found by profiling with `python -X importtime -c
+      "import pygwin.main"` rather than guessing:
+      - `ON_DARWIN`/`ON_LINUX`/`ON_WINDOWS` in `platform_info.py` used
+        `platform.system()`, while every other OS check in the same file
+        (`ON_CYGWIN`, `ON_MSYS`, the BSD variants) already correctly used the free
+        `sys.platform`/`os.name` string checks. On Windows with Python 3.12+,
+        `platform.system()` calls `uname()`, which shells out to WMI
+        (`_wmi.exec_query`) and cost ~85ms on its own, made worse by `if
+        ON_WINDOWS:` blocks at module scope in the same file forcing that
+        "lazy" bool to resolve immediately at import time anyway. Switched all
+        three to `sys.platform`, matching the pattern the rest of the file
+        already used. `pygwin.platform_info` import time: ~130ms to ~38-45ms.
+      - `pygwin/history/main.py` unconditionally imported
+        `pygwin.history.sqlite` (and therefore `sqlite3`, a compiled stdlib
+        extension) at module level, even though `json` is the default history
+        backend. Made the `"sqlite"` entry in `HISTORY_BACKENDS` a lazy
+        dotted-path string that `construct_history()` resolves via
+        `importlib` only when sqlite is actually requested, preserving the
+        original silent-fallback behavior for systems where sqlite3 isn't
+        available at all.
+      Still open from this bullet: `inspect`, `pathlib` usage in cold paths, and the
+      ply-based parser haven't been profiled/addressed yet.
 - [ ] Skip foreign shell (bash/zsh/cmd) environment probing on startup unless explicitly
       requested; it costs a process spawn nobody asked for on most launches.
 - [ ] Replace the default history backend with a lightweight append-only or in-memory
