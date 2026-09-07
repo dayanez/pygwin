@@ -186,8 +186,12 @@ rush through in one pass.
       already-published v0.1.0 release still has this bug; a v0.1.1 (or
       later) release is needed to actually fix it for anyone who already
       downloaded v0.1.0.
-- [ ] Measure before and after every change above. "Feels faster" is not a metric;
-      wall-clock startup time and RSS at prompt are.
+- [x] Measure before and after every change above. "Feels faster" is not a metric;
+      wall-clock startup time and RSS at prompt are. Every bullet above already
+      carries real before/after numbers (measured with `-X importtime`, direct
+      `time.perf_counter()` timing, or `scripts/measure_shell_startup.py`), so this
+      is satisfied as a record of what was done, not a separate task. It stays true
+      as a standing rule for any future change to this section.
 
 ### System observability (pygwin's actual differentiator)
 
