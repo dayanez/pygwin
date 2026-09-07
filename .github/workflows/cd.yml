@@ -24,6 +24,13 @@ jobs:
           pip install -e ".[full]"
           pip install nuitka
 
+      - name: Pre-build parser tables
+        # Without this, Nuitka bundles no tables at all, and every person
+        # who downloads the release eats a one-time ~1.8s LALR
+        # table-generation hang the first time they run any command. See
+        # scripts/build_parser_tables.py for why.
+        run: python scripts/build_parser_tables.py
+
       - name: Build standalone executable
         run: >
           python -m nuitka
@@ -35,6 +42,8 @@ jobs:
           --enable-plugin=no-qt
           --windows-console-mode=force
           --no-deployment-flag=self-execution
+          --include-module=pygwin.parser_table
+          --include-module=pygwin.completion_parser_table
           pygwin/__main__.py
 
       - uses: actions/upload-artifact@v4

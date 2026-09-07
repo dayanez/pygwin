@@ -33,7 +33,7 @@ def clean_tables():
             print("Removed " + f)
 
 
-os.environ["XONSH_DEBUG"] = "1"
+os.environ["PYGWIN_DEBUG"] = "1"
 
 
 def build_tables():

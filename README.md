@@ -94,7 +94,13 @@ this fork is tuned and tested for.
 git clone https://github.com/dayanez/pygwin.git
 cd pygwin
 pip install -e ".[full]"
+python scripts/build_parser_tables.py
 ```
+
+That last line is optional but recommended: pygwin's parser tables are generated on
+first use and cached from then on, but generating them from scratch takes about 1.8
+seconds. Skipping this step just means whatever command you type first pays that
+cost once, silently, instead of paying it here with an explanation.
 
 The `[full]` extra pulls in the interactive line editor (`prompt_toolkit`) and syntax
 highlighting (`pygments`). pygwin still defaults to its own fast `readline` backend
@@ -284,8 +290,17 @@ To build locally:
 ```
 pip install -e ".[full]"
 pip install nuitka
-python -m nuitka --standalone --onefile --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution pygwin/__main__.py
+python scripts/build_parser_tables.py
+python -m nuitka --standalone --onefile --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table pygwin/__main__.py
 ```
+
+Both extra lines matter, not just the Nuitka invocation. Skip the table pre-build and
+Nuitka simply won't find it (parser tables are generated on first use, and don't exist
+until then); skip the `--include-module` flags and Nuitka's static import scanner won't
+notice the pre-built tables exist at all, since PLY loads them by a dynamic string
+module name, not a literal `import` statement. Without both, the compiled `pygwin.exe`
+regenerates its parser tables from scratch on every single launch, adding about 1.8
+seconds to it, silently.
 
 The current release is a baseline: it compiles today's codebase as-is, not the
 stripped-down build described in the roadmap. Expect it to be sizable
