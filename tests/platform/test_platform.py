@@ -1,5 +1,6 @@
 import builtins
 import os
+import shutil
 from unittest.mock import mock_open
 
 import pytest
@@ -69,11 +70,14 @@ def test_path_bshell_android_proot_prefers_fhs(monkeypatch):
 
 def test_path_bshell_path_fallback(monkeypatch):
     # No candidate exists: fall back to ``sh`` from $PATH.
+    # path_bshell() imports shutil locally (deferred: it's a real ~9ms cost
+    # for a function nothing calls at startup), so patch the real shutil
+    # module directly rather than a xp.shutil module-level attribute.
     monkeypatch.setattr(xp, "ON_TERMUX", False)
     monkeypatch.setattr(xp, "ON_ANDROID", False)
     monkeypatch.setattr(os, "access", lambda p, m: False)
     monkeypatch.setattr(
-        xp.shutil, "which", lambda cmd: "/opt/bin/sh" if cmd == "sh" else None
+        shutil, "which", lambda cmd: "/opt/bin/sh" if cmd == "sh" else None
     )
     assert xp.path_bshell() == "/opt/bin/sh"
 
@@ -82,7 +86,7 @@ def test_path_bshell_last_resort(monkeypatch):
     monkeypatch.setattr(xp, "ON_TERMUX", False)
     monkeypatch.setattr(xp, "ON_ANDROID", False)
     monkeypatch.setattr(os, "access", lambda p, m: False)
-    monkeypatch.setattr(xp.shutil, "which", lambda cmd: None)
+    monkeypatch.setattr(shutil, "which", lambda cmd: None)
     assert xp.path_bshell() == "/bin/sh"
 
 

@@ -72,9 +72,9 @@ rush through in one pass.
       shell object vs `readline` (new default) ~246-249ms. About a 75ms, 23% cut, from
       this one change plus its two follow-on fixes. The 30-60ms target in the README
       is the *end* state after the rest of this section too, not from this alone.
-- [ ] Lazy-import heavy modules (subprocess helpers, `inspect`, `json`, `pathlib` usage
+- [x] Lazy-import heavy modules (subprocess helpers, `inspect`, `json`, `pathlib` usage
       in cold paths, the ply-based parser) so they load on first use, not on every launch.
-      Two concrete wins landed so far, found by profiling with `python -X importtime -c
+      Four concrete wins landed, found by profiling with `python -X importtime -c
       "import pygwin.main"` rather than guessing:
       - `ON_DARWIN`/`ON_LINUX`/`ON_WINDOWS` in `platform_info.py` used
         `platform.system()`, while every other OS check in the same file
@@ -107,8 +107,25 @@ rush through in one pass.
       import safely would need real understanding of the descriptor-ordering
       issue that PR fixed, not just moving the import statement, so it's
       left alone for now rather than gambled on.
+      A fourth win: `platform_info.py` imported `ctypes` and `shutil` at
+      module level (~12ms and ~9ms respectively, the latter via `shutil`'s
+      own `bz2`/`lzma` imports), but every actual use of both is confined to
+      one function each (`LIBC()`, used only by `xoreutils/uptime.py` and
+      `platforms/macutils.py`; `path_bshell()`, used only by the
+      shebang-less-script fallback in `procs/specs.py`), neither called at
+      startup. Moved both imports inside their functions. `platform_info`
+      import time: ~38-45ms to ~21ms. Verified `LIBC` and `path_bshell()`
+      still resolve correctly after the change, not just that tests pass.
+      `pygwin.main`'s total cumulative import time across all four fixes in
+      this bullet: ~278ms to ~100ms in local `-X importtime` profiling
+      (numbers shift with OS file-cache state; treat as directional, not
+      absolute).
       Still open from this bullet: `inspect` usage in `pygwin.tools`, and
-      whatever's left in `pathlib`/the ply-based parser.
+      whatever's left in `pathlib`/the ply-based parser. Diminishing returns
+      at this point: individually small (single-digit ms), and the one
+      remaining large chunk (`pygwin.procs.proxies`'s ~54ms subtree) is the
+      high-risk one documented above, not something left to casually pick
+      off.
 - [x] Skip foreign shell (bash/zsh/cmd) environment probing on startup unless explicitly
       requested. Checked: this was already the case. `foreign_shell_data()` (in
       `pygwin/foreign_shells.py`) is only ever called from the explicit
@@ -122,6 +139,18 @@ rush through in one pass.
       turned out not to describe this codebase's actual current behavior.
 - [ ] Replace the default history backend with a lightweight append-only or in-memory
       option, keeping SQLite/JSON history as an opt-in xontrib for people who want it.
+      Investigated before writing any code, per this file's own "measure before and
+      after" rule: measured `JsonHistory()` construction directly at **0.86ms**, and
+      after the sqlite lazy-load fix above, `pygwin.history.main`'s import cost is
+      down to a modest ~10ms cumulative, most of which is legitimate (diff_history,
+      JSON encoding). Writing a whole new backend class to replace a sub-millisecond
+      cost isn't justified by data; that would be exactly the kind of unverified,
+      speculative work this file exists to avoid. If there's a real case for a
+      lighter default, it's more likely in *sustained per-command* behavior over a
+      long session (buffered writes, the background flush thread) than in anything
+      that shows up in a startup profile, and would need a different kind of
+      measurement (a long-running session benchmark) to justify before building
+      anything. Left undone rather than done badly.
 - [x] Pre-build and ship the parser tables instead of regenerating them at import time.
       Found the real problem isn't import time, it's *first parse* time:
       `parser_table.py`/`completion_parser_table.py` are gitignored build

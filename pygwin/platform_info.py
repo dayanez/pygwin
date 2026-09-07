@@ -4,13 +4,11 @@ on a platform.
 """
 
 import collections.abc as cabc
-import ctypes  # noqa
 import functools
 import importlib.util
 import os
 import pathlib
 import platform
-import shutil
 import signal
 import subprocess
 import sys
@@ -138,6 +136,11 @@ def path_bshell():
     FHS concession. If no candidate exists, fall back to ``sh`` from
     ``$PATH`` (POSIX mandates the *utility*, not a fixed path).
     """
+    # Deferred: shutil pulls in bz2/lzma at import time (~9ms measured) for
+    # archive support this function never touches. Only called from the
+    # shebang-less-script fallback path, never at startup.
+    import shutil
+
     candidates = []
     if ON_TERMUX:
         prefix = os.environ.get("PREFIX", "/data/data/com.termux/files/usr")
@@ -731,7 +734,11 @@ def PATH_DEFAULT():
 @lazyobject
 def LIBC():
     """The platform dependent libc implementation."""
-    global ctypes
+    # ctypes is a real C-extension load (measured ~12ms). LIBC is only
+    # touched by xoreutils/uptime.py and platforms/macutils.py, neither of
+    # which run at startup, so import it here rather than at module level.
+    import ctypes
+
     if ON_DARWIN:
         import ctypes.util
 
