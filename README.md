@@ -35,6 +35,3 @@ to propose a change, open an issue or a pull request, or reach me at dommcpro@gm
 
 pygwin is licensed under the [GNU General Public License v3.0 or later](LICENSE). It must remain
 open source. That is a license condition, not a preference.
-
-pygwin is a fork of [xonsh](https://github.com/xonsh/xonsh), built by the xonsh developers and its
-community. See [CREDITS.md](CREDITS.md) for full attribution.
