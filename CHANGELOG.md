@@ -4,6 +4,12 @@ All notable changes to pygwin are recorded here. This file starts from pygwin's 
 first commit; for xonsh's history before the fork, see
 [xonsh's changelog](https://github.com/xonsh/xonsh/blob/main/CHANGELOG.md).
 
+## v0.3.1
+
+- New terminal-icon logo, used in the README, the standalone `pygwin.exe`
+  (via Nuitka's `--windows-icon-from-ico`), and the GitHub Pages site.
+- Removed the changelog link from the GitHub Pages site.
+
 ## v0.3.0
 
 - Renamed pygwin's own plugin mechanism away from xonsh's naming: `xontrib/` is
