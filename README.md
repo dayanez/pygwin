@@ -4,15 +4,9 @@
 
 # pygwin
 
-A Windows-first, Python-powered shell and system observability console. pygwin is a
-fork of [xonsh](https://github.com/xonsh/xonsh): the same battle-tested Python shell
-engine and parser, renamed throughout, wearing a leaner default configuration and a
-different mission.
+A Shell enviroment with the idea of minmal and pragmatic. 
 
-xonsh already proved that a shell can run real Python, mixed freely with subprocess
-calls, in one interactive session. pygwin starts from that and asks a second question:
-what does a shell look like if it is also the tool you reach for to understand what
-your machine is doing while it does it? Live CPU and memory telemetry in the prompt.
+Pygwin plans to provide, live CPU and memory telemetry in the prompt.
 Automatic, transparent tuning of the heavy commands you run every day. A shell you can
 install by clicking one `.exe`, not by standing up a Python environment first.
 
@@ -47,61 +41,23 @@ measurements included, see this repository's git history and
 
 Most shells make you choose between power and speed. `cmd.exe` and PowerShell start
 fast and know nothing about Python. A Python REPL knows Python and nothing about being
-a shell. xonsh already closed that gap: it is a real shell with real Python semantics,
-subprocess syntax, and a plugin system, all at once.
+a shell. 
 
 pygwin takes that foundation and points it at two goals that a general-purpose,
 cross-platform shell cannot fully commit to:
 
-1. **Fast, lean, Windows-first.** A default configuration that does not spend your
+1. **Fast and lean** A default configuration that does not spend your
    launch time probing bash and zsh for environment variables you do not have, or
    importing an interactive line editor you might not need.
 2. **A shell that watches your machine, not just your commands.** Background system
    telemetry and workflow-aware process tuning, built in, not bolted on with a script
    you have to remember to run.
 
-Neither of those is finished. See [Status](#status).
-
-## Status
-
-pygwin is in an early, honest state. What exists today:
-
-- A working fork of xonsh, renamed throughout: install it, run `pygwin`, and you have
-  a full xonsh-class shell under its own name, top to bottom.
-- A CI pipeline that lints and tests every push and pull request.
-- A CD pipeline that builds a standalone Windows `.exe` with [Nuitka](https://nuitka.net/)
-  on release.
-- This README, [SYNCING.md](SYNCING.md), and [AGENTS.md](AGENTS.md) as the
-  documentation and process backbone.
-- `readline`, not `prompt_toolkit`, as the default interactive backend, with
-  `prompt_toolkit` strictly opt-in even when it's installed (see
-  [Performance philosophy](#performance-philosophy)).
-- Pre-built, bundled parser tables, so the first command you run doesn't pay a
-  one-time ~1.8 second parser-table generation cost.
-- A live CPU and memory telemetry thread and `pygwin-top`, as the opt-in `sysinfo`
-  pgtrib (see [System observability: the sysinfo pgtrib](#system-observability-the-sysinfo-pgtrib)).
-- Transparent, reversible process auto-tuning for known CPU-heavy commands, as the
-  opt-in `autotune` pgtrib (see
-  [Process auto-tuning: the autotune pgtrib](#process-auto-tuning-the-autotune-pgtrib)).
-- Cached binary path and environment lookups, cutting external command resolution
-  from about 10ms to about 1.3ms per call.
-- A Nuitka onefile build that reuses its extracted contents across runs instead of
-  re-extracting on every launch, and compresses its bundled payload, cutting the
-  `.exe`'s subsequent-run startup time roughly in half and its download size to
-  about a quarter of the uncompressed payload.
-
-Every item this project set out to do for its first real release has now landed; see
-[CHANGELOG.md](CHANGELOG.md) for what shipped in each version, and this repository's
-git history for the full investigation behind each one (real measurements, what was
-deliberately left undone and why). This is a daily-driver project built and
-maintained by one person, not a company or a team, so progress happens in real, dated
-commits rather than a marketing timeline.
 
 ## Installation
 
-pygwin targets **Windows first**, Python 3.11 or newer. It also runs anywhere xonsh
-does, since it is built on the same cross-platform engine, but Windows is the platform
-this fork is tuned and tested for.
+pygwin targets most operating systems. It plans to be a cross-platform engine, but Windows is the platform
+this is tuned and tested for.
 
 ### From source (today)
 
@@ -179,25 +135,6 @@ Run a script file:
 pygwin myscript.xsh
 ```
 
-### Built on xonsh's engine
-
-pygwin is a fork of xonsh's parser, execer, and shell engine, not a rewrite. Every
-function does what its xonsh equivalent did; the whole codebase, including the
-Python package name, the environment variable names, and internal class names, was
-renamed from xonsh to pygwin throughout, with no compatibility shims left for the
-word `xonsh` itself: no `__xonsh_threadable__`/`__xonsh_capturable__` alias
-attributes, no `#!/usr/bin/env xonsh` shebang recognition, no `~/.xonshrc` fallback.
-See [SYNCING.md](SYNCING.md) for exactly what that rename touched and what it costs
-going forward (pulling in upstream xonsh fixes now means porting them by hand, not a
-clean merge).
-
-Practically, this means almost everything written about xonsh's own language and
-semantics still applies to pygwin: Python-in-the-shell syntax, subprocess mode,
-the prompt formatting language, the xontrib plugin model. The specifics that changed
-are the package name, the `$PYGWIN_*` environment variable names (where xonsh used
-`$XONSH_*`), and the `~/.pygwinrc` config file name. pygwin does not attempt to
-duplicate xonsh's own documentation here. What this README documents is what is
-different: the name, the defaults, and the roadmap.
 
 ### Configuration
 
@@ -225,8 +162,7 @@ pgtrib load coreutils
 
 ### Extending pygwin: pgtribs
 
-pygwin inherits xonsh's plugin system. xonsh calls them xontribs; pygwin's own
-renamed equivalent is a pgtrib. A pgtrib is a Python or `.xsh`
+pygwin inherits a plugin system. A pgtrib is a Python or `.xsh`
 file that defines a `_load_pgtrib_(xsh, **_)` function and registers aliases, prompt
 fields, or event hooks. This is also how pygwin adds its own features without editing
 core files: see `pgtrib/coreutils.py` in this repository for a simple example that
@@ -251,7 +187,7 @@ files.
 ### The coreutils bundled in
 
 pygwin ships cross-platform, pure-Python reimplementations of common Unix utilities,
-inherited from xonsh: `cat`, `echo`, `pwd`, `tee`, `tty`, `uname`, `uptime`, `umask`,
+: `cat`, `echo`, `pwd`, `tee`, `tty`, `uname`, `uptime`, `umask`,
 and `yes`. They are not loaded by default. Load them with:
 
 ```
@@ -335,7 +271,7 @@ the defaults don't match what actually runs heavy on your machine.
 
 ## Performance philosophy
 
-xonsh, unmodified, typically takes somewhere in the range of 150 to 300 milliseconds to
+A shell like xonsh which aims for a similar goal, typically takes somewhere in the range of 150 to 300 milliseconds to
 reach an interactive prompt, because it imports a genuinely large amount on startup:
 `prompt_toolkit`, foreign shell detection for bash, zsh, and `cmd.exe`, a rich history
 backend, and the xontrib plugin scanner, all before you type anything.
