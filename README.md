@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/_static/pygwin_terminal_icon_256.png" alt="pygwin logo" width="120">
+</p>
+
 # pygwin
 
 A Windows-first, Python-powered shell and system observability console. pygwin is a

@@ -54,6 +54,7 @@ jobs:
           --file-description="pygwin: a Windows-first, Python-powered shell"
           --product-version=${{ steps.version.outputs.version }}
           --file-version=${{ steps.version.outputs.version }}
+          --windows-icon-from-ico=docs/_static/pygwin.ico
           --include-module=pygwin.parser_table
           --include-module=pygwin.completion_parser_table
           --include-package=pgtrib

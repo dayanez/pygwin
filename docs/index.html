@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pygwin</title>
+<link rel="icon" href="_static/pygwin.ico">
+<link rel="shortcut icon" href="_static/pygwin.ico">
 <style>
   :root {
     color-scheme: dark;
@@ -98,17 +100,28 @@
   footer a {
     color: #cfcfcf;
   }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .brand img {
+    width: 64px;
+    height: 64px;
+  }
 </style>
 </head>
 <body>
 <main>
-  <h1>pygwin</h1>
+  <div class="brand">
+    <img src="_static/pygwin_terminal_icon_256.png" alt="pygwin logo">
+    <h1>pygwin</h1>
+  </div>
   <p class="tagline">A Windows-first, Python-powered shell and system observability console. A fork of xonsh.</p>
 
   <ul class="links">
     <li><a href="https://github.com/dayanez/pygwin">Source</a></li>
     <li><a href="https://github.com/dayanez/pygwin/blob/main/README.md">README</a></li>
-    <li><a href="https://github.com/dayanez/pygwin/blob/main/CHANGELOG.md">Changelog</a></li>
     <li><a href="https://github.com/dayanez/pygwin/releases">Releases</a></li>
   </ul>
 
@@ -140,8 +153,6 @@ pygwin</code></pre>
       standalone <code>pygwin.exe</code>, and its two differentiators, the
       <code>sysinfo</code> and <code>autotune</code> pgtribs, live telemetry and
       transparent process priority tuning. See the
-      <a href="https://github.com/dayanez/pygwin/blob/main/CHANGELOG.md">changelog</a>
-      for what shipped in each release, and the
       <a href="https://github.com/dayanez/pygwin/blob/main/README.md#status">README's
       Status section</a> for the full detail.
     </p>
