@@ -9,6 +9,8 @@ Aims to be a Python-powered shell. You get real Python and subprocess commands m
 For the full command reference, configuration options, and everything else pygwin can do, see the
 docs in [`docs/`](docs/) and [CHANGELOG.md](CHANGELOG.md).
 
+This did start as a fork of Xonsh but then was stripped down heavily and repurposed. 
+
 ## Installation
 
 ### From source
