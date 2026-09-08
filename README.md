@@ -23,7 +23,7 @@ pygwin
 ### Standalone executable
 
 Every release publishes a compiled `pygwin.exe` for Windows under this repository's
-[Releases](https://github.com/dayanez/pygwin/releases) page. Download it and run it — no Python
+[Releases](https://github.com/dayanez/pygwin/releases) page. Download it and run it  no Python
 installation required.
 
 ## Contributing
