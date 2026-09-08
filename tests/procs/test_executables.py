@@ -77,7 +77,7 @@ def test_cached_clear_paths_respects_enable_commands_cache(tmpdir, monkeypatch):
     monkeypatch.setattr(
         executables_mod,
         "clear_paths",
-        lambda paths: (calls.append(1) or real_clear_paths(paths)),
+        lambda paths: calls.append(1) or real_clear_paths(paths),
     )
     executables_mod._clear_paths_cache_key = None
 

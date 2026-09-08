@@ -272,9 +272,7 @@ def locate_file_in_path_env(name, env=None, check_executable=False, use_pathext=
     """
     env = env if env is not None else XSH.env
     env_path = env.get("PATH", [])
-    paths = _cached_clear_paths(
-        tuple(env_path), env.get("ENABLE_COMMANDS_CACHE", True)
-    )
+    paths = _cached_clear_paths(tuple(env_path), env.get("ENABLE_COMMANDS_CACHE", True))
     possible_names = get_possible_names(name, env) if use_pathext else [name]
     t0 = time.perf_counter()
 
