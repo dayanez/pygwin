@@ -379,8 +379,12 @@ To build locally:
 pip install -e ".[full]"
 pip install nuitka zstandard
 python scripts/build_parser_tables.py
-python -m nuitka --standalone --onefile --onefile-cache-mode=cached --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --company-name=pygwin --product-name=pygwin --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table --include-package=pgtrib --include-package=pgcompletions pygwin/__main__.py
+python -m nuitka --standalone --onefile --onefile-cache-mode=cached --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --company-name=pygwin --product-name=pygwin --windows-icon-from-ico=docs/_static/pygwin.ico --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table --include-package=pgtrib --include-package=pgcompletions pygwin/__main__.py
 ```
+
+`--windows-icon-from-ico` is optional (drop it and Nuitka falls back to a generic
+executable icon) but is what gives `pygwin.exe` its logo in Explorer and the taskbar;
+the CD workflow always passes it.
 
 Building locally uses every CPU core by default, which can make the machine sluggish for
 several minutes. Add `--jobs=N` (or a negative number, meaning "all cores minus N") to
