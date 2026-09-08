@@ -4,12 +4,7 @@
 
 # pygwin
 
-A Windows-first, Python-powered shell. pygwin is a fork of [xonsh](https://github.com/xonsh/xonsh):
-you get real Python and subprocess commands mixed freely in one interactive session, plus two
-things xonsh doesn't ship on its own — a `sysinfo` pgtrib for live CPU/memory telemetry in the
-prompt, and an `autotune` pgtrib that quietly lowers the OS priority of heavy commands (compilers,
-encoders, build tools) while they run so the rest of the shell stays responsive. Both are optional
-and off by default.
+Aims to be a Python-powered shell. You get real Python and subprocess commands mixed freely in one interactive session, plus other features such as  `sysinfo` pgtrib for live CPU/memory telemetry in the prompt, and an `autotune` pgtrib that quietly lowers the OS priority of heavy commands (compilers,encoders, build tools) while they run so the rest of the shell stays responsive. Both are optional and off by default.
 
 For the full command reference, configuration options, and everything else pygwin can do, see the
 docs in [`docs/`](docs/) and [CHANGELOG.md](CHANGELOG.md).
@@ -33,7 +28,7 @@ installation required.
 
 ## Contributing
 
-pygwin is a personal daily-driver project, not a team codebase. If something's broken or you want
+pygwin is a personal project I am working on by myself. So, if something's broken or you want
 to propose a change, open an issue or a pull request, or reach me at dommcpro@gmail.com.
 
 ## License
