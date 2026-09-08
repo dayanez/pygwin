@@ -4,8 +4,17 @@ All notable changes to pygwin are recorded here. This file starts from pygwin's 
 first commit; for xonsh's history before the fork, see
 [xonsh's changelog](https://github.com/xonsh/xonsh/blob/main/CHANGELOG.md).
 
-## Unreleased
+## v0.2.1
 
+- Fixed the compiled `pygwin.exe` never bundling `xontrib` or `xompletions` at all.
+  Found by actually running the published v0.2.0 release binary: `xontrib load
+  sysinfo` failed with `ModuleNotFoundError`, meaning `sysinfo` and `autotune`, this
+  project's stated differentiator, were completely non-functional in that release,
+  and command-name completion had nothing to complete from. Same root cause as the
+  parser-table bug: both packages load entirely through dynamic, string-based
+  `importlib` lookups, which Nuitka's static import scanner can't see. Fixed with
+  `--include-package=xontrib --include-package=xompletions`. **v0.2.0's published
+  `.exe` is affected; use v0.2.1 or later.**
 - Fixed three real cross-platform bugs in the `autotune` xontrib, all found by CI's
   first real run against it (the commits that added it sat local-only, verified only
   on this project's own Windows machine, until this session pushed `main`):
