@@ -374,8 +374,12 @@ To build locally:
 pip install -e ".[full]"
 pip install nuitka zstandard
 python scripts/build_parser_tables.py
-python -m nuitka --standalone --onefile --onefile-cache-mode=cached --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --company-name=pygwin --product-name=pygwin --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table pygwin/__main__.py
+python -m nuitka --standalone --onefile --onefile-cache-mode=cached --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --company-name=pygwin --product-name=pygwin --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table --include-package=xontrib --include-package=xompletions pygwin/__main__.py
 ```
+
+Building locally uses every CPU core by default, which can make the machine sluggish for
+several minutes. Add `--jobs=N` (or a negative number, meaning "all cores minus N") to
+cap it, e.g. `--jobs=-4` to leave 4 cores free.
 
 Both extra lines matter, not just the Nuitka invocation. Skip the table pre-build and
 Nuitka simply won't find it (parser tables are generated on first use, and don't exist
@@ -394,6 +398,16 @@ temp folder and deletes it on exit, with no warm-cache benefit between runs at a
 `cached` reuses the extracted contents across runs instead. `cached` mode also
 changes the default extraction path to include a company/product name, so
 `--company-name`/`--product-name` must be set too or Nuitka refuses to build.
+
+`--include-package=xontrib`/`--include-package=xompletions` matter for the same
+reason the parser tables do: both packages are loaded entirely by dynamic,
+string-based `importlib` lookups (`xontrib load <name>`, and command-name-based
+completer discovery), never a literal `import xontrib.sysinfo`-style statement
+anywhere in the codebase, so Nuitka's static import scanner has no way to know
+either package exists at all. Without these flags, the compiled `pygwin.exe`
+cannot load any xontrib, including `sysinfo` and `autotune`, or any command
+completer from `xompletions`, and fails with `ModuleNotFoundError` the moment
+something tries.
 
 Measured directly against a real compiled `pygwin.exe`, on this dev machine: first
 run (cold, nothing cached yet) about 900ms to 1s; every run after that about

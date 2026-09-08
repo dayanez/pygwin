@@ -56,6 +56,8 @@ jobs:
           --file-version=${{ steps.version.outputs.version }}
           --include-module=pygwin.parser_table
           --include-module=pygwin.completion_parser_table
+          --include-package=xontrib
+          --include-package=xompletions
           pygwin/__main__.py
 
       - uses: actions/upload-artifact@v4
