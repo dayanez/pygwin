@@ -4,7 +4,7 @@ The dispatcher in :mod:`pygwin.main` peeks at ``sys.argv`` and, if the
 first non-option argument is ``format``, hands the rest off to
 :func:`main` here. We deliberately do *not* go through pygwin's own
 argparse — the format subcommand has no need for a shell session,
-xontribs, or rc files, and avoiding that machinery makes ``pygwin
+pgtribs, or rc files, and avoiding that machinery makes ``pygwin
 format`` startup fast and side-effect free.
 
 Behaviour mirrors common formatters (e.g. Black):

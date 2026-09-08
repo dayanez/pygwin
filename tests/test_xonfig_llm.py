@@ -19,7 +19,7 @@ from pygwin.xonfig import (
     _align_string,
     _dump_xonfig_env,
     _dump_xonfig_foreign_shell,
-    _dump_xonfig_xontribs,
+    _dump_xonfig_pgtribs,
     _info,
     _make_flat_wiz,
     _xonfig_format_human,
@@ -42,17 +42,17 @@ def test_xonfig_format_human_renders_table():
 
 
 def test_xonfig_format_human_handles_list_values():
-    data = [("xontrib", ["abbrevs", "vox"])]
+    data = [("pgtrib", ["abbrevs", "vox"])]
     out = _xonfig_format_human(data)
-    assert "xontrib 1" in out
-    assert "xontrib 2" in out
+    assert "pgtrib 1" in out
+    assert "pgtrib 2" in out
     assert "abbrevs" in out
     assert "vox" in out
 
 
 def test_xonfig_format_human_handles_empty_list():
     """An empty list value renders as a single row, not as N rows."""
-    data = [("k", "v"), ("xontrib", [])]
+    data = [("k", "v"), ("pgtrib", [])]
     out = _xonfig_format_human(data)
     assert "k" in out and "v" in out
 
@@ -112,9 +112,9 @@ def test_strip_color_re_matches_braces():
 # --- _dump_xonfig_* helpers -------------------------------------------------
 
 
-def test_dump_xonfig_xontribs_renders_load_command():
-    out = _dump_xonfig_xontribs("/xontribs/", ["abbrevs", "vox"])
-    assert out == "xontrib load abbrevs vox"
+def test_dump_xonfig_pgtribs_renders_load_command():
+    out = _dump_xonfig_pgtribs("/pgtribs/", ["abbrevs", "vox"])
+    assert out == "pgtrib load abbrevs vox"
 
 
 def test_dump_xonfig_env_emits_assignment(xession):
@@ -173,9 +173,9 @@ def test_xonfig_dump_rules_keys_present():
     assert "/" in rules
     assert "/env/" in rules
     assert "/env/*" in rules
-    assert "/xontribs/" in rules
+    assert "/pgtribs/" in rules
     assert rules["/env/*"] is _dump_xonfig_env
-    assert rules["/xontribs/"] is _dump_xonfig_xontribs
+    assert rules["/pgtribs/"] is _dump_xonfig_pgtribs
 
 
 # --- _info ------------------------------------------------------------------

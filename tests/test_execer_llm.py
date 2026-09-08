@@ -3,7 +3,7 @@
 GH-6386 — ``CtxAwareTransformer.try_subproc_toks`` in eval mode
 ===============================================================
 
-With the ``coconut`` xontrib loaded, ``CtxAwareTransformer.mode`` is
+With the real xonsh ``coconut`` xontrib loaded, ``CtxAwareTransformer.mode`` is
 forced to ``"eval"`` so the whole stripped logical line is fed to
 ``subproc_toks``.  When phase 1 has already wrapped part of the line as
 ``![…]`` (e.g. for ``echo && echo hi`` → ``echo && ![echo hi]``), the
@@ -16,7 +16,7 @@ miscompiled ``cmd1 && cmd2`` (both bare, both single-token) into
 
 The tests reproduce both classes without depending on coconut by
 driving ``CtxAwareTransformer`` in eval mode directly via the same
-``mode = "eval"`` flip the coconut xontrib performs (see
+``mode = "eval"`` flip the real xonsh coconut xontrib performs (see
 ``coconut.integrations.CoconutXontribLoader.new_try_subproc_toks``).
 
 GH-6414 — fish-style continuation comments
@@ -69,9 +69,10 @@ def test_andor_chain_eval_mode(line, xession):
     src = line + "\n"
     exec_tree = execer.parse(src, ctx=ctx, mode="single")
     exec_unparsed = pyast.unparse(exec_tree)
-    # Drive eval-mode the way the coconut xontrib does: temporarily flip
-    # ``ctxtransformer.mode`` to ``"eval"`` for every ``try_subproc_toks``
-    # call.  This mirrors ``CoconutXontribLoader.new_try_subproc_toks``.
+    # Drive eval-mode the way the real xonsh coconut xontrib does:
+    # temporarily flip ``ctxtransformer.mode`` to ``"eval"`` for every
+    # ``try_subproc_toks`` call. This mirrors
+    # ``CoconutXontribLoader.new_try_subproc_toks``.
     ctxt = execer.ctxtransformer
     orig_try_subproc_toks = ctxt.try_subproc_toks
 

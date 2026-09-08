@@ -121,14 +121,14 @@ class TestXonfigWeb:
         assert "$PYGWIN_COLOR_STYLE = 'default'" in rc_file.read_text()
         assert "302" in resp  # redirect
 
-    def test_xontribs_get(self, request_factory):
-        resp = request_factory("/xontribs").get()
-        assert "Xontribs" in resp
+    def test_pgtribs_get(self, request_factory):
+        resp = request_factory("/pgtribs").get()
+        assert "Pgtribs" in resp
 
-    def test_xontribs_post(self, request_factory, rc_file, mocker):
-        mocker.patch("pygwin.xontribs.xontribs_load", return_value=(None, None, None))
-        resp = request_factory("/xontribs").post(xontrib1="")
-        assert "xontrib load xontrib1" in rc_file.read_text()
+    def test_pgtribs_post(self, request_factory, rc_file, mocker):
+        mocker.patch("pygwin.pgtribs.pgtribs_load", return_value=(None, None, None))
+        resp = request_factory("/pgtribs").post(pgtrib1="")
+        assert "pgtrib load pgtrib1" in rc_file.read_text()
         assert "302" in resp
 
     def test_prompts_get(self, request_factory):

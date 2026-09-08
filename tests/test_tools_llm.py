@@ -8,9 +8,9 @@ by an earlier parse pass (e.g. pygwin phase 1 turning ``echo && echo hi``
 into ``echo && ![echo hi]``) used to re-wrap the existing ``![…]`` block,
 producing ``![![…]]`` — which is not valid pygwin, since neither ``![…]``
 nor ``&&``/``||`` may appear inside ``![…]``.  The bug surfaced in
-xontribs that force ``CtxAwareTransformer.mode = "eval"`` to compensate
+pgtribs that force ``CtxAwareTransformer.mode = "eval"`` to compensate
 for shifted column numbers in their compiled output (the ``coconut``
-xontrib being the canonical example), making the whole-line wrap reach
+pgtrib being the canonical example), making the whole-line wrap reach
 phase-1 output.
 
 These tests pin the corrected behaviour at the ``subproc_toks`` layer

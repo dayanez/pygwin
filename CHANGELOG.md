@@ -4,6 +4,30 @@ All notable changes to pygwin are recorded here. This file starts from pygwin's 
 first commit; for xonsh's history before the fork, see
 [xonsh's changelog](https://github.com/xonsh/xonsh/blob/main/CHANGELOG.md).
 
+## v0.3.0
+
+- Renamed pygwin's own plugin mechanism away from xonsh's naming: `xontrib/` is
+  `pgtrib/` now, `xompletions/` is `pgcompletions/`, the plugin protocol
+  functions are `_load_pgtrib_`/`_unload_pgtrib_` (not `_load_xontrib_`/
+  `_unload_xontrib_`), and the command users type is `pgtrib load`/`pgtrib list`
+  (not `xontrib load`/`xontrib list`). This is a real behavior change, not just a
+  cosmetic one: a genuine, unmodified xonsh xontrib no longer has its
+  `_load_xontrib_` entry point invoked at all when loaded in pygwin, since
+  pygwin's loader now looks for `_load_pgtrib_` instead; it falls back to
+  reading the module's `__all__`, a materially different result. Also renamed
+  the `pygwin.xontribs` entry-point group to `pygwin.pgtribs`, the
+  `$XONTRIBS_AUTOLOAD_DISABLED` env var to `$PGTRIBS_AUTOLOAD_DISABLED`, and the
+  `xompleter` completion-trace tag to `pgcompleter`. Real citations to xonsh's
+  own ecosystem (`awesome-xontribs`, `xontrib-template`, the `coconut` xontrib,
+  and similar) were deliberately left saying `xontrib`, not `pgtrib`, since they
+  name a real thing that is not pygwin's; see SYNCING.md for the full account.
+  Along the way, fixed a real pre-existing bug found while auditing this: the
+  message printed when a pgtrib fails to load pointed at
+  `https://pygwin.github.io/awesome-xontribs/`, a URL that has never existed
+  (a mis-rebranded copy of a real xonsh community link from the original
+  xonsh-to-pygwin rename); removed the dead link rather than repeat the mistake
+  by renaming it to an equally nonexistent `awesome-pgtribs` URL.
+
 ## v0.2.1
 
 - Fixed the compiled `pygwin.exe` never bundling `xontrib` or `xompletions` at all.

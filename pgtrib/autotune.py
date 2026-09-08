@@ -48,7 +48,7 @@ DEFAULT_HEAVY_COMMANDS = frozenset(
     }
 )
 
-# pid -> the psutil-reported priority/niceness it had before this xontrib
+# pid -> the psutil-reported priority/niceness it had before this pgtrib
 # touched it, so `pygwin-tune restore` can put it back exactly.
 _original_priority: "dict[int, int]" = {}
 
@@ -173,12 +173,12 @@ def _tune(args=None):
     return 1
 
 
-def _load_xontrib_(xsh: PygwinSession, **_):
+def _load_pgtrib_(xsh: PygwinSession, **_):
     xsh.builtins.events.on_post_spec_run(_on_post_spec_run)
     xsh.aliases["pygwin-tune"] = _tune
 
 
-def _unload_xontrib_(xsh: PygwinSession, **_):
+def _unload_pgtrib_(xsh: PygwinSession, **_):
     xsh.builtins.events.on_post_spec_run.discard(_on_post_spec_run)
     xsh.aliases.pop("pygwin-tune", None)
     _original_priority.clear()

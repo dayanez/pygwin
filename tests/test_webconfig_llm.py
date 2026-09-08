@@ -249,18 +249,18 @@ def test_get_named_prompts_returns_iterable_of_pairs():
     assert prompts[0][0] == "default"
 
 
-def test_format_xontrib_returns_dict_with_expected_keys():
-    from pygwin.xontribs import Xontrib
+def test_format_pgtrib_returns_dict_with_expected_keys():
+    from pygwin.pgtribs import Pgtrib
 
-    out = pygwin_data.format_xontrib(Xontrib(module="xontrib.does_not_exist"))
+    out = pygwin_data.format_pgtrib(Pgtrib(module="pgtrib.does_not_exist"))
     assert set(out.keys()) == {"url", "license", "display"}
 
 
-def test_render_xontribs_yields_pairs():
-    iter_ = pygwin_data.render_xontribs()
+def test_render_pgtribs_yields_pairs():
+    iter_ = pygwin_data.render_pgtribs()
     pair = next(iter_, None)
     if pair is None:
-        pytest.skip("no xontribs discovered in this environment")
+        pytest.skip("no pgtribs discovered in this environment")
     name, payload = pair
     assert isinstance(name, str)
     assert "display" in payload

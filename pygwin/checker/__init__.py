@@ -4,7 +4,7 @@ This package parses and compiles pygwin source all the way down to a Python
 code object, but never executes it.  It is the pygwin analogue of ``bash -n``,
 ``fish --no-execute`` or ``nu --no-execute``: a fast, side-effect free way to
 answer the single question *"does this parse and compile?"* without running a
-shell session, rc files or xontribs.
+shell session, rc files or pgtribs.
 
 It is **not** a linter — it reports syntax/compile errors only, not style or
 semantic diagnostics.

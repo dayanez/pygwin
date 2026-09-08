@@ -19,8 +19,8 @@ import tempfile
 import pytest
 
 import pygwin.completers.path as xcp
+from pgcompletions.cd import pygwin_complete as cd_pygwin_complete
 from pygwin.parsers.completion_context import CommandArg, CommandContext
-from xompletions.cd import pygwin_complete as cd_pygwin_complete
 
 
 @pytest.fixture(autouse=True)
@@ -58,7 +58,7 @@ def test_cd_dotdot_slash_lists_parent_subdirs(completer_env, monkeypatch):
     """``cd ../<Tab>`` must list the parent directory's subdirectories.
 
     This is the exact failure from issue #6403. Before the fix, the
-    completer returned zero results and the cd-xompletion raised
+    completer returned zero results and the cd-pgcompletion raised
     StopIteration, which broke the whole completer pipeline.
     """
     with tempfile.TemporaryDirectory() as td:
@@ -138,7 +138,7 @@ def test_cd_dotdot_does_not_break_pipeline(completer_env, monkeypatch):
     """Regression guard for the StopIteration short-circuit.
 
     Before the fix, when ``complete_dir`` returned an empty set the
-    cd-xompletion raised ``StopIteration`` to skip the rest of the
+    cd-pgcompletion raised ``StopIteration`` to skip the rest of the
     pipeline. With the iglob fix, ``../`` actually returns directories,
     so StopIteration is not raised and the pipeline behaves normally.
     """

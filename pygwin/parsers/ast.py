@@ -466,10 +466,11 @@ class CtxAwareTransformer(NodeTransformer):
         # first.  In ``exec`` mode we use the column window of the node
         # itself.  In ``eval`` mode we historically used the whole stripped
         # line — but that produces ``![![…]]`` whenever the line has been
-        # partially wrapped by an earlier phase (the case xontribs that
+        # partially wrapped by an earlier phase (the case pgtribs that
         # force ``mode = "eval"`` to compensate for shifted column numbers
-        # in their compiled output, such as the ``coconut`` xontrib, hit
-        # for plain ``cmd && cmd`` — see GH-6386).  Try the column window
+        # in their compiled output, such as the real xonsh ``coconut``
+        # xontrib, hit for plain ``cmd && cmd`` — see GH-6386).  Try the
+        # column window
         # first there too, falling back to the whole stripped line only if
         # the precise window can't yield a parsable wrap.  When the node's
         # column metadata happens to be wrong (the original eval-mode use

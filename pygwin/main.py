@@ -28,6 +28,7 @@ from pygwin.lib.lazyasd import lazyobject
 from pygwin.lib.lazyimps import pyghooks, pygments
 from pygwin.lib.pretty import pretty
 from pygwin.lib.string import unquote
+from pygwin.pgtribs import auto_load_pgtribs_from_entrypoints, pgtribs_load
 from pygwin.platform_info import HAS_PYGMENTS, ON_WINDOWS
 from pygwin.procs.jobs import ignore_sigtstp
 from pygwin.shell import Shell
@@ -40,7 +41,6 @@ from pygwin.tools import (
     to_bool_or_int,
 )
 from pygwin.xonfig import print_welcome_screen
-from pygwin.xontribs import auto_load_xontribs_from_entrypoints, xontribs_load
 
 events.transmogrify("on_post_init", "LoadEvent")
 events.doc(
@@ -131,23 +131,23 @@ Example:
 """,
 )
 
-events.transmogrify("on_xontribs_loaded", "LoadEvent")
+events.transmogrify("on_pgtribs_loaded", "LoadEvent")
 events.doc(
-    "on_xontribs_loaded",
+    "on_pgtribs_loaded",
     """
-on_xontribs_loaded() -> None
+on_pgtribs_loaded() -> None
 
-Fired after external xontribs with ``entrypoints defined`` are loaded.
+Fired after external pgtribs with ``entrypoints defined`` are loaded.
 
 Example:
 
 .. code-block:: pygwin
 
-    @events.on_xontribs_loaded
-    def _event_check_xontribs(**kw):
-        from pygwin.xontribs import xontribs_loaded
-        if "coreutils" not in xontribs_loaded():
-            print("Hint: 'xontrib load coreutils' adds cross-platform cp, mv, rm, ...")
+    @events.on_pgtribs_loaded
+    def _event_check_pgtribs(**kw):
+        from pygwin.pgtribs import pgtribs_loaded
+        if "coreutils" not in pgtribs_loaded():
+            print("Hint: 'pgtrib load coreutils' adds cross-platform cp, mv, rm, ...")
 """,
 )
 
@@ -262,7 +262,7 @@ def _handle_sig_ttin_ttou(n, f):
     process. It exists as a safety net for pathological cases where
     pygwin temporarily loses foreground ownership (unexpected
     ``tcsetpgrp`` from a subprocess, a PID-namespace race, a buggy
-    xontrib, …) and then tries to touch the TTY.
+    pgtrib, …) and then tries to touch the TTY.
 
     Why a plain ``pass`` is a trap
     ------------------------------
@@ -669,7 +669,7 @@ def _setup_controlling_terminal():
     call in the same process is a cheap no-op.
 
     It is called from the top of :func:`main` so that the handshake
-    happens *before* :func:`premain`. ``premain`` loads xontribs and
+    happens *before* :func:`premain`. ``premain`` loads pgtribs and
     runs user ``pygwinrc`` files, and rc files are arbitrary pygwin code
     — they routinely contain ``$(...)`` / ``!(...)`` captures and can
     invoke interactive programs like ``fzf`` that will themselves want
@@ -1032,17 +1032,17 @@ def _load_rc_files(shell_kwargs: dict, args, env, execer, ctx):
     events.on_post_rc.fire()
 
 
-def _autoload_xontribs(env):
-    events.on_timingprobe.fire(name="pre_xontribs_autoload")
-    disabled = env.get("XONTRIBS_AUTOLOAD_DISABLED", False)
+def _autoload_pgtribs(env):
+    events.on_timingprobe.fire(name="pre_pgtribs_autoload")
+    disabled = env.get("PGTRIBS_AUTOLOAD_DISABLED", False)
     if disabled is True:
         return
-    blocked_xontribs = disabled or ()
-    auto_load_xontribs_from_entrypoints(
-        blocked_xontribs, verbose=bool(env.get("PYGWIN_DEBUG", False))
+    blocked_pgtribs = disabled or ()
+    auto_load_pgtribs_from_entrypoints(
+        blocked_pgtribs, verbose=bool(env.get("PYGWIN_DEBUG", False))
     )
-    events.on_xontribs_loaded.fire()
-    events.on_timingprobe.fire(name="post_xontribs_autoload")
+    events.on_pgtribs_loaded.fire()
+    events.on_timingprobe.fire(name="post_pgtribs_autoload")
 
 
 def start_services(shell_kwargs, args, pre_env=None):
@@ -1079,7 +1079,7 @@ def start_services(shell_kwargs, args, pre_env=None):
 
     _load_rc_files(shell_kwargs, args, env, execer, ctx)
     if not shell_kwargs.get("norc"):
-        _autoload_xontribs(env)
+        _autoload_pgtribs(env)
     # create shell
     XSH.shell = Shell(execer=execer, **shell_kwargs)
     ctx["__name__"] = "__main__"
@@ -1233,7 +1233,7 @@ def main(argv=None):
         argv = sys.argv[1:]
 
     # Subcommand dispatch. ``pygwin format ...`` does not need a shell
-    # session, xontribs, rc files, or even a TTY handshake — bypass
+    # session, pgtribs, rc files, or even a TTY handshake — bypass
     # premain entirely and hand off to the formatter CLI. Add new
     # subcommands here when their lifecycle differs from the regular
     # shell entry point.
@@ -1252,7 +1252,7 @@ def main(argv=None):
 
         sys.exit(lint_main(argv[1:]))
 
-    # Run the TTY startup handshake *before* premain so that xontrib
+    # Run the TTY startup handshake *before* premain so that pgtrib
     # loading and pygwinrc execution happen with pygwin already as the
     # foreground process group. rc files are arbitrary user code and
     # can contain subprocess captures ``$(...)``/``!(...)`` — including
@@ -1426,7 +1426,7 @@ def setup(
     shell_type="none",
     env=(("PYGWIN_SUBPROC_CMD_RAISE_ERROR", True),),
     aliases=(),
-    xontribs=(),
+    pgtribs=(),
     threadable_predictors=(),
     history_backend=None,
 ):
@@ -1454,8 +1454,8 @@ def setup(
         has been initialized.
     aliases : dict-like, optional
         Aliases to add after the shell has been initialized.
-    xontribs : iterable of str, optional
-        Xontrib names to load.
+    pgtribs : iterable of str, optional
+        Pgtrib names to load.
     threadable_predictors : dict-like, optional
         Threadable predictors to start up with. These overide the defaults.
     """
@@ -1470,8 +1470,8 @@ def setup(
     XSH.env.update(env)
     install_import_hooks(XSH.execer)
     XSH.aliases.update(aliases)
-    if xontribs:
-        xontribs_load(xontribs)
+    if pgtribs:
+        pgtribs_load(pgtribs)
 
     if threadable_predictors:
         XSH.commands_cache.threadable_predictors.update(threadable_predictors)

@@ -1,9 +1,10 @@
-"""Tests for the ``sudo`` xompletion."""
+"""Tests for the ``sudo`` pgcompletion."""
 
 from unittest.mock import Mock
 
 import pytest
 
+from pgcompletions.sudo import _find_inner_command_position, pygwin_complete
 from pygwin.completer import Completer
 from pygwin.parsers.completion_context import (
     CommandArg,
@@ -11,7 +12,6 @@ from pygwin.parsers.completion_context import (
     CompletionContext,
 )
 from pygwin.pytest.tools import completions_from_result, skip_if_on_windows
-from xompletions.sudo import _find_inner_command_position, pygwin_complete
 
 
 def _args(*vals):

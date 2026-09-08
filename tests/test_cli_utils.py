@@ -80,14 +80,14 @@ def test_parser_hooking():
 
 
 def test_parser_default_func(mocker):
-    import pygwin.xontribs as xx
+    import pygwin.pgtribs as xx
 
-    alias = xx.XontribAlias()
+    alias = xx.PgtribAlias()
 
     def func():
         return True
 
-    mocker.patch.object(xx, "xontribs_list", func)
+    mocker.patch.object(xx, "pgtribs_list", func)
     assert alias([]) is True
 
 

@@ -1,8 +1,8 @@
-"""Tests for the ``git`` xompletion."""
+"""Tests for the ``git`` pgcompletion."""
 
 import pytest
 
-import xompletions.git as xgit
+import pgcompletions.git as xgit
 from pygwin.pytest.tools import completions_from_result, skip_if_not_has
 
 _LIST_CMDS_ARGS = ("--list-cmds=main,others,alias",)

@@ -30,27 +30,27 @@ or several other commands):
 Note that the event system is keyword only. Event handlers must match argument names and must have a
 ``**kw`` as protection against future changes.
 
-Can I use this in my xontrib?
+Can I use this in my pgtrib?
 =============================
 
-Yes! It's even easy! In your xontrib, you just have to do something like:
+Yes! It's even easy! In your pgtrib, you just have to do something like:
 
 .. code-block:: python
 
-    events.doc('myxontrib_on_spam', """
-    myxontrib_on_spam(can: Spam) -> bool?
+    events.doc('mypgtrib_on_spam', """
+    mypgtrib_on_spam(can: Spam) -> bool?
 
     Fired in case of spam. Return ``True`` if it's been eaten.
     """)
 
-This will enable users to call ``help(events.myxontrib_on_spam)`` and get useful output.
+This will enable users to call ``help(events.mypgtrib_on_spam)`` and get useful output.
 
 Listing Registered Handlers
 ===========================
 
 You can easily inspect which handlers are registered for each event by simply
 printing the ``events`` object. This is useful for debugging and understanding
-which xontribs are active.
+which pgtribs are active.
 
 .. code-block:: python
 

@@ -21,6 +21,7 @@ from pygwin.events import events
 from pygwin.foreign_shells import CANON_SHELL_NAMES
 from pygwin.lib.lazyasd import lazyobject
 from pygwin.parsers import ply
+from pygwin.pgtribs import Pgtrib, find_pgtrib, get_pgtribs, pgtribs_loaded
 from pygwin.platform_info import (
     DEFAULT_ENCODING,
     ON_CYGWIN,
@@ -48,7 +49,6 @@ from pygwin.tools import (
     print_exception,
     to_bool,
 )
-from pygwin.xontribs import Xontrib, find_xontrib, get_xontribs, xontribs_loaded
 
 HR = "'`-.,_,.-*'`-.,_,.-*'`-.,_,.-*'`-.,_,.-*'`-.,_,.-*'`-.,_,.-*'`-.,_,.-*'"
 WIZARD_HEAD = f"""
@@ -109,23 +109,23 @@ will accept the default value for that entry.
 
 WIZARD_ENV_QUESTION = "Would you like to set env vars now, " + wiz.YN
 
-WIZARD_XONTRIB = f"""
+WIZARD_PGTRIB = f"""
 {HR}
 
-                           {{BOLD_WHITE}}Xontribs{{RESET}}
+                           {{BOLD_WHITE}}Pgtribs{{RESET}}
                            {{YELLOW}}--------{{RESET}}
 No shell is complete without extensions, and pygwin is no exception. Pygwin
-extensions are called {{BOLD_GREEN}}xontribs{{RESET}}, or pygwin contributions.
-Xontribs are dynamically loadable, either by importing them directly or by
-using the 'xontrib' command. However, you can also configure pygwin to load
-xontribs automatically on startup prior to loading the run control files.
-This allows the xontrib to be used immediately in your pygwinrc files.
+extensions are called {{BOLD_GREEN}}pgtribs{{RESET}}, or pygwin contributions.
+Pgtribs are dynamically loadable, either by importing them directly or by
+using the 'pgtrib' command. However, you can also configure pygwin to load
+pgtribs automatically on startup prior to loading the run control files.
+This allows the pgtrib to be used immediately in your pygwinrc files.
 
-The following describes all xontribs that have been registered with pygwin.
+The following describes all pgtribs that have been registered with pygwin.
 These come from users, 3rd party developers, or pygwin itself!
 """
 
-WIZARD_XONTRIB_QUESTION = "Would you like to enable xontribs now, " + wiz.YN
+WIZARD_PGTRIB_QUESTION = "Would you like to enable pgtribs now, " + wiz.YN
 
 WIZARD_TAIL = """
 Thanks for using the pygwin configuration wizard!"""
@@ -194,8 +194,8 @@ def _dump_xonfig_env(path, value):
     return f"${name} = {dval!r}"
 
 
-def _dump_xonfig_xontribs(path, value):
-    return "xontrib load {}".format(" ".join(value))
+def _dump_xonfig_pgtribs(path, value):
+    return "pgtrib load {}".format(" ".join(value))
 
 
 @lazyobject
@@ -206,7 +206,7 @@ def XONFIG_DUMP_RULES():
         "/foreign_shells/*/": _dump_xonfig_foreign_shell,
         "/env/*": _dump_xonfig_env,
         "/env/*/[0-9]*": None,
-        "/xontribs/": _dump_xonfig_xontribs,
+        "/pgtribs/": _dump_xonfig_pgtribs,
     }
 
 
@@ -348,40 +348,40 @@ def make_env_wiz():
     return w
 
 
-XONTRIB_PROMPT = "{BOLD_GREEN}Add this xontrib{RESET}, " + wiz.YN
+PGTRIB_PROMPT = "{BOLD_GREEN}Add this pgtrib{RESET}, " + wiz.YN
 
 
-def _xontrib_path(visitor=None, node=None, val=None):
+def _pgtrib_path(visitor=None, node=None, val=None):
     # need this to append only based on user-selected size
-    return ("xontribs", len(visitor.state.get("xontribs", ())))
+    return ("pgtribs", len(visitor.state.get("pgtribs", ())))
 
 
-def make_xontrib(xon_item: tuple[str, Xontrib]):
-    """Makes a message and StoreNonEmpty node for a xontrib."""
-    name, xontrib = xon_item
-    name = name or "<unknown-xontrib-name>"
+def make_pgtrib(xon_item: tuple[str, Pgtrib]):
+    """Makes a message and StoreNonEmpty node for a pgtrib."""
+    name, pgtrib = xon_item
+    name = name or "<unknown-pgtrib-name>"
     msg = "\n{BOLD_CYAN}" + name + "{RESET}\n"
 
-    if xontrib.url:
-        msg += "{RED}url:{RESET} " + xontrib.url + "\n"
-    if xontrib.distribution:
-        msg += "{RED}package:{RESET} " + xontrib.distribution.name + "\n"
-        if xontrib.license:
-            msg += "{RED}license:{RESET} " + xontrib.license + "\n"
+    if pgtrib.url:
+        msg += "{RED}url:{RESET} " + pgtrib.url + "\n"
+    if pgtrib.distribution:
+        msg += "{RED}package:{RESET} " + pgtrib.distribution.name + "\n"
+        if pgtrib.license:
+            msg += "{RED}license:{RESET} " + pgtrib.license + "\n"
     msg += "{PURPLE}installed?{RESET} "
-    msg += ("no" if find_xontrib(name) is None else "yes") + "\n"
-    msg += _wrap_paragraphs(xontrib.get_description(), width=69)
+    msg += ("no" if find_pgtrib(name) is None else "yes") + "\n"
+    msg += _wrap_paragraphs(pgtrib.get_description(), width=69)
     if msg.endswith("\n"):
         msg = msg[:-1]
     mnode = wiz.Message(message=msg)
     convert = lambda x: name if to_bool(x) else wiz.Unstorable
-    pnode = wiz.StoreNonEmpty(XONTRIB_PROMPT, converter=convert, path=_xontrib_path)
+    pnode = wiz.StoreNonEmpty(PGTRIB_PROMPT, converter=convert, path=_pgtrib_path)
     return mnode, pnode
 
 
-def make_xontribs_wiz():
-    """Makes a xontrib wizard."""
-    return _make_flat_wiz(make_xontrib, get_xontribs().items())
+def make_pgtribs_wiz():
+    """Makes a pgtrib wizard."""
+    return _make_flat_wiz(make_pgtrib, get_pgtribs().items())
 
 
 def make_xonfig_wizard(default_file=None, confirm=False, no_wizard_file=None):
@@ -405,9 +405,9 @@ def make_xonfig_wizard(default_file=None, confirm=False, no_wizard_file=None):
             make_fs_wiz(),
             wiz.Message(message=WIZARD_ENV),
             wiz.YesNo(question=WIZARD_ENV_QUESTION, yes=make_env_wiz(), no=wiz.Pass()),
-            wiz.Message(message=WIZARD_XONTRIB),
+            wiz.Message(message=WIZARD_PGTRIB),
             wiz.YesNo(
-                question=WIZARD_XONTRIB_QUESTION, yes=make_xontribs_wiz(), no=wiz.Pass()
+                question=WIZARD_PGTRIB_QUESTION, yes=make_pgtribs_wiz(), no=wiz.Pass()
             ),
             wiz.Message(message="\n" + HR + "\n"),
             wiz.FileInserter(
@@ -560,7 +560,7 @@ def _info(
         if p is not None:
             data.extend(p)
 
-    data.extend([("xontrib", xontribs_loaded())])
+    data.extend([("pgtrib", pgtribs_loaded())])
     data.extend([("RC file", XSH.rc_files)])
 
     # Show sensitive env variables that could affect the shell behavior.

@@ -10,7 +10,7 @@ Pygwin RC Basics
 The control file usually contains:
 
 * Assignment statements setting `environment variables <envvars.html>`_. This includes standard OS environment variables that affect other programs and many that Pygwin uses for itself.
-* ``xontrib`` commands to load selected add-ins (`xontribs <xontrib.html#loading-xontribs>`_).
+* ``pgtrib`` commands to load selected add-ins (`pgtribs <pgtrib.html#loading-pgtribs>`_).
 * Pygwin function definitions.
 * `Alias definitions <aliases.html>`_, many of which invoke the above functions with specified arguments.
 
@@ -28,7 +28,7 @@ In addition:
 * Use ``pygwin --rc snail.xsh`` to run only a certain control file.
 * Use ``pygwin -i script.xsh`` to run pygwin in interactive mode with loading all possible control files.
 * Use ``pygwin --rc rc1.xsh rc2.xsh -- script.xsh`` to run scripts with multiple control files.
-* You can create autoloadable `xontrib <xontrib.html#loading-xontribs>`_ as alternative to run control file and reuse it as python package.
+* You can create autoloadable `pgtrib <pgtrib.html#loading-pgtribs>`_ as alternative to run control file and reuse it as python package.
 
 The options set per user override settings in the system-wide control file.
 
@@ -42,7 +42,7 @@ steps you through all the available options.
 xonfig web
 -----------
 
-This helps you choose a color theme, customized prompt and add-in packages ("xontribs").  It
+This helps you choose a color theme, customized prompt and add-in packages ("pgtribs").  It
 initializes your personal run control file (usually at ``~/.pygwinrc``).  To invoke it (from a pygwin prompt):
 
 .. code-block:: pygwincon
@@ -60,10 +60,10 @@ The page has:
   their actual appearance is not and do vary widely.  Seeing is believing!
 :Prompts: shows various sample prompts.  It is recommended to select one but to then edit
   the ``pygwinrc`` file to further refine your prompt.
-:Xontribs: are community-contributed add-ins often used to enhance command completion and line editing,
+:Pgtribs: are community-contributed add-ins often used to enhance command completion and line editing,
   but can affect any aspect of Pygwin behavior.
   Choose one or more to suit your needs but note that they will require installation of additional
-  packages.  You can extend Pygwin by `writing your own xontrib <xontrib.html>`_, and are invited/urged to do so!
+  packages.  You can extend Pygwin by `writing your own pgtrib <pgtrib.html>`_, and are invited/urged to do so!
 :Save: Click to write the configuration choices to your ``~/.pygwinrc``. This will add a few tagged lines to your run control file, but will not
   overwrite it completely, so you can run `xonfig web` at any time.
 
@@ -71,7 +71,7 @@ xonfig wizard
 --------------
 
 This imports settings and tools you have defined in your existing (POSIX) shell.
-It also walks you through setting all known environment variables and xontribs
+It also walks you through setting all known environment variables and pgtribs
 in a question-and-answer format. Run it from a pygwin prompt:
 
 .. code-block:: pygwincon

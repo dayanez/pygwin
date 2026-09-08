@@ -40,7 +40,7 @@ packages = [
     "pygwin.platforms",
     "pygwin.parsers",
     "pygwin.xoreutils",
-    "xontrib",
+    "pgtrib",
     "pygwin.completers",
     "pygwin.history",
     "pygwin.prompt",
@@ -49,15 +49,15 @@ packages = [
     "pygwin.webconfig",
     "pygwin.virtualenv",
     "pygwin.formatter",
-    "xompletions",
+    "pgcompletions",
 ]
 platforms = ["Cross Platform"]
 include-package-data = false
 
 [tool.setuptools.package-dir]
 pygwin = "pygwin"
-xontrib = "xontrib"
-xompletions = "xompletions"
+pgtrib = "pgtrib"
+pgcompletions = "pgcompletions"
 "pygwin.lib" = "pygwin/lib"
 "pygwin.webconfig" = "pygwin/webconfig"
 
@@ -66,7 +66,7 @@ pygwin = [
     "*.json",
     "*.githash",
 ]
-xontrib = ["*.xsh"]
+pgtrib = ["*.xsh"]
 "pygwin.lib" = ["*.xsh"]
 "pygwin.virtualenv" = ["*.xsh"]
 "pygwin.webconfig" = [
@@ -163,12 +163,12 @@ pygwin-uptime = "pygwin.xoreutils.uptime:main"
 
 
 [tool.ruff.lint.isort]
-known-first-party = ["pygwin", "xontrib", "xompletions", "tests"]
+known-first-party = ["pygwin", "pgtrib", "pgcompletions", "tests"]
 known-third-party = ["ply", "pytest"]
 
 [tool.ruff]
 src = [
-    "pygwin", "xontrib", "xompletions", "tests"
+    "pygwin", "pgtrib", "pgcompletions", "tests"
 ]
 extend-exclude = [
     "docs/",
@@ -268,7 +268,7 @@ convention = "numpy"
     "E731",
 ]
 "pygwin/xonfig.py" = ["E731"]
-"xontrib/vox.py" = ["F821"]
+"pgtrib/vox.py" = ["F821"]
 "pygwin/inspectors.py" = ["E722"]
 "pygwin/platform_info.py" = ["F401"]
 "pygwin/parsers/*.py" = [

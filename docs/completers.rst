@@ -108,7 +108,7 @@ The docstring of a completer should contain a brief description of its
 functionality, which will be displayed by ``completer list``.
 
 Some simple examples follow.  For real-world examples, see
-``xompletions.git`` (subprocess-based, uses ``--git-completion-helper``)
+``pgcompletions.git`` (subprocess-based, uses ``--git-completion-helper``)
 and ``pygwin.completers.man`` (man page parsing with disk cache).
 
 .. code-block:: pygwincon
@@ -229,8 +229,8 @@ reported, so you can see the full decision path:
 
 This way you can see immediately that ``qwe-pygwin`` comes from an alias
 while ``pygwin`` is a real executable on ``$PATH``. Built-in providers:
-``alias``, ``command``, ``python``, ``path``, plus the xompletion module
-name (e.g. ``pip``, ``gh``) for completions produced by the ``xompleter``.
+``alias``, ``command``, ``python``, ``path``, plus the pgcompletion module
+name (e.g. ``pip``, ``gh``) for completions produced by the ``pgcompleter``.
 Custom completers may set any string they like.
 
 Setting ``provider`` in your own completer
@@ -290,8 +290,8 @@ already carry their own ``provider``:
         results = {"start", "stop", "status"}
         return tag_provider(results, "mycmd")
 
-``tag_provider`` is also what the built-in ``xompleter`` uses under the
-hood to label each xompletion module's output — so any ``RichCompletion``
+``tag_provider`` is also what the built-in ``pgcompleter`` uses under the
+hood to label each pgcompletion module's output — so any ``RichCompletion``
 that *already* specifies its own ``provider`` is kept intact and won't
 be overwritten by the outer tag.
 
@@ -338,7 +338,7 @@ Using this class, you can:
 
 * Provide a specific prefix length per completion (via ``prefix_len``)
 * Control how the completion looks in prompt-toolkit (via ``display``, ``description`` and ``style``) -
-    use the ``jedi`` xontrib to see it in action.
+    use the ``jedi`` pgtrib to see it in action.
 * Append a space after the completion (``append_space=True``)
 
 
@@ -402,18 +402,18 @@ The completer function receives two keyword arguments:
 * ``command``: the :class:`CommandContext <pygwin.parsers.completion_context.CommandContext>` for the current completion
 * ``alias``: the resolved alias object
 
-Command Completers (xompletions)
+Command Completers (pgcompletions)
 ================================
 
-pygwin includes a package called ``xompletions`` that provides tab-completions for
+pygwin includes a package called ``pgcompletions`` that provides tab-completions for
 specific commands like ``pip``, ``gh``, ``cd``, etc. Each command gets its own Python
-module inside the ``xompletions/`` directory.
+module inside the ``pgcompletions/`` directory.
 
 How it works:
 
-1. When the user presses TAB, the ``xompleter`` completer (registered as ``complete_xompletions``)
+1. When the user presses TAB, the ``pgcompleter`` completer (registered as ``complete_pgcompletions``)
    extracts the command name from ``args[0]``.
-2. It looks for a matching module in ``xompletions/`` — first by exact name, then by regex patterns.
+2. It looks for a matching module in ``pgcompletions/`` — first by exact name, then by regex patterns.
 3. If found, it calls the module's ``pygwin_complete(ctx)`` function.
 4. The function returns completions or ``None`` (to let the next completer handle it).
 
@@ -440,7 +440,7 @@ a ``pygwin_complete`` function:
 
 Now ``mycmd <TAB>`` will suggest ``start``, ``stop``, and ``status``.
 
-pygwin also ships built-in completers in the ``xompletions/`` package (for ``pip``, ``gh``, ``cd``, etc.).
+pygwin also ships built-in completers in the ``pgcompletions/`` package (for ``pip``, ``gh``, ``cd``, etc.).
 
 Handling command name variants with ``wrap``
 --------------------------------------------
@@ -451,11 +451,11 @@ so ``gh.exe`` will find ``gh.py``.
 
 However, if a command has other name variants (e.g. ``pip3.11``, ``python3.12``),
 the exact file name won't match. For these cases, you can register regex patterns
-from your :doc:`pygwin RC <pygwinrc>` or a xontrib:
+from your :doc:`pygwin RC <pygwinrc>` or a pgtrib:
 
 .. code-block:: python
 
-    from pygwin.completers.commands import complete_xompletions as xmp
+    from pygwin.completers.commands import complete_pgcompletions as xmp
     xmp.wrap(r"\bmycmd(?:\d)*$", "mycmd")
 
 This maps ``mycmd``, ``mycmd2``, ``mycmd3`` etc. to the ``mycmd`` completer module.
@@ -467,13 +467,13 @@ Completing ``python -m <module>``
 ---------------------------------
 
 When an alias resolves to ``python -m <module>`` (e.g. ``xpip`` → ``python -m pip``),
-pygwin uses the ``xompletions/python.py`` completer to delegate to the module's completer.
+pygwin uses the ``pgcompletions/python.py`` completer to delegate to the module's completer.
 
 The mapping is stored in ``PYTHON_MODULE_COMPLETERS`` and can be extended from your :doc:`pygwin RC <pygwinrc>`:
 
 .. code-block:: python
 
-    from xompletions.python import PYTHON_MODULE_COMPLETERS
+    from pgcompletions.python import PYTHON_MODULE_COMPLETERS
 
     # Simple completer with static options
     def _complete_mytool(ctx, module_arg_index):
@@ -494,7 +494,7 @@ a ready-made helper is available:
 
 .. code-block:: python
 
-    from xompletions.python import PYTHON_MODULE_COMPLETERS, _complete_argcomplete
+    from pgcompletions.python import PYTHON_MODULE_COMPLETERS, _complete_argcomplete
 
     PYTHON_MODULE_COMPLETERS['my_argcomplete_tool'] = _complete_argcomplete
 

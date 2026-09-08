@@ -12,7 +12,7 @@ own prefix (flags, their values, ``VAR=value`` assignments, ``--``) and
 then either offers command names (when the cursor sits on the inner
 command word) or re-enters the full completion pipeline with the inner
 command at ``args[0]`` so the inner command's own completers
-(``man``, paths, ``pip``'s xompletion, …) surface.
+(``man``, paths, ``pip``'s pgcompletion, …) surface.
 """
 
 import re
@@ -106,7 +106,7 @@ def pygwin_complete(ctx: CommandContext):
 
     # Cursor is past the inner command's name, inside its own arguments.
     # Re-enter the completer pipeline with the inner command at args[0]
-    # so its completers (paths, man flags, xompletions, …) fire.
+    # so its completers (paths, man flags, pgcompletions, …) fire.
     skipped = ctx._replace(
         args=ctx.args[inner:],
         arg_index=ctx.arg_index - inner,

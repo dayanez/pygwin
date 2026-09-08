@@ -397,11 +397,11 @@ def test_tag_provider_does_not_overwrite_existing():
     assert out[1].provider == "outer"
 
 
-def test_xompleter_tags_with_module_basename():
-    """``CommandCompleter`` must tag xompletion results with module basename.
+def test_pgcompleter_tags_with_module_basename():
+    """``CommandCompleter`` must tag pgcompletion results with module basename.
 
-    Verifies that ``xompletions.<name>.pygwin_complete`` output is wrapped
-    so the trace shows ``provider=<name>`` — the ``xompleter`` bridging
+    Verifies that ``pgcompletions.<name>.pygwin_complete`` output is wrapped
+    so the trace shows ``provider=<name>`` — the ``pgcompleter`` bridging
     layer discussed in the user conversation.
     """
     from types import SimpleNamespace
@@ -414,7 +414,7 @@ def test_xompleter_tags_with_module_basename():
     )
 
     fake_module = SimpleNamespace(
-        __name__="xompletions.fake_pip",
+        __name__="pgcompletions.fake_pip",
         pygwin_complete=lambda ctx: {RichCompletion("install"), "freeze"},
     )
     cc = CommandCompleter()
@@ -431,8 +431,8 @@ def test_xompleter_tags_with_module_basename():
     assert all(c.provider == "fake_pip" for c in result)
 
 
-def test_xompleter_passes_through_none():
-    """If the xompletion module returns ``None`` (no match), ``CommandCompleter``
+def test_pgcompleter_passes_through_none():
+    """If the pgcompletion module returns ``None`` (no match), ``CommandCompleter``
     must still pass ``None`` through so the pipeline falls to the next completer.
     """
     from types import SimpleNamespace
@@ -445,7 +445,7 @@ def test_xompleter_passes_through_none():
     )
 
     fake_module = SimpleNamespace(
-        __name__="xompletions.fake_pip",
+        __name__="pgcompletions.fake_pip",
         pygwin_complete=lambda ctx: None,
     )
     cc = CommandCompleter()

@@ -2,7 +2,7 @@
 #branch = true
 source =
   pygwin/
-  xontrib/
+  pgtrib/
 omit =
   .venv/*
   pygwin/lazyasd.py

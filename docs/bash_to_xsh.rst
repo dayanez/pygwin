@@ -131,7 +131,7 @@ This page provides pygwin equivalents for common patterns in Bash.
         to have an ability to return object e.g. ``j = $(@json echo '{}')``.
     * - OhMyBash or BashIt
       - `awesome-xontribs <https://github.com/xonsh/awesome-xontribs>`_
-      - Xontributions, or ``xontribs``, are a set of tools and conventions for extending the functionality
+      - Pgtribs are a set of tools and conventions for extending the functionality
         of pygwin beyond what is provided by default.
     * - Display completions as list
       - ``$COMPLETIONS_DISPLAY = 'readline'``
@@ -151,4 +151,5 @@ To understand how pygwin executes the subprocess commands try ``showcmd`` or set
 
 If after time you still try to type ``export``, ``unset`` or ``!!`` commands
 there are the `bashisms <https://github.com/xonsh/xontrib-bashisms>`_
-and `sh <https://github.com/anki-code/xontrib-sh>`_ xontribs.
+and `sh <https://github.com/anki-code/xontrib-sh>`_ xontribs (written for real
+xonsh; see :doc:`pgtrib` for the caveats in using one with pygwin).

@@ -27,10 +27,10 @@ measurements included, see this repository's git history and
   - [Running pygwin](#running-pygwin)
   - [Built on xonsh's engine](#built-on-xonshs-engine)
   - [Configuration](#configuration)
-  - [Extending pygwin: xontribs](#extending-pygwin-xontribs)
+  - [Extending pygwin: pgtribs](#extending-pygwin-pgtribs)
   - [The coreutils bundled in](#the-coreutils-bundled-in)
-  - [System observability: the sysinfo xontrib](#system-observability-the-sysinfo-xontrib)
-  - [Process auto-tuning: the autotune xontrib](#process-auto-tuning-the-autotune-xontrib)
+  - [System observability: the sysinfo pgtrib](#system-observability-the-sysinfo-pgtrib)
+  - [Process auto-tuning: the autotune pgtrib](#process-auto-tuning-the-autotune-pgtrib)
   - [Command line reference](#command-line-reference)
 - [Performance philosophy](#performance-philosophy)
 - [Building the standalone executable](#building-the-standalone-executable)
@@ -75,10 +75,10 @@ pygwin is in an early, honest state. What exists today:
 - Pre-built, bundled parser tables, so the first command you run doesn't pay a
   one-time ~1.8 second parser-table generation cost.
 - A live CPU and memory telemetry thread and `pygwin-top`, as the opt-in `sysinfo`
-  xontrib (see [System observability: the sysinfo xontrib](#system-observability-the-sysinfo-xontrib)).
+  pgtrib (see [System observability: the sysinfo pgtrib](#system-observability-the-sysinfo-pgtrib)).
 - Transparent, reversible process auto-tuning for known CPU-heavy commands, as the
-  opt-in `autotune` xontrib (see
-  [Process auto-tuning: the autotune xontrib](#process-auto-tuning-the-autotune-xontrib)).
+  opt-in `autotune` pgtrib (see
+  [Process auto-tuning: the autotune pgtrib](#process-auto-tuning-the-autotune-pgtrib)).
 - Cached binary path and environment lookups, cutting external command resolution
   from about 10ms to about 1.3ms per call.
 - A Nuitka onefile build that reuses its extracted contents across runs instead of
@@ -201,8 +201,8 @@ pygwin's run control file is `~/.pygwinrc`, and only `~/.pygwinrc`; an existing
 `~/.xonshrc` from a real xonsh install (or an older pygwin install) is not read
 automatically, so migrate anything you want kept into a new `~/.pygwinrc` by hand.
 Anything you could put in a `.xonshrc` file works in a `.pygwinrc` too: environment
-variables, aliases, prompt customization, and xontrib loading, as long as the
-xontrib itself is one pygwin actually ships (real xonsh xontribs like `sysstats`
+variables, aliases, prompt customization, and pgtrib loading, as long as the
+pgtrib itself is one pygwin actually ships (real xonsh xontribs like `sysstats`
 are not bundled; pygwin's own equivalent for live CPU/memory telemetry is
 `sysinfo`, see below).
 
@@ -215,32 +215,33 @@ $PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{RESET} {cwd} ) '
 # Add an alias.
 aliases['gs'] = 'git status'
 
-# Load an xontrib.
-xontrib load coreutils
+# Load a pgtrib.
+pgtrib load coreutils
 ```
 
-### Extending pygwin: xontribs
+### Extending pygwin: pgtribs
 
-pygwin inherits xonsh's plugin system, called xontribs. A xontrib is a Python or `.xsh`
-file that defines a `_load_xontrib_(xsh, **_)` function and registers aliases, prompt
+pygwin inherits xonsh's plugin system. xonsh calls them xontribs; pygwin's own
+renamed equivalent is a pgtrib. A pgtrib is a Python or `.xsh`
+file that defines a `_load_pgtrib_(xsh, **_)` function and registers aliases, prompt
 fields, or event hooks. This is also how pygwin adds its own features without editing
-core files: see `xontrib/coreutils.py` in this repository for a simple example that
+core files: see `pgtrib/coreutils.py` in this repository for a simple example that
 registers the bundled coreutils aliases.
 
 List what is available and loaded:
 
 ```
-xontrib list
+pgtrib list
 ```
 
 Load one manually:
 
 ```
-xontrib load <name>
+pgtrib load <name>
 ```
 
 Every pygwin-only feature, telemetry, auto-tuning, cached process lookups, ships as
-a xontrib or a new top-level module, not a patch scattered across existing core
+a pgtrib or a new top-level module, not a patch scattered across existing core
 files.
 
 ### The coreutils bundled in
@@ -250,13 +251,13 @@ inherited from xonsh: `cat`, `echo`, `pwd`, `tee`, `tty`, `uname`, `uptime`, `um
 and `yes`. They are not loaded by default. Load them with:
 
 ```
-xontrib load coreutils
+pgtrib load coreutils
 ```
 
 These avoid spawning a real subprocess for simple operations and work identically on
 Windows, macOS, and Linux.
 
-### System observability: the sysinfo xontrib
+### System observability: the sysinfo pgtrib
 
 The first piece of pygwin's actual differentiator: live CPU and memory telemetry,
 exposed both in the prompt and as a `pygwin-top` command. It ships in the box but is
@@ -264,7 +265,7 @@ not loaded by default, since it needs `psutil`, an optional dependency:
 
 ```
 pip install "pygwin[observability]"   # or pip install "pygwin[full]", which includes it
-xontrib load sysinfo
+pgtrib load sysinfo
 ```
 
 Once loaded, a background thread polls CPU and memory usage every couple of seconds
@@ -285,12 +286,12 @@ Press Ctrl+C to exit it. It is a separate, on-demand foreground command: unlike 
 prompt-field telemetry thread, it is allowed to block while it runs, since the user
 asked for it directly.
 
-### Process auto-tuning: the autotune xontrib
+### Process auto-tuning: the autotune pgtrib
 
 Also opt-in, also needs `psutil` (the same `observability` extra covers it):
 
 ```
-xontrib load autotune
+pgtrib load autotune
 ```
 
 Once loaded, right after any command known to be typically CPU-heavy (compilers,
@@ -374,7 +375,7 @@ To build locally:
 pip install -e ".[full]"
 pip install nuitka zstandard
 python scripts/build_parser_tables.py
-python -m nuitka --standalone --onefile --onefile-cache-mode=cached --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --company-name=pygwin --product-name=pygwin --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table --include-package=xontrib --include-package=xompletions pygwin/__main__.py
+python -m nuitka --standalone --onefile --onefile-cache-mode=cached --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --company-name=pygwin --product-name=pygwin --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table --include-package=pgtrib --include-package=pgcompletions pygwin/__main__.py
 ```
 
 Building locally uses every CPU core by default, which can make the machine sluggish for
@@ -399,14 +400,14 @@ temp folder and deletes it on exit, with no warm-cache benefit between runs at a
 changes the default extraction path to include a company/product name, so
 `--company-name`/`--product-name` must be set too or Nuitka refuses to build.
 
-`--include-package=xontrib`/`--include-package=xompletions` matter for the same
+`--include-package=pgtrib`/`--include-package=pgcompletions` matter for the same
 reason the parser tables do: both packages are loaded entirely by dynamic,
-string-based `importlib` lookups (`xontrib load <name>`, and command-name-based
-completer discovery), never a literal `import xontrib.sysinfo`-style statement
+string-based `importlib` lookups (`pgtrib load <name>`, and command-name-based
+completer discovery), never a literal `import pgtrib.sysinfo`-style statement
 anywhere in the codebase, so Nuitka's static import scanner has no way to know
 either package exists at all. Without these flags, the compiled `pygwin.exe`
-cannot load any xontrib, including `sysinfo` and `autotune`, or any command
-completer from `xompletions`, and fails with `ModuleNotFoundError` the moment
+cannot load any pgtrib, including `sysinfo` and `autotune`, or any command
+completer from `pgcompletions`, and fails with `ModuleNotFoundError` the moment
 something tries.
 
 Measured directly against a real compiled `pygwin.exe`, on this dev machine: first
@@ -418,10 +419,10 @@ building (`pip install zstandard`) also lets Nuitka compress the onefile payload
 which cut this build from about 74MB uncompressed to a 19MB `.exe`.
 
 That 19MB, ~490ms build installs with `pip install -e ".[full]"` (prompt_toolkit,
-pygments, and psutil for the `sysinfo`/`autotune` xontribs, all bundled in). A build
+pygments, and psutil for the `sysinfo`/`autotune` pgtribs, all bundled in). A build
 from a plain `pip install -e .` instead, with none of those, measured smaller (11MB)
 and faster (about 400ms steady-state) in the same test, but can't run `best`-shell
-mode or the observability xontribs at all, since the code they need was never
+mode or the observability pgtribs at all, since the code they need was never
 importable at compile time. The CD workflow ships the `[full]` build so the
 compiled `.exe` has every feature the source install does; the 30 to 60 millisecond
 target mentioned above is about interpreter startup and shell construction inside a
@@ -431,12 +432,12 @@ which is a separate cost specific to this distribution method.
 ## Repository layout
 
 ```
-pygwin/       the shell engine, parser, and built-in shells (a renamed fork of xonsh's own xonsh/)
-xontrib/      plugin extensions, including pygwin's own additions
-xompletions/  completion providers for external commands
-tests/        the pytest suite
-docs/         upstream Sphinx documentation source, plus docs/index.html (this project's
-              GitHub Pages site, a separate, unrelated static page)
+pygwin/         the shell engine, parser, and built-in shells (a renamed fork of xonsh's own xonsh/)
+pgtrib/         plugin extensions, including pygwin's own additions
+pgcompletions/  completion providers for external commands
+tests/          the pytest suite
+docs/           upstream Sphinx documentation source, plus docs/index.html (this project's
+                GitHub Pages site, a separate, unrelated static page)
 ```
 
 See [AGENTS.md](AGENTS.md) for the full breakdown and the rule that governs where new

@@ -17,7 +17,7 @@ Embedding Pygwin
 
 Pygwin exposes itself as a Python library in addition to the standalone
 ``pygwin`` command. Third-party projects can create a pygwin session,
-load xontribs and rc files, and drive the execer / shell from their
+load pgtribs and rc files, and drive the execer / shell from their
 own code. The public entry point for this is :func:`pygwin.main.setup`,
 documented in :mod:`pygwin.main`.
 
@@ -88,7 +88,7 @@ entry point for your embedding scenario.
 
 Call it **before** you start your interactive shell loop — ideally as
 early in your program's startup as possible, so that any :doc:`pygwin RC <pygwinrc>`
-or xontrib code your embedder runs already has foreground ownership:
+or pgtrib code your embedder runs already has foreground ownership:
 
 .. code-block:: python
 
@@ -108,7 +108,7 @@ or xontrib code your embedder runs already has foreground ownership:
     # Your existing pygwin setup stays unchanged.
     setup(
         shell_type="prompt_toolkit",
-        # ... your ctx, env, xontribs, aliases, etc.
+        # ... your ctx, env, pgtribs, aliases, etc.
     )
 
     # Your custom shell / REPL / agent loop starts here.

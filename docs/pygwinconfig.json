@@ -2,7 +2,7 @@
   "EDITOR": "xo",
   "PAGER": "more"
   },
- "xontribs": ["mpl"],
+ "pgtribs": ["mpl"],
  "foreign_shells": [
   {"shell": "bash",
    "login": true,

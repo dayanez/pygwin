@@ -3,7 +3,7 @@ import subprocess
 
 import pytest
 
-from pygwin.completers.commands import complete_xompletions
+from pygwin.completers.commands import complete_pgcompletions
 from pygwin.completers.tools import _shlex_split_safe
 
 regex_cases = [
@@ -19,7 +19,7 @@ regex_cases = [
     regex_cases,
 )
 def test_pip_re(line):
-    assert complete_xompletions.matcher.search_completer(line)
+    assert complete_pgcompletions.matcher.search_completer(line)
 
 
 @pytest.mark.parametrize(
@@ -37,7 +37,7 @@ def test_pip_re(line):
     ],
 )
 def test_pip_list_re1(line):
-    assert complete_xompletions.matcher.search_completer(line) is None
+    assert complete_pgcompletions.matcher.search_completer(line) is None
 
 
 def pip_installed():

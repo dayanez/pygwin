@@ -70,7 +70,7 @@ For those of you who want the gritty details.
     pygwin.shells.dumb_shell
     pygwin.wizard
     pygwin.xonfig
-    pygwin.xontribs
+    pygwin.pgtribs
     pygwin.codecache
     pygwin.contexts
     pygwin.ansi_colors
@@ -81,22 +81,22 @@ For those of you who want the gritty details.
     pygwin.platforms
     pygwin.webconfig
 
-**Xompletions:**
+**Pgcompletions:**
 
 .. autosummary::
-    :toctree: _autosummary/xompletions
+    :toctree: _autosummary/pgcompletions
     :template: api-summary-module.rst
     :recursive:
 
-    xompletions
+    pgcompletions
 
 
-**Xontribs:**
+**Pgtribs:**
 
 .. autosummary::
-    :toctree: _autosummary/xontribs
+    :toctree: _autosummary/pgtribs
     :template: api-summary-module.rst
     :recursive:
 
-    xontrib
+    pgtrib
 

@@ -555,11 +555,11 @@ def test_pygwin_no_file_returncode(shell, monkeypatch, monkeypatch_stderr):
         pygwin.main.main()
 
 
-def test_auto_loading_xontribs(xession, shell, mocker):
-    # GIVEN a xontrib is installed
+def test_auto_loading_pgtribs(xession, shell, mocker):
+    # GIVEN a pgtrib is installed
     from importlib.metadata import EntryPoint
 
-    group = "pygwin.xontribs"
+    group = "pygwin.pgtribs"
 
     mocker.patch(
         "importlib.metadata.entry_points",
@@ -568,32 +568,32 @@ def test_auto_loading_xontribs(xession, shell, mocker):
             group: [EntryPoint(name="test", group=group, value="test.module")]
         },
     )
-    xontribs_load = mocker.patch("pygwin.xontribs.xontribs_load")
+    pgtribs_load = mocker.patch("pygwin.pgtribs.pgtribs_load")
 
-    # AND auto-loading xontribs is enabled by default
-    assert xession.env["XONTRIBS_AUTOLOAD_DISABLED"] is False
+    # AND auto-loading pgtribs is enabled by default
+    assert xession.env["PGTRIBS_AUTOLOAD_DISABLED"] is False
 
     # WHEN pygwin is initialized
     pygwin.main.premain([])
 
-    # THEN auto-loading xontribs is still enabled
-    assert xession.env["XONTRIBS_AUTOLOAD_DISABLED"] is False
+    # THEN auto-loading pgtribs is still enabled
+    assert xession.env["PGTRIBS_AUTOLOAD_DISABLED"] is False
 
-    # AND installed xontrib should be auto-loaded
-    assert xession.builtins.autoloaded_xontribs == {"test": "test.module"}
-    xontribs_load.assert_called()
+    # AND installed pgtrib should be auto-loaded
+    assert xession.builtins.autoloaded_pgtribs == {"test": "test.module"}
+    pgtribs_load.assert_called()
 
 
-def test_xontribs_autoload_disabled_in_custom_rc(xession, shell, mocker, tmpdir):
-    """As a Pygwin user, if I set `$XONTRIBS_AUTOLOAD_DISABLED = True`
-    in my RC file, then Xontribs should not be auto-loaded.
+def test_pgtribs_autoload_disabled_in_custom_rc(xession, shell, mocker, tmpdir):
+    """As a Pygwin user, if I set `$PGTRIBS_AUTOLOAD_DISABLED = True`
+    in my RC file, then Pgtribs should not be auto-loaded.
 
     https://github.com/xonsh/xonsh/issues/5872
     """
-    # GIVEN a xontrib is installed
+    # GIVEN a pgtrib is installed
     from importlib.metadata import EntryPoint
 
-    group = "pygwin.xontribs"
+    group = "pygwin.pgtribs"
     mocker.patch(
         "importlib.metadata.entry_points",
         autospec=True,
@@ -601,25 +601,25 @@ def test_xontribs_autoload_disabled_in_custom_rc(xession, shell, mocker, tmpdir)
             group: [EntryPoint(name="test", group=group, value="test.module")]
         },
     )
-    xontribs_load = mocker.patch("pygwin.xontribs.xontribs_load")
+    pgtribs_load = mocker.patch("pygwin.pgtribs.pgtribs_load")
 
-    # AND auto-loading xontribs is disabled in a custom RC file
+    # AND auto-loading pgtribs is disabled in a custom RC file
     f = tmpdir.join("wakkawakka")
-    f.write("$XONTRIBS_AUTOLOAD_DISABLED = True\n")
+    f.write("$PGTRIBS_AUTOLOAD_DISABLED = True\n")
 
-    # AND auto-loading xontribs is not explicitly disabled
-    assert xession.env["XONTRIBS_AUTOLOAD_DISABLED"] is False
+    # AND auto-loading pgtribs is not explicitly disabled
+    assert xession.env["PGTRIBS_AUTOLOAD_DISABLED"] is False
 
     # WHEN pygwin is initialized
     pygwin.main.premain(["--rc", f.strpath])
 
     # THEN custom RC file should have been processed
     assert f.strpath in xession.rc_files
-    assert xession.env["XONTRIBS_AUTOLOAD_DISABLED"] is True
+    assert xession.env["PGTRIBS_AUTOLOAD_DISABLED"] is True
 
-    # AND installed xontrib should not be auto-loaded
-    assert not hasattr(xession.builtins, "autoloaded_xontribs")
-    xontribs_load.assert_not_called()
+    # AND installed pgtrib should not be auto-loaded
+    assert not hasattr(xession.builtins, "autoloaded_pgtribs")
+    pgtribs_load.assert_not_called()
 
 
 def test_script_normal_file(xession, monkeypatch, capsys, tmpdir):

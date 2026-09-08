@@ -79,9 +79,9 @@ Manages pygwin configuration information.
 
 .. command-help:: pygwin.xonfig.xonfig_main
 
-``xontrib``
+``pgtrib``
 --------------------
-Manages pygwin extensions. More information is available at :doc:`xontrib`
+Manages pygwin extensions. More information is available at :doc:`pgtrib`
 
 
 .. _aliases-xcontext:

@@ -9,8 +9,8 @@ from pygwin.completers.bash import complete_from_bash
 from pygwin.completers.commands import (
     complete_end_proc_keywords,
     complete_end_proc_tokens,
+    complete_pgcompletions,
     complete_skipper,
-    complete_xompletions,
 )
 from pygwin.completers.emoji import complete_emoji
 from pygwin.completers.environment import complete_environment_vars
@@ -31,7 +31,7 @@ def default_completers(cmd_cache):
         ("base", complete_base),
         ("skip", complete_skipper),
         ("alias", complete_aliases),
-        ("xompleter", complete_xompletions),
+        ("pgcompleter", complete_pgcompletions),
         ("import", complete_import),
     ]
 

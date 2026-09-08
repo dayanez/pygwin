@@ -28,7 +28,7 @@ from pygwin.xoreutils.uptime import uptime
 from pygwin.xoreutils.yes import yes
 
 
-def _load_xontrib_(xsh: PygwinSession, **_):
+def _load_pgtrib_(xsh: PygwinSession, **_):
     xsh.aliases["cat"] = cat
     xsh.aliases["echo"] = echo
     xsh.aliases["pwd"] = pwd

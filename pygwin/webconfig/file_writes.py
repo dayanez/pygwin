@@ -20,7 +20,7 @@ def append_to_list(value: list[str], existing: str) -> str:
 RENDERERS: dict[str, tuple[str, tp.Callable[[tp.Any, str], str]]] = {
     "$PROMPT = ": ("prompt", write_value),
     "$PYGWIN_COLOR_STYLE = ": ("color", write_value),
-    "xontrib load ": ("xontribs", append_to_list),
+    "pgtrib load ": ("pgtribs", append_to_list),
 }
 
 

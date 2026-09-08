@@ -23,7 +23,7 @@ events.doc(
     """
 on_transform_command(cmd: str) -> str | None
 
-Fired to request xontribs to transform a command line. Return the transformed
+Fired to request pgtribs to transform a command line. Return the transformed
 command, or the same command if no transformation occurs. Return None to
 indicate no transformation (equivalent to returning the original command).
 Only done for interactive sessions.

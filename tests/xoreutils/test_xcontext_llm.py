@@ -859,7 +859,7 @@ def test_xcontext_get_session_xpygwin_caches_when_enabled(xession):
 
 def test_xcontext_default_does_not_cache(xession):
     """Default ``XContext()`` has ``cache=False`` so a long-lived holder
-    (e.g. an xontrib that stashes the instance) sees fresh ``$PATH`` /
+    (e.g. a pgtrib that stashes the instance) sees fresh ``$PATH`` /
     alias state on every read instead of a stale snapshot.
     """
     calls = mock.MagicMock(return_value="/fake/pygwin")

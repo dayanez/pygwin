@@ -24,11 +24,11 @@ def run_alias(name: str, args=None):
 
     from pygwin.built_ins import subproc_uncaptured
     from pygwin.main import setup
-    from pygwin.xontribs import xontribs_load
+    from pygwin.pgtribs import pgtribs_load
 
     setup()
 
-    xontribs_load(["coreutils"])
+    pgtribs_load(["coreutils"])
     args = sys.argv[1:] if args is None else args
 
     subproc_uncaptured([name] + args)

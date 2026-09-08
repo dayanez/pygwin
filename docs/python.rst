@@ -165,7 +165,7 @@ Workarounds:
 * **Force subprocess mode** with ``$[...]``, ``$(...)`` or a redirect:
   ``$[id]``, ``$(id)``.
 * **Alias it under a different name**: ``aliases['ids'] = 'id'``.
-* **Use `xontrib-abbrevs`** to auto-expand on space.
+* **Use `xontrib-abbrevs`** (real xonsh package) to auto-expand on space.
 
 
 See also: `pygwin-cheatsheet <https://github.com/anki-code/xonsh-cheatsheet>`_

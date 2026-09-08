@@ -23,7 +23,7 @@ def _url(path):
 def rc_file(tmp_path, monkeypatch):
     """Redirect webconfig RC writes to a temp path.
 
-    Without this, ``ColorsPage.post`` / ``PromptsPage.post`` / ``XontribsPage.post``
+    Without this, ``ColorsPage.post`` / ``PromptsPage.post`` / ``PgtribsPage.post``
     write to the user's real ``~/.pygwinrc`` via ``insert_into_pygwinrc``.
     """
     file = tmp_path / "pygwinrc"
@@ -60,7 +60,7 @@ def test_routes_registry_includes_known_paths():
     paths = set(r.Routes.registry)
     assert "/" in paths
     assert "/prompts" in paths
-    assert "/xontribs" in paths
+    assert "/pgtribs" in paths
     assert "/vars" in paths
     assert "/alias" in paths
 
@@ -136,21 +136,21 @@ def test_prompts_page_post_no_data_is_noop(xession, make_route):
     assert xession.env.get("PROMPT") == original
 
 
-# --- XontribsPage -----------------------------------------------------------
+# --- PgtribsPage -----------------------------------------------------------
 
 
-def test_xontribs_page_renders_html(make_route):
-    page = make_route(r.XontribsPage)
+def test_pgtribs_page_renders_html(make_route):
+    page = make_route(r.PgtribsPage)
     out = t.to_str(list(page.get()))
-    assert "Popular xontrib sources" in out
+    assert "Xontrib sources" in out
 
 
-def test_xontribs_page_mod_name():
-    assert r.XontribsPage.mod_name("foo") == "xontrib.foo"
+def test_pgtribs_page_mod_name():
+    assert r.PgtribsPage.mod_name("foo") == "pgtrib.foo"
 
 
-def test_xontribs_page_post_no_data_is_noop(make_route):
-    page = make_route(r.XontribsPage)
+def test_pgtribs_page_post_no_data_is_noop(make_route):
+    page = make_route(r.PgtribsPage)
     # post with empty dict must return None and not raise
     assert page.post({}) is None
 

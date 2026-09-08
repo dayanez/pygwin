@@ -59,7 +59,7 @@ class PTKInputHook:
         """Put the original ``builtins.input`` back."""
         if not self.installed:
             return
-        # Someone may have replaced ``input`` after us (a xontrib, ``pdb``,
+        # Someone may have replaced ``input`` after us (a pgtrib, ``pdb``,
         # user code). Their hook wins — dropping ours on the floor is better
         # than clobbering theirs.
         if builtins.input is self:

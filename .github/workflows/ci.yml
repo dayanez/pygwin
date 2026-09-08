@@ -19,7 +19,7 @@ jobs:
           python-version: "3.12"
       - run: pip install ruff
       - run: ruff check .
-      - run: ruff format --check pygwin xontrib tests xompletions
+      - run: ruff format --check pygwin pgtrib tests pgcompletions
 
   test:
     strategy:

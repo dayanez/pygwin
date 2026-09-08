@@ -4,7 +4,7 @@ the ``pygwin-top`` command.
 Polls CPU and memory usage on a background thread so prompt rendering never
 blocks on a syscall. Requires ``psutil``, an optional dependency (the
 ``observability`` extra, also pulled in by ``full``); if it is not
-installed, loading this xontrib prints one line explaining that and does
+installed, loading this pgtrib prints one line explaining that and does
 nothing else.
 """
 
@@ -174,7 +174,7 @@ def _top(args=None):
         return 0
 
 
-def _load_xontrib_(xsh: PygwinSession, **_):
+def _load_pgtrib_(xsh: PygwinSession, **_):
     started = _telemetry.start()
     if not started:
         print(
@@ -188,7 +188,7 @@ def _load_xontrib_(xsh: PygwinSession, **_):
     xsh.aliases["pygwin-top"] = _top
 
 
-def _unload_xontrib_(xsh: PygwinSession, **_):
+def _unload_pgtrib_(xsh: PygwinSession, **_):
     _telemetry.stop()
     xsh.env["PROMPT_FIELDS"].pop("cpu", None)
     xsh.env["PROMPT_FIELDS"].pop("mem", None)

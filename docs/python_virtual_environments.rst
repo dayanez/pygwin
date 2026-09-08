@@ -32,18 +32,18 @@ To leave the environment, run ``deactivate``.
 =======
 
 pygwin works with the usual Python virtual environment tools — ``venv``,
-``virtualenv``, ``pew`` — and on top of that ships its own environments
-manager called **Vox**. Vox is an xontrib that makes creating, listing,
-activating, and removing virtualenvs feel natural right inside the shell,
-so you don't have to leave the REPL or remember a separate activation
-script per project.
+``virtualenv``, ``pew`` — and xonsh itself ships an environments manager
+called **Vox**, a real xonsh xontrib (not one of pygwin's own pgtribs) that
+makes creating, listing, activating, and removing virtualenvs feel natural
+right inside the shell, so you don't have to leave the REPL or remember a
+separate activation script per project.
 
 Install and load Vox:
 
 .. code-block:: pygwincon
 
     @ xpip install xontrib-vox
-    @ xontrib load vox
+    @ pgtrib load vox
 
 To create a new environment with vox, run ``vox new <envname>``:
 
@@ -131,7 +131,7 @@ For more details see :ref:`customprompt`.
 Automatically Switching Environments
 ------------------------------------
 
-Automatic environment switching based on the current directory is managed with the ``autovox`` xontrib (``xontrib load autovox``). Third-party xontribs may register various policies for use with autovox. Pick and choose xontribs that implement policies that match your work style.
+Automatic environment switching based on the current directory is managed with the real xonsh ``autovox`` xontrib (``pgtrib load autovox``). Third-party xontribs may register various policies for use with autovox. Pick and choose xontribs that implement policies that match your work style.
 
 Implementing policies is easy! Just register with the ``autovox_policy`` event and return a ``Path`` if there is a matching venv. For example, this policy implements handling if there is a ``.venv`` directory in the project:
 

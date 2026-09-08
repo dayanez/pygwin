@@ -8,7 +8,7 @@ from pygwin.parsers.completion_context import CommandArg, CommandContext
 
 def _complete_pip(ctx, module_arg_index):
     """Delegate to pip's completer."""
-    from xompletions import pip as _pip
+    from pgcompletions import pip as _pip
 
     args = (CommandArg("pip"),) + ctx.args[module_arg_index + 1 :]
     pip_ctx = ctx._replace(args=args, arg_index=ctx.arg_index - module_arg_index)
@@ -39,7 +39,7 @@ def _complete_argcomplete(ctx, module_arg_index):
 
 
 # Map module names to their completer functions.
-# Extend from pygwinrc: ``from xompletions.python import PYTHON_MODULE_COMPLETERS``
+# Extend from pygwinrc: ``from pgcompletions.python import PYTHON_MODULE_COMPLETERS``
 #
 # Available helpers:
 #   _complete_pip          — pip's PIP_AUTO_COMPLETE protocol

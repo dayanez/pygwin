@@ -48,8 +48,9 @@ quietly walk it back by leaving new code under the `xonsh` name "for compatibili
 
 ## The one rule that still matters
 
-New behavior goes in new files, following xonsh's own `_load_xontrib_(xsh, **_)` plugin
-pattern (see any file under `xontrib/` for the shape), rather than as edits to existing
+New behavior goes in new files, using pygwin's own `_load_pgtrib_(xsh, **_)` plugin
+pattern (renamed from xonsh's `_load_xontrib_` convention; see any file under
+`pgtrib/` for the shape), rather than as edits to existing
 core files, whenever that is a real option. This is no longer about keeping upstream
 merges clean (see above); it is just good practice, minimizing the surface area where a
 change to core shell/parser/execer logic can introduce an execution-safety bug. Before
@@ -81,7 +82,7 @@ ruff check .
 Format (matches the args `.pre-commit-config.yaml` uses):
 
 ```
-ruff format pygwin xontrib tests xompletions
+ruff format pygwin pgtrib tests pgcompletions
 ```
 
 `.pre-commit-config.yaml` also runs mypy and a couple of housekeeping hooks.
@@ -118,9 +119,9 @@ disabled. See SYNCING.md for the full list.
   `xonsh/` directory and fully renamed. Changes here are no longer a special
   merge-conflict risk beyond the general fact that this is core interpreter code; see
   the Security-sensitive areas note below.
-- `xontrib/`: plugin extensions loaded via `_load_xontrib_(xsh, **_)`. This is where
+- `pgtrib/`: plugin extensions loaded via `_load_pgtrib_(xsh, **_)`. This is where
   new pygwin-only features belong.
-- `xompletions/`: completion providers for external commands.
+- `pgcompletions/`: completion providers for external commands.
 - `tests/`: the pytest suite (see Tests above).
 - `docs/`: upstream's Sphinx documentation source (not built by anything in this
   repo), plus pygwin's own `docs/index.html`, a plain, unrelated static page served as

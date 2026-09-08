@@ -1,6 +1,6 @@
 """Pytest plugin for testing Pygwin.
 
-These fixture names are Public API and need to be handled carefully as there are Xontribs dependent on them for testing
+These fixture names are Public API and need to be handled carefully as there are Pgtribs dependent on them for testing
 """
 
 import builtins
@@ -399,22 +399,22 @@ def readline_shell(pygwin_execer, tmpdir, mocker):
 
 
 @pytest.fixture
-def load_xontrib():
+def load_pgtrib():
     to_unload = []
 
     def wrapper(*names: str):
-        from pygwin.xontribs import xontrib_data, xontribs_load
+        from pygwin.pgtribs import pgtrib_data, pgtribs_load
 
-        xo_data = xontrib_data()
+        xo_data = pgtrib_data()
 
         for name in names:
             module = xo_data[name]["module"]
             if module not in sys.modules:
                 to_unload.append(module)
 
-            _, stderr, res = xontribs_load([module], full_module=True)
+            _, stderr, res = pgtribs_load([module], full_module=True)
             if stderr:
-                raise Exception(f"Failed to load xontrib: {stderr}")
+                raise Exception(f"Failed to load pgtrib: {stderr}")
         return
 
     yield wrapper

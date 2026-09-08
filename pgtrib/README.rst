@@ -1,7 +1,7 @@
-Xontributions, or xontribs, are a set of tools and conventions for extending
+Pgtribs are a set of tools and conventions for extending
 the functionality of pygwin beyond what is provided by default. This allows
 3rd party developers and users to improve their pygwin experience without
 having to go through the pygwin development and release cycle.
 
-This xontrib directory represents an implicit namespace package.
+This pgtrib directory represents an implicit namespace package.
 DO NOT add an __init__.py file to this directory.

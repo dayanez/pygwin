@@ -3,7 +3,7 @@
 The dispatcher in :mod:`pygwin.main` peeks at ``sys.argv`` and, if the first
 non-option argument is ``check``, hands the rest off to :func:`main` here. As
 with ``pygwin format`` we deliberately do *not* go through pygwin's own argparse:
-syntax checking needs no shell session, xontribs or rc files, and avoiding that
+syntax checking needs no shell session, pgtribs or rc files, and avoiding that
 machinery makes startup fast and side-effect free.
 
 The thin top-level ``pygwin -n`` / ``--no-execute`` flag is wired into
@@ -53,7 +53,7 @@ def _get_execer():
     (:mod:`pygwin.tools`) read ``XSH.execer``/``XSH.env``/``XSH.aliases``/
     ``XSH.commands_cache`` off the *global* session. So we bring up a minimal
     session, exactly as :func:`pygwin.main.start_services` does right before it
-    compiles — but WITHOUT starting a shell, loading rc files or xontribs, and
+    compiles — but WITHOUT starting a shell, loading rc files or pgtribs, and
     of course without ever running the checked source.
     """
     global _EXECER
@@ -78,7 +78,7 @@ def check_source(src: str, filename: str = "<check>", mode: str = "exec", execer
 
     Raises ``SyntaxError`` (or a subclass such as ``IndentationError`` /
     ``TabError``) if *src* does not parse or compile. Returns ``None`` on
-    success. No code from *src* is executed and no rc files, xontribs or
+    success. No code from *src* is executed and no rc files, pgtribs or
     interactive shell are loaded. The compile runs against an empty user
     context (builtins only); a minimal pygwin session may be brought up on
     first use for the parser's context-aware phase (see :func:`_get_execer`).

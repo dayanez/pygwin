@@ -189,7 +189,7 @@ def test_input_hook_install_is_idempotent(input_hook):
 
 
 def test_input_hook_restore_keeps_a_foreign_hook(input_hook):
-    """If something else replaced ``input`` after us (a xontrib, ``pdb``,
+    """If something else replaced ``input`` after us (a pgtrib, ``pdb``,
     user code), ``restore`` must not clobber it."""
     import builtins
 

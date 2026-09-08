@@ -33,6 +33,7 @@ from pygwin.foreign_shells import (
 )
 from pygwin.lib.lazyasd import lazyobject
 from pygwin.parsers.ast import isexpression
+from pygwin.pgtribs import pgtribs_main
 from pygwin.platform_info import (
     IN_APPIMAGE,
     ON_ANACONDA,
@@ -63,7 +64,6 @@ from pygwin.tools import (
     uncapturable,
     unthreadable,
 )
-from pygwin.xontribs import xontribs_main
 
 
 @lazyobject
@@ -1519,7 +1519,7 @@ def get_xpygwin_alias():
     ``site-packages``.
     """
     # Local import: pygwin.main pulls in heavy modules (shell, execer,
-    # xontribs), so keep the dependency lazy.
+    # pgtribs), so keep the dependency lazy.
     from pygwin.main import get_current_pygwin
 
     current_pygwin = get_current_pygwin()
@@ -1716,7 +1716,7 @@ def make_default_aliases():
         "showcmd": showcmd,
         "which": xxw.which,
         "xcontext": xxt.xcontext,
-        "xontrib": xontribs_main,
+        "pgtrib": pgtribs_main,
         "xpygwin": get_xpygwin_alias(),
         "xpip": get_xpip_alias(),
         "xpython": [XSH.env.get("_", sys.executable)]

@@ -1,4 +1,4 @@
-"""Tests for the ``sysinfo`` xontrib: the background telemetry thread,
+"""Tests for the ``sysinfo`` pgtrib: the background telemetry thread,
 its prompt fields, and the ``pygwin-top`` alias registration.
 """
 
@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from xontrib import sysinfo
+from pgtrib import sysinfo
 
 
 @pytest.fixture(autouse=True)
@@ -28,11 +28,9 @@ def test_telemetry_start_returns_false_when_psutil_missing(monkeypatch):
     assert sysinfo._telemetry._thread is None
 
 
-def test_load_xontrib_prints_and_skips_when_psutil_missing(
-    xession, monkeypatch, capsys
-):
+def test_load_pgtrib_prints_and_skips_when_psutil_missing(xession, monkeypatch, capsys):
     monkeypatch.setitem(sys.modules, "psutil", None)
-    sysinfo._load_xontrib_(xession)
+    sysinfo._load_pgtrib_(xession)
     fields = xession.env["PROMPT_FIELDS"]
     assert "cpu" not in fields
     assert "mem" not in fields
@@ -79,29 +77,29 @@ def test_sysinfo_field_formats_none_as_empty():
     assert format(field, "") == ""
 
 
-def test_load_xontrib_registers_fields_and_alias(xession):
-    sysinfo._load_xontrib_(xession)
+def test_load_pgtrib_registers_fields_and_alias(xession):
+    sysinfo._load_pgtrib_(xession)
     try:
         fields = xession.env["PROMPT_FIELDS"]
         assert "cpu" in fields
         assert "mem" in fields
         assert "pygwin-top" in xession.aliases
     finally:
-        sysinfo._unload_xontrib_(xession)
+        sysinfo._unload_pgtrib_(xession)
 
 
-def test_unload_xontrib_removes_fields_and_alias(xession):
-    sysinfo._load_xontrib_(xession)
-    sysinfo._unload_xontrib_(xession)
+def test_unload_pgtrib_removes_fields_and_alias(xession):
+    sysinfo._load_pgtrib_(xession)
+    sysinfo._unload_pgtrib_(xession)
     fields = xession.env["PROMPT_FIELDS"]
     assert "cpu" not in fields
     assert "mem" not in fields
     assert "pygwin-top" not in xession.aliases
 
 
-def test_load_xontrib_field_value_reflects_snapshot(xession):
+def test_load_pgtrib_field_value_reflects_snapshot(xession):
     sysinfo._telemetry.interval = 0.05
-    sysinfo._load_xontrib_(xession)
+    sysinfo._load_pgtrib_(xession)
     try:
         fields = xession.env["PROMPT_FIELDS"]
         deadline = time.monotonic() + 2.0
@@ -114,4 +112,4 @@ def test_load_xontrib_field_value_reflects_snapshot(xession):
         assert cpu_field.value is not None
         assert isinstance(format(cpu_field, ""), str)
     finally:
-        sysinfo._unload_xontrib_(xession)
+        sysinfo._unload_pgtrib_(xession)

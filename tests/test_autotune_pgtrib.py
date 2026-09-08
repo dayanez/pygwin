@@ -1,4 +1,4 @@
-"""Tests for the ``autotune`` xontrib: detecting known-heavy commands after
+"""Tests for the ``autotune`` pgtrib: detecting known-heavy commands after
 they spawn, nudging their priority down, and reversing it via
 ``pygwin-tune``.
 """
@@ -10,7 +10,7 @@ import types
 import pytest
 
 import pygwin.platform_info as xp
-from xontrib import autotune
+from pgtrib import autotune
 
 
 @pytest.fixture(autouse=True)
@@ -159,18 +159,18 @@ def test_tune_without_psutil(monkeypatch, capsys):
     assert "psutil is not installed" in capsys.readouterr().out
 
 
-def test_load_xontrib_registers_handler_and_alias(xession):
-    autotune._load_xontrib_(xession)
+def test_load_pgtrib_registers_handler_and_alias(xession):
+    autotune._load_pgtrib_(xession)
     try:
         assert autotune._on_post_spec_run in xession.builtins.events.on_post_spec_run
         assert "pygwin-tune" in xession.aliases
     finally:
-        autotune._unload_xontrib_(xession)
+        autotune._unload_pgtrib_(xession)
 
 
-def test_unload_xontrib_removes_handler_and_alias(xession):
-    autotune._load_xontrib_(xession)
-    autotune._unload_xontrib_(xession)
+def test_unload_pgtrib_removes_handler_and_alias(xession):
+    autotune._load_pgtrib_(xession)
+    autotune._unload_pgtrib_(xession)
     assert autotune._on_post_spec_run not in xession.builtins.events.on_post_spec_run
     assert "pygwin-tune" not in xession.aliases
 

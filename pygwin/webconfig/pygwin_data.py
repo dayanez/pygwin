@@ -7,6 +7,7 @@ import logging
 import pygments
 
 from pygwin.color_tools import rgb_to_ints
+from pygwin.pgtribs import Pgtrib, get_pgtribs
 from pygwin.prompt.base import PromptFormatter, default_prompt
 from pygwin.pyghooks import (
     PygwinHtmlFormatter,
@@ -17,7 +18,6 @@ from pygwin.pyghooks import (
 )
 from pygwin.pygments_cache import get_all_styles
 from pygwin.style_tools import partial_color_tokenize
-from pygwin.xontribs import Xontrib, get_xontribs
 
 # $PYGWIN_SUBPROC_CMD_RAISE_ERROR = True
 # $PYGWIN_SHOW_TRACEBACK = False
@@ -214,15 +214,15 @@ def render_colors():
         yield style, display
 
 
-def format_xontrib(xontrib: Xontrib):
+def format_pgtrib(pgtrib: Pgtrib):
     return {
-        "url": xontrib.url,
-        "license": xontrib.license,
-        "display": escape(rst_to_html(xontrib.get_description())),
+        "url": pgtrib.url,
+        "license": pgtrib.license,
+        "display": escape(rst_to_html(pgtrib.get_description())),
     }
 
 
-def render_xontribs():
-    md = get_xontribs()
-    for xontrib_name, xontrib in md.items():
-        yield xontrib_name, format_xontrib(xontrib)
+def render_pgtribs():
+    md = get_pgtribs()
+    for pgtrib_name, pgtrib in md.items():
+        yield pgtrib_name, format_pgtrib(pgtrib)

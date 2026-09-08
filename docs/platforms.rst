@@ -32,7 +32,7 @@ Execution-mode flags live in the environment:
 
 * ``$PYGWIN_INTERACTIVE`` — ``True`` when Pygwin is running an interactive
   shell. Use it to gate anything that only makes sense with a live terminal
-  (aliases you type, key bindings, prompt colors, xontribs that hook the
+  (aliases you type, key bindings, prompt colors, pgtribs that hook the
   REPL). Safe to use inside an RC that is ``source``-d at runtime, because
   it reflects the current session.
 * ``$PYGWIN_MODE`` — the startup mode as a string: ``interactive``,
@@ -370,14 +370,14 @@ Windows ships none of the familiar Unix command-line utilities (``ls``,
 below give you a working set, ordered roughly from most lightweight and
 pygwin-native to most comprehensive.
 
-- **pygwin built-in coreutils.** A pure-Python xontrib that ships with
+- **pygwin built-in coreutils.** A pure-Python pgtrib that ships with
   Pygwin registers ``cat``, ``echo``, ``pwd``, ``tee``, ``tty``,
   ``umask``, ``uname``, ``uptime``, ``yes`` as aliases — no install,
   identical behaviour on every platform:
 
   .. code-block:: pygwincon
 
-      @ xontrib load coreutils
+      @ pgtrib load coreutils
 
   ``which`` is already wired by default. Add the line above to your
   :doc:`pygwin RC <pygwinrc>` to load it on every session.
@@ -546,20 +546,20 @@ Python (like other processes on Windows) locks the current working directory so
 it can't be deleted or renamed. ``cmd.exe`` has this behaviour as well, but it
 is quite annoying for a shell.
 
-The :ref:`free_cwd <free_cwd>` xontrib (add-on) for Pygwin solves some of this problem. It
+The :ref:`free_cwd <free_cwd>` pgtrib (add-on) for Pygwin solves some of this problem. It
 works by hooking the prompt to reset the current working directory to the root
 drive folder whenever the shell is idle. It only works with the prompt-toolkit
 back-end. To enable that behaviour run the following:
 
 .. code-block:: pygwincon
 
-   @ xpip install xontrib-free-cwd
+   @ xpip install pgtrib-free-cwd
 
 Add this line to your :doc:`pygwin RC <pygwinrc>` to have it always enabled.
 
 .. code-block:: pygwincon
 
-   @ xontrib load free_cwd
+   @ pgtrib load free_cwd
 
 
 Name space shadowing

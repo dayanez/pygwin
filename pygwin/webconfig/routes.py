@@ -231,27 +231,27 @@ class PromptsPage(Routes):
             self.update_rc(prompt=prompt)
 
 
-class XontribsPage(Routes):
-    path = "/xontribs"
-    nav_title = "Xontribs"
+class PgtribsPage(Routes):
+    path = "/pgtribs"
+    nav_title = "Pgtribs"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.xontribs = dict(pygwin_data.render_xontribs())
+        self.pgtribs = dict(pygwin_data.render_pgtribs())
 
     @staticmethod
     def mod_name(name):
-        return f"xontrib.{name}"
+        return f"pgtrib.{name}"
 
     @staticmethod
     def is_loaded(name):
-        return XontribsPage.mod_name(name) in sys.modules
+        return PgtribsPage.mod_name(name) in sys.modules
 
-    def xontrib_card(self, name, data):
-        from pygwin.xontribs import find_xontrib
+    def pgtrib_card(self, name, data):
+        from pygwin.pgtribs import find_pgtrib
 
         title = t.a(href=data["url"])[name]
-        if find_xontrib(name):
+        if find_pgtrib(name):
             act_label = "Add"
             if self.is_loaded(name):
                 act_label = "Remove"
@@ -269,11 +269,11 @@ class XontribsPage(Routes):
     def get(self):
         yield t.card()[
             t.card_body()[
-                t.card_title()["Popular xontrib sources"],
+                t.card_title()["Xontrib sources (real xonsh, see caveats)"],
                 t.card_body()[
                     t.li()[
                         t.a(href="https://github.com/topics/xontrib")[
-                            "Xontribs on Github"
+                            "Xontribs on GitHub"
                         ]
                     ],
                     t.li()[
@@ -288,15 +288,15 @@ class XontribsPage(Routes):
                     ],
                     t.li()[
                         t.a(href="https://github.com/xonsh/xontrib-template")[
-                            "Create a xontrib step by step from template"
+                            "Create an xontrib step by step from template"
                         ]
                     ],
                 ],
             ]
         ]
         yield t.br()
-        for name, data in self.xontribs.items():
-            yield t.row()[t.col()[self.xontrib_card(name, data),]]
+        for name, data in self.pgtribs.items():
+            yield t.row()[t.col()[self.pgtrib_card(name, data),]]
             yield t.br()
 
     def post(self, data: dict[str, str]):
@@ -307,13 +307,13 @@ class XontribsPage(Routes):
             # todo: update rc file
             del sys.modules[self.mod_name(name)]
         else:
-            from pygwin.xontribs import xontribs_load
+            from pygwin.pgtribs import pgtribs_load
 
-            _, err, _ = xontribs_load([name])
+            _, err, _ = pgtribs_load([name])
             if err:
                 self.err(err)
             else:
-                self.update_rc(xontribs=[name])
+                self.update_rc(pgtribs=[name])
 
 
 class EnvVariablesPage(Routes):

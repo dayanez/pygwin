@@ -3,7 +3,7 @@
 This module is the grab-bag of small, broadly-useful helpers used across
 the pygwin codebase — anything that doesn't naturally fit into one of the
 more focused subsystems (parser, execer, environ, procs, completers,
-prompt, history) ends up here. Downstream code — including xontribs —
+prompt, history) ends up here. Downstream code — including pgtribs —
 can import from :mod:`pygwin.tools` as a stable public API.
 
 The module groups its helpers roughly by topic:

@@ -3,7 +3,7 @@
 The dispatcher in :mod:`pygwin.main` peeks at ``sys.argv`` and, if the first
 non-option argument is ``lint``, hands the rest off to :func:`main` here. As
 with ``pygwin check`` / ``pygwin format`` we bypass pygwin's own argparse: linting
-needs no shell session, xontribs or rc files.
+needs no shell session, pgtribs or rc files.
 
 ``pygwin lint`` is the *correctness* sibling of the *style* tool ``pygwin format``
 and the *syntax* tool ``pygwin check``. It reuses the checker's parser/session

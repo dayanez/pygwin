@@ -74,7 +74,7 @@ developer tools.
     events_tutorial
     env
     completers
-    xontrib
+    pgtrib
     embedding
     debug
     api/index

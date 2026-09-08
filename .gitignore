@@ -29,10 +29,10 @@ pygwin.exe
 __pycache__/
 docs/_build/
 docs/envvarsbody
-docs/xontribsbody
+docs/pgtribsbody
 docs/eventsbody
 pygwin/dev.githash
-xontrib/__init__.py
+pgtrib/__init__.py
 
 # temporary files from vim and emacs
 *~

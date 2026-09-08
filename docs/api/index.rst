@@ -5,8 +5,8 @@ Pygwin API
 =================
 
 The ``pygwin.api`` package is a set of public libraries that can be used
-in third-party projects as well as in pygwin extensions (xontribs).  If
-you are writing a xontrib, using ``pygwin.api`` is the recommended way to
+in third-party projects as well as in pygwin extensions (pgtribs).  If
+you are writing a pgtrib, using ``pygwin.api`` is the recommended way to
 interact with pygwin internals.
 
 .. warning::

@@ -869,7 +869,7 @@ def default_completer_dirs(env):
     3. ``$PYGWIN_DATA_DIR/generated_completions`` - auto generated completers from man pages
     4. ``$XDG_DATA_DIRS/pygwin/vendor_completions`` - completers from other programs can be placed here.
 
-    Other than this, Python package namespace ``xompletions`` can be used to put completer modules as well.
+    Other than this, Python package namespace ``pgcompletions`` can be used to put completer modules as well.
     """
     # inspired from - https://fishshell.com/docs/current/completions.html#where-to-put-completions
     return [
@@ -1672,16 +1672,16 @@ class InterpreterSetting(Xettings):
     )
 
 
-class XontribSetting(Xettings):
-    """Xontrib Settings"""
+class PgtribSetting(Xettings):
+    """Pgtrib Settings"""
 
-    XONTRIBS_AUTOLOAD_DISABLED = Var.with_default(
+    PGTRIBS_AUTOLOAD_DISABLED = Var.with_default(
         default=False,
         type_str="bool",
-        doc="Controls auto-loading behaviour of xontrib packages at the startup.\n\n"
+        doc="Controls auto-loading behaviour of pgtrib packages at the startup.\n\n"
         "* Set this to ``True`` to disable autoloading completely.\n"
-        "* Setting this to a list of xontrib names will block loading those specifically.",
-        doc_default="Xontribs with ``pygwin.xontrib`` entrypoint will be loaded automatically by default.",
+        "* Setting this to a list of pgtrib names will block loading those specifically.",
+        doc_default="Pgtribs with ``pygwin.pgtribs`` entrypoint will be loaded automatically by default.",
     )
 
 

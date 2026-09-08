@@ -4,8 +4,8 @@ import pytest
 
 
 @pytest.fixture
-def uname(xession, load_xontrib):
-    load_xontrib("coreutils")
+def uname(xession, load_pgtrib):
+    load_pgtrib("coreutils")
     return xession.aliases["uname"]
 
 

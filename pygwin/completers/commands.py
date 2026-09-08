@@ -19,7 +19,7 @@ from pygwin.parsers.completion_context import CommandContext, CompletionContext
 
 # Wrapper commands whose completions delegate to the inner command. ``sudo``
 # is intentionally absent — it has its own flag grammar (``-u root``,
-# ``VAR=value``, ``--``) handled by ``xompletions/sudo.py``.
+# ``VAR=value``, ``--``) handled by ``pgcompletions/sudo.py``.
 SKIP_TOKENS = {"time", "timeit", "which", "showcmd", "man"}
 END_PROC_TOKENS = ("|", ";", "&&")  # includes ||
 END_PROC_KEYWORDS = {"and", "or"}
@@ -200,7 +200,7 @@ class ModuleReMatcher(ModuleFinder):
 
 
 class CommandCompleter:
-    """Lazily complete commands from `xompletions` package
+    """Lazily complete commands from `pgcompletions` package
 
     The base-name (case-insensitive) of the executable is used to find the matching completer module
     or the regex patterns.
@@ -214,20 +214,20 @@ class CommandCompleter:
     def matcher(self):
         if self._matcher is None:
             self._matcher = ModuleReMatcher(
-                "xompletions",
+                "pgcompletions",
                 *XSH.env.get("PYGWIN_COMPLETER_DIRS", []),
             )
             self._matcher.wrap(r"\bx?pip(?:\d|\.)*(exe)?$", "pip")
             self._matcher.wrap(r"\bpython(?:\d|\.)*(exe)?$", "python")
-            # More patterns can be registered via self.wrap() from pygwinrc/xontrib
+            # More patterns can be registered via self.wrap() from pygwinrc/pgtrib
         return self._matcher
 
     def wrap(self, pattern, module_name):
         """Register a regex pattern to map command name variants to a completer module.
 
-        Can be called from pygwinrc or xontrib::
+        Can be called from pygwinrc or pgtrib::
 
-            from pygwin.completers.commands import complete_xompletions as xmp
+            from pygwin.completers.commands import complete_pgcompletions as xmp
             xmp.wrap(r"\\bmycmd(?:\\d)*$", "mycmd")
 
         """
@@ -266,12 +266,12 @@ class CommandCompleter:
 
         if hasattr(module, "pygwin_complete"):
             func = module.pygwin_complete
-            # Tag results with the xompletion module's short name
-            # (``xompletions.pip`` → ``pip``) so ``$PYGWIN_COMPLETER_TRACE``
+            # Tag results with the pgcompletion module's short name
+            # (``pgcompletions.pip`` → ``pip``) so ``$PYGWIN_COMPLETER_TRACE``
             # can tell which concrete module produced each completion
-            # under the generic ``source=xompleter`` umbrella.
+            # under the generic ``source=pgcompleter`` umbrella.
             provider = module.__name__.rsplit(".", 1)[-1]
             return tag_provider(func(ctx), provider)
 
 
-complete_xompletions = CommandCompleter()
+complete_pgcompletions = CommandCompleter()

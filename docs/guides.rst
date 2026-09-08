@@ -44,12 +44,12 @@ Creator
     editors
     python_virtual_environments
     pygwin_projects
-    xontrib
+    pgtrib
     events_tutorial
     completers
     history_backend
 
-Xontributor
+Pgtributor
 -----------
 
 .. toctree::

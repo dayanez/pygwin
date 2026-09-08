@@ -1,4 +1,4 @@
-"""Tools for helping manage xontributions."""
+"""Tools for helping manage pgtribs."""
 
 import contextlib
 import importlib
@@ -25,17 +25,17 @@ class ExitCode(IntEnum):
     INIT_FAILED = 2
 
 
-class XontribNotInstalled(Exception):
-    """raised when the requested xontrib is not found"""
+class PgtribNotInstalled(Exception):
+    """raised when the requested pgtrib is not found"""
 
 
-class Xontrib(tp.NamedTuple):
-    """Meta class that is used to describe a xontrib"""
+class Pgtrib(tp.NamedTuple):
+    """Meta class that is used to describe a pgtrib"""
 
     module: str
-    """path to the xontrib module"""
+    """path to the pgtrib module"""
     distribution: "Distribution | None" = None
-    """short description about the xontrib."""
+    """short description about the pgtrib."""
 
     def get_description(self):
         if self.distribution and (
@@ -62,7 +62,7 @@ class Xontrib(tp.NamedTuple):
 
     @property
     def is_auto_loaded(self):
-        loaded = getattr(XSH.builtins, "autoloaded_xontribs", None) or {}
+        loaded = getattr(XSH.builtins, "autoloaded_pgtribs", None) or {}
         return self.module in set(loaded.values())
 
 
@@ -73,29 +73,29 @@ def get_module_docstring(module: str) -> str:
     spec = importlib.util.find_spec(module)
     if spec and spec.has_location and spec.origin:
         return ast.get_docstring(ast.parse(Path(spec.origin).read_text())) or ""
-    # Fall back for ``xontrib.<name>`` modules that ship as ``.xsh`` files —
+    # Fall back for ``pgtrib.<name>`` modules that ship as ``.xsh`` files —
     # importlib's standard finders don't know about ``.xsh`` and return
     # ``None`` here.
-    path = _find_xontrib_file(module)
+    path = _find_pgtrib_file(module)
     if path is not None and path.suffix == ".py":
         with contextlib.suppress(SyntaxError, OSError):
             return ast.get_docstring(ast.parse(path.read_text())) or ""
     return ""
 
 
-def _find_xontrib_file(module: str) -> "Path | None":
-    """Locate the source file for a ``xontrib.<name>`` module.
+def _find_pgtrib_file(module: str) -> "Path | None":
+    """Locate the source file for a ``pgtrib.<name>`` module.
 
-    Handles ``.py``, ``.xsh``, and package-style xontribs by scanning the
-    physical locations of the ``xontrib`` namespace package directly. Used
+    Handles ``.py``, ``.xsh``, and package-style pgtribs by scanning the
+    physical locations of the ``pgtrib`` namespace package directly. Used
     as a fallback for cases that ``importlib.util.find_spec`` cannot
-    resolve — most notably ``.xsh`` xontribs (the standard import
+    resolve — most notably ``.xsh`` pgtribs (the standard import
     machinery doesn't recognize the extension).
     """
-    if not module.startswith("xontrib."):
+    if not module.startswith("pgtrib."):
         return None
-    name = module.removeprefix("xontrib.")
-    spec = importlib.util.find_spec("xontrib")
+    name = module.removeprefix("pgtrib.")
+    spec = importlib.util.find_spec("pgtrib")
     if spec is None or spec.submodule_search_locations is None:
         return None
     for loc in spec.submodule_search_locations:
@@ -109,16 +109,16 @@ def _find_xontrib_file(module: str) -> "Path | None":
     return None
 
 
-def get_xontribs() -> dict[str, Xontrib]:
-    """Return xontrib definitions lazily."""
-    return dict(_get_installed_xontribs())
+def get_pgtribs() -> dict[str, Pgtrib]:
+    """Return pgtrib definitions lazily."""
+    return dict(_get_installed_pgtribs())
 
 
 def _patch_in_userdir():
     """
     Patch in user site packages directory.
 
-    If pygwin is installed in non-writeable location, then xontribs will end up
+    If pygwin is installed in non-writeable location, then pgtribs will end up
     there, so we make them accessible."""
     if not os.access(os.path.dirname(sys.executable), os.W_OK):
         from site import getusersitepackages
@@ -127,8 +127,8 @@ def _patch_in_userdir():
             sys.path.append(user_site_packages)
 
 
-def _get_installed_xontribs(pkg_name="xontrib"):
-    """List all core packages + newly installed xontribs"""
+def _get_installed_pgtribs(pkg_name="pgtrib"):
+    """List all core packages + newly installed pgtribs"""
     _patch_in_userdir()
     spec = importlib.util.find_spec(pkg_name)
 
@@ -151,67 +151,67 @@ def _get_installed_xontribs(pkg_name="xontrib"):
                     yield path.name
 
     for name in iter_modules():
-        module = f"xontrib.{name}"
-        yield name, Xontrib(module)
+        module = f"pgtrib.{name}"
+        yield name, Pgtrib(module)
 
-    for entry in _get_xontrib_entrypoints():
-        yield entry.name, Xontrib(entry.value, distribution=entry.dist)
+    for entry in _get_pgtrib_entrypoints():
+        yield entry.name, Pgtrib(entry.value, distribution=entry.dist)
 
 
-def _find_xontrib_entrypoint(name):
-    """Return the ``pygwin.xontribs`` entry point for ``name`` or ``None``.
+def _find_pgtrib_entrypoint(name):
+    """Return the ``pygwin.pgtribs`` entry point for ``name`` or ``None``.
 
     Reads the live setuptools entry-point registry rather than the
-    ``XSH.builtins.autoloaded_xontribs`` cache, so xontribs whose only
+    ``XSH.builtins.autoloaded_pgtribs`` cache, so pgtribs whose only
     Python-visible name is an entry point (the wheel ships no
-    ``xontrib/<name>.py``) are discoverable even when autoload did not
-    run — e.g. ``pygwin --no-rc`` or ``$XONTRIBS_AUTOLOAD_DISABLED``.
+    ``pgtrib/<name>.py``) are discoverable even when autoload did not
+    run — e.g. ``pygwin --no-rc`` or ``$PGTRIBS_AUTOLOAD_DISABLED``.
     """
-    for entry in _get_xontrib_entrypoints():
+    for entry in _get_pgtrib_entrypoints():
         if entry.name == name:
             return entry
     return None
 
 
-def find_xontrib(name, full_module=False):
-    """Finds a xontribution from its name."""
+def find_pgtrib(name, full_module=False):
+    """Finds a pgtrib from its name."""
     _patch_in_userdir()
 
     # Order matters. Try the cheap, exact paths first; fall through to
     # broader matches only when the previous lookup did not find anything.
 
     if name.startswith("."):
-        return importlib.util.find_spec(name, package="xontrib")
+        return importlib.util.find_spec(name, package="pgtrib")
 
     if full_module:
         return importlib.util.find_spec(name)
 
-    # 1. Cache populated by ``auto_load_xontribs_from_entrypoints`` at
+    # 1. Cache populated by ``auto_load_pgtribs_from_entrypoints`` at
     #    startup.  This is the common interactive-shell path.
-    autoloaded = getattr(XSH.builtins, "autoloaded_xontribs", None) or {}
+    autoloaded = getattr(XSH.builtins, "autoloaded_pgtribs", None) or {}
     if name in autoloaded:
         return importlib.util.find_spec(autoloaded[name])
 
     # 2. Live entry-point lookup.  Required when autoload did not run
-    #    (``--no-rc``, ``$XONTRIBS_AUTOLOAD_DISABLED``, embedded use,
-    #    xontrib installed mid-session): without this step the only
-    #    Python-visible mapping for entry-point-only xontribs (the
-    #    ``coconut`` xontrib being the canonical example — its loader
-    #    lives in ``coconut.integrations`` and the wheel ships no
-    #    ``xontrib/coconut.py``) is unreachable from ``xontrib load``.
-    entry = _find_xontrib_entrypoint(name)
+    #    (``--no-rc``, ``$PGTRIBS_AUTOLOAD_DISABLED``, embedded use,
+    #    pgtrib installed mid-session): without this step the only
+    #    Python-visible mapping for entry-point-only pgtribs (the real
+    #    xonsh ``coconut`` xontrib being the canonical example — its
+    #    loader lives in ``coconut.integrations`` and the wheel ships no
+    #    ``pgtrib/coconut.py``) is unreachable from ``pgtrib load``.
+    entry = _find_pgtrib_entrypoint(name)
     if entry is not None:
         return importlib.util.find_spec(entry.value)
 
-    # 3. Legacy ``xontrib.<name>`` namespace-package layout.  ``find_spec``
-    #    only raises ``ValueError`` when ``xontrib`` is not a package at
+    # 3. Legacy ``pgtrib.<name>`` namespace-package layout.  ``find_spec``
+    #    only raises ``ValueError`` when ``pgtrib`` is not a package at
     #    all; otherwise it returns ``None`` for an absent submodule, in
     #    which case we must continue to the top-level fallback rather
     #    than returning that ``None``.  (The pre-fix code returned ``None``
     #    here and never reached step 4.)
     spec = None
     with contextlib.suppress(ValueError):
-        spec = importlib.util.find_spec("." + name, package="xontrib")
+        spec = importlib.util.find_spec("." + name, package="pgtrib")
     if spec is not None:
         return spec
 
@@ -219,10 +219,10 @@ def find_xontrib(name, full_module=False):
     return importlib.util.find_spec(name)
 
 
-def xontrib_context(name, full_module=False):
-    """Return a context dictionary for a xontrib of a given name."""
+def pgtrib_context(name, full_module=False):
+    """Return a context dictionary for a pgtrib of a given name."""
 
-    spec = find_xontrib(name, full_module)
+    spec = find_pgtrib(name, full_module)
     if spec is None:
         return None
     module = importlib.import_module(spec.name)
@@ -238,7 +238,7 @@ def xontrib_context(name, full_module=False):
             for attr in pubnames:
                 yield attr, getattr(module, attr)
 
-    entrypoint = getattr(module, "_load_xontrib_", None)
+    entrypoint = getattr(module, "_load_pgtrib_", None)
     if entrypoint is None:
         ctx.update(dict(_get__all__()))
     else:
@@ -248,76 +248,76 @@ def xontrib_context(name, full_module=False):
     return ctx
 
 
-def prompt_xontrib_install(names: list[str]):
-    """Returns a formatted string with name of xontrib package to prompt user"""
+def prompt_pgtrib_install(names: list[str]):
+    """Returns a formatted string with name of pgtrib package to prompt user"""
     return (
-        "The following xontribs are enabled but not installed: \n"
+        "The following pgtribs are enabled but not installed: \n"
         f"   {names}\n"
-        "Please make sure that they are installed correctly by checking https://pygwin.github.io/awesome-xontribs/\n"
+        "Please make sure they are installed and spelled correctly.\n"
     )
 
 
 def update_context(name, ctx: dict, full_module=False):
-    """Updates a context in place from a xontrib."""
-    modctx = xontrib_context(name, full_module)
+    """Updates a context in place from a pgtrib."""
+    modctx = pgtrib_context(name, full_module)
     if modctx is None:
-        raise XontribNotInstalled(f"Xontrib - {name} is not found.")
+        raise PgtribNotInstalled(f"Pgtrib - {name} is not found.")
     else:
         ctx.update(modctx)
     return ctx
 
 
-def _xontrib_name_completions(loaded=False):
-    for name, xontrib in get_xontribs().items():
-        if xontrib.is_loaded is loaded:
+def _pgtrib_name_completions(loaded=False):
+    for name, pgtrib in get_pgtribs().items():
+        if pgtrib.is_loaded is loaded:
             yield RichCompletion(
-                name, append_space=True, description=xontrib.get_description()
+                name, append_space=True, description=pgtrib.get_description()
             )
 
 
-def xontrib_names_completer(**_):
-    yield from _xontrib_name_completions(loaded=False)
+def pgtrib_names_completer(**_):
+    yield from _pgtrib_name_completions(loaded=False)
 
 
-def xontrib_unload_completer(**_):
-    yield from _xontrib_name_completions(loaded=True)
+def pgtrib_unload_completer(**_):
+    yield from _pgtrib_name_completions(loaded=True)
 
 
-def xontrib_any_completer(**_):
-    for name, xontrib in get_xontribs().items():
+def pgtrib_any_completer(**_):
+    for name, pgtrib in get_pgtribs().items():
         yield RichCompletion(
-            name, append_space=True, description=xontrib.get_description()
+            name, append_space=True, description=pgtrib.get_description()
         )
 
 
-def xontribs_load(
+def pgtribs_load(
     names: Annotated[
         tp.Sequence[str],
-        Arg(nargs="+", completer=xontrib_names_completer),
+        Arg(nargs="+", completer=pgtrib_names_completer),
     ] = (),
     verbose=False,
     full_module=False,
     suppress_warnings=False,
 ):
-    """Load xontribs from a list of names
+    """Load pgtribs from a list of names
 
     Parameters
     ----------
     names
-        names of xontribs
+        names of pgtribs
     verbose : -v, --verbose
         verbose output
     full_module : -f, --full
-        indicates that the names are fully qualified module paths and not inside ``xontrib`` package
+        indicates that the names are fully qualified module paths and not inside ``pgtrib`` package
     suppress_warnings : -s, --suppress-warnings
-        no warnings about missing xontribs and return code 0
+        no warnings about missing pgtribs and return code 0
     """
     ctx = {} if XSH.ctx is None else XSH.ctx
     res = ExitCode.OK
     stdout = None
     stderr = None
     bad_imports = []
-    # A xontrib file may have been created after the interpreter started
+    # A pgtrib file may have been created after the interpreter started
     # (installed mid-session, or written by a test). importlib's path
     # finders cache directory listings keyed by mtime, and on filesystems
     # with coarse mtime resolution a freshly written file can be missed --
@@ -325,151 +325,151 @@ def xontribs_load(
     importlib.invalidate_caches()
     for name in names:
         if verbose:
-            print(f"loading xontrib {name!r}")
+            print(f"loading pgtrib {name!r}")
         try:
             update_context(name, ctx=ctx, full_module=full_module)
-        except XontribNotInstalled:
+        except PgtribNotInstalled:
             if not suppress_warnings:
                 bad_imports.append(name)
         except Exception:
             res = ExitCode.INIT_FAILED
-            print_exception(f"Failed to load xontrib {name}.")
+            print_exception(f"Failed to load pgtrib {name}.")
     if bad_imports:
         res = ExitCode.NOT_FOUND
-        stderr = prompt_xontrib_install(bad_imports)
+        stderr = prompt_pgtrib_install(bad_imports)
     return stdout, stderr, res
 
 
-def xontribs_unload(
+def pgtribs_unload(
     names: Annotated[
         tp.Sequence[str],
-        Arg(nargs="+", completer=xontrib_unload_completer),
+        Arg(nargs="+", completer=pgtrib_unload_completer),
     ] = (),
     verbose=False,
 ):
-    """Unload the given xontribs (requires ``_unload_xontrib_`` for full cleanup)
+    """Unload the given pgtribs (requires ``_unload_pgtrib_`` for full cleanup)
 
     Parameters
     ----------
     names
-        name of xontribs to unload
+        name of pgtribs to unload
     verbose : -v, --verbose
         verbose output
 
     Notes
     -----
-    The xontrib must implement ``_unload_xontrib_()`` for proper cleanup.
+    The pgtrib must implement ``_unload_pgtrib_()`` for proper cleanup.
     Without it, registered event handlers, env vars, aliases, and completers
     will remain active. The default is equivalent to ``del sys.modules[module]``.
     """
     for name in names:
         if verbose:
-            print(f"unloading xontrib {name!r}")
+            print(f"unloading pgtrib {name!r}")
 
-        spec = find_xontrib(name)
+        spec = find_pgtrib(name)
         try:
             if spec and spec.name in sys.modules:
                 module = sys.modules[spec.name]
-                unloader = getattr(module, "_unload_xontrib_", None)
+                unloader = getattr(module, "_unload_pgtrib_", None)
                 if unloader is not None:
                     unloader(XSH)
                 del sys.modules[spec.name]
         except Exception as ex:
-            print_exception(f"Failed to unload xontrib {name} ({ex})")
+            print_exception(f"Failed to unload pgtrib {name} ({ex})")
 
 
-def xontribs_reload(
+def pgtribs_reload(
     names: Annotated[
         tp.Sequence[str],
-        Arg(nargs="+", completer=xontrib_unload_completer),
+        Arg(nargs="+", completer=pgtrib_unload_completer),
     ] = (),
     verbose=False,
 ):
-    """Reload the given xontribs (requires ``_unload_xontrib_`` for full cleanup)
+    """Reload the given pgtribs (requires ``_unload_pgtrib_`` for full cleanup)
 
     Parameters
     ----------
     names
-        name of xontribs to reload
+        name of pgtribs to reload
     verbose : -v, --verbose
         verbose output
     """
     for name in names:
         if verbose:
-            print(f"reloading xontrib {name!r}")
-        xontribs_unload([name])
-        xontribs_load([name])
+            print(f"reloading pgtrib {name!r}")
+        pgtribs_unload([name])
+        pgtribs_load([name])
 
 
-def xontribs_info(
-    name: Annotated[str, Arg(completer=xontrib_any_completer)],
+def pgtribs_info(
+    name: Annotated[str, Arg(completer=pgtrib_any_completer)],
     _stdout=None,
 ):
-    """Show details about an installed xontrib.
+    """Show details about an installed pgtrib.
 
     Parameters
     ----------
     name
-        name of the xontrib
+        name of the pgtrib
     """
-    xontribs = get_xontribs()
-    xontrib = xontribs.get(name)
+    pgtribs = get_pgtribs()
+    pgtrib = pgtribs.get(name)
 
-    if xontrib is None:
-        # Fall back to a direct module lookup so users can inspect xontribs
-        # that aren't surfaced via the ``xontrib`` package or the
-        # ``pygwin.xontribs`` entry-point group (e.g. ``xontrib info
+    if pgtrib is None:
+        # Fall back to a direct module lookup so users can inspect pgtribs
+        # that aren't surfaced via the ``pgtrib`` package or the
+        # ``pygwin.pgtribs`` entry-point group (e.g. ``pgtrib info
         # some.module --full`` style lookups in the future).
-        spec = find_xontrib(name)
+        spec = find_pgtrib(name)
         if spec is None:
             print_color(
-                "{RED}Xontrib " + name + " is not installed.{RESET}", file=_stdout
+                "{RED}Pgtrib " + name + " is not installed.{RESET}", file=_stdout
             )
             return ExitCode.NOT_FOUND
-        xontrib = Xontrib(spec.name)
+        pgtrib = Pgtrib(spec.name)
 
-    spec = importlib.util.find_spec(xontrib.module)
+    spec = importlib.util.find_spec(pgtrib.module)
     origin = spec.origin if spec is not None else None
     if not origin:
-        # ``.xsh`` xontribs (and other non-importable modules) are not
+        # ``.xsh`` pgtribs (and other non-importable modules) are not
         # surfaced by ``find_spec`` — fall back to scanning the namespace
         # package locations directly.
-        path = _find_xontrib_file(xontrib.module)
+        path = _find_pgtrib_file(pgtrib.module)
         origin = str(path) if path is not None else "(builtin)"
 
-    source = xontrib.module
-    if xontrib.distribution is not None:
-        dist_name = xontrib.distribution.metadata.get("Name", "") or ""
-        dist_version = xontrib.distribution.metadata.get("Version", "") or ""
+    source = pgtrib.module
+    if pgtrib.distribution is not None:
+        dist_name = pgtrib.distribution.metadata.get("Name", "") or ""
+        dist_version = pgtrib.distribution.metadata.get("Version", "") or ""
         if dist_name:
             source += f" ({dist_name} {dist_version})".rstrip()
     source += f" at {origin}"
 
-    description = xontrib.get_description() or ""
+    description = pgtrib.get_description() or ""
 
     lines = [
         "{PURPLE}Name{RESET}: " + name,
         "{PURPLE}Source{RESET}: " + source,
         "{PURPLE}Description{RESET}: " + description,
     ]
-    if xontrib.url:
-        lines.append("{PURPLE}URL{RESET}: " + xontrib.url)
-    if xontrib.license:
-        lines.append("{PURPLE}License{RESET}: " + xontrib.license)
+    if pgtrib.url:
+        lines.append("{PURPLE}URL{RESET}: " + pgtrib.url)
+    if pgtrib.license:
+        lines.append("{PURPLE}License{RESET}: " + pgtrib.license)
     lines.append(
         "{PURPLE}Loaded{RESET}: "
-        + ("{GREEN}yes{RESET}" if xontrib.is_loaded else "{RED}no{RESET}")
-        + (" {GREEN}(auto){RESET}" if xontrib.is_auto_loaded else "")
+        + ("{GREEN}yes{RESET}" if pgtrib.is_loaded else "{RED}no{RESET}")
+        + (" {GREEN}(auto){RESET}" if pgtrib.is_auto_loaded else "")
     )
     print_color("\n".join(lines), file=_stdout)
     return ExitCode.OK
 
 
-def xontrib_data():
-    """Collects and returns the data about installed xontribs."""
+def pgtrib_data():
+    """Collects and returns the data about installed pgtribs."""
     data = {}
-    for xo_name, xontrib in get_xontribs().items():
-        desc = xontrib.get_description()
+    for xo_name, pgtrib in get_pgtribs().items():
+        desc = pgtrib.get_description()
         try:
             max_desc = os.get_terminal_size().columns - 40
         except (OSError, ValueError):
@@ -478,29 +478,29 @@ def xontrib_data():
         short_desc = desc.split("\n")[0][:max_desc] if desc else ""
         data[xo_name] = {
             "name": xo_name,
-            "loaded": xontrib.is_loaded,
-            "auto": xontrib.is_auto_loaded,
-            "module": xontrib.module,
+            "loaded": pgtrib.is_loaded,
+            "auto": pgtrib.is_auto_loaded,
+            "module": pgtrib.module,
             "description": short_desc,
         }
 
     return dict(sorted(data.items()))
 
 
-def xontribs_loaded():
-    """Returns list of loaded xontribs."""
-    return [k for k, xontrib in get_xontribs().items() if xontrib.is_loaded]
+def pgtribs_loaded():
+    """Returns list of loaded pgtribs."""
+    return [k for k, pgtrib in get_pgtribs().items() if pgtrib.is_loaded]
 
 
-def xontribs_list(to_json=False, _stdout=None):
-    """List installed xontribs and show whether they are loaded or not
+def pgtribs_list(to_json=False, _stdout=None):
+    """List installed pgtribs and show whether they are loaded or not
 
     Parameters
     ----------
     to_json : -j, --json
         reports results as json
     """
-    data = xontrib_data()
+    data = pgtrib_data()
     if to_json:
         s = json.dumps(data)
         return s
@@ -523,10 +523,10 @@ def xontribs_list(to_json=False, _stdout=None):
         print_color(s[:-1], file=_stdout)
 
 
-def _get_xontrib_entrypoints() -> "tp.Iterable[EntryPoint]":
+def _get_pgtrib_entrypoints() -> "tp.Iterable[EntryPoint]":
     from importlib import metadata
 
-    name = "pygwin.xontribs"
+    name = "pygwin.pgtribs"
     entries = metadata.entry_points()
     # for some reason, on CI (win py3.8) atleast, returns dict
     group = (
@@ -537,35 +537,33 @@ def _get_xontrib_entrypoints() -> "tp.Iterable[EntryPoint]":
     yield from group
 
 
-def auto_load_xontribs_from_entrypoints(
-    blocked: "tp.Sequence[str]" = (), verbose=False
-):
-    """Load xontrib modules exposed via setuptools's entrypoints"""
+def auto_load_pgtribs_from_entrypoints(blocked: "tp.Sequence[str]" = (), verbose=False):
+    """Load pgtrib modules exposed via setuptools's entrypoints"""
 
-    if not hasattr(XSH.builtins, "autoloaded_xontribs"):
-        XSH.builtins.autoloaded_xontribs = {}
+    if not hasattr(XSH.builtins, "autoloaded_pgtribs"):
+        XSH.builtins.autoloaded_pgtribs = {}
 
     def get_loadable():
-        for entry in _get_xontrib_entrypoints():
+        for entry in _get_pgtrib_entrypoints():
             if entry.name not in blocked:
-                XSH.builtins.autoloaded_xontribs[entry.name] = entry.value
+                XSH.builtins.autoloaded_pgtribs[entry.name] = entry.value
                 yield entry.value
 
     modules = list(get_loadable())
-    return xontribs_load(modules, verbose=verbose, full_module=True)
+    return pgtribs_load(modules, verbose=verbose, full_module=True)
 
 
-class XontribAlias(ArgParserAlias):
+class PgtribAlias(ArgParserAlias):
     """Manage pygwin extensions"""
 
     def build(self):
-        parser = self.create_parser(prog="xontrib")
-        parser.add_command(xontribs_load, prog="load")
-        parser.add_command(xontribs_unload, prog="unload")
-        parser.add_command(xontribs_reload, prog="reload")
-        parser.add_command(xontribs_list, prog="list", default=True)
-        parser.add_command(xontribs_info, prog="info")
+        parser = self.create_parser(prog="pgtrib")
+        parser.add_command(pgtribs_load, prog="load")
+        parser.add_command(pgtribs_unload, prog="unload")
+        parser.add_command(pgtribs_reload, prog="reload")
+        parser.add_command(pgtribs_list, prog="list", default=True)
+        parser.add_command(pgtribs_info, prog="info")
         return parser
 
 
-xontribs_main = XontribAlias(threadable=False)
+pgtribs_main = PgtribAlias(threadable=False)

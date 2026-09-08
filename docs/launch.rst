@@ -109,7 +109,7 @@ benchmarking, or debugging -- combine the flags to disable everything:
 
     pygwin --no-rc --no-env --shell-type readline \
           -DCOLOR_INPUT=0 -DCOLOR_RESULTS=0 -DPROMPT='@ ' \
-          -DPYGWIN_HISTORY_BACKEND=dummy -DXONTRIBS_AUTOLOAD_DISABLED=1
+          -DPYGWIN_HISTORY_BACKEND=dummy -DPGTRIBS_AUTOLOAD_DISABLED=1
 
 What each flag does:
 
@@ -122,7 +122,7 @@ What each flag does:
 * ``-DPROMPT='@ '`` -- use a simple prompt instead of the default one
   with gitstatus and other complex fields.
 * ``-DPYGWIN_HISTORY_BACKEND=dummy`` -- disable the history backend.
-* ``-DXONTRIBS_AUTOLOAD_DISABLED=1`` -- skip loading xontribs.
+* ``-DPGTRIBS_AUTOLOAD_DISABLED=1`` -- skip loading pgtribs.
 
 
 .. _launch-xpygwin:
@@ -191,7 +191,7 @@ At startup pygwin performs the industry-standard handshake used by interactive s
 to install itself as the foreground process group of its controlling terminal.
 
 On POSIX, the first thing :func:`pygwin.main.main` does — before argument
-parsing, xontrib loading, or :doc:`pygwin RC <pygwinrc>` execution — is call
+parsing, pgtrib loading, or :doc:`pygwin RC <pygwinrc>` execution — is call
 :func:`pygwin.main._setup_controlling_terminal`. This function installs a
 Python-level no-op handler for ``SIGTTIN`` and ``SIGTTOU`` on every POSIX
 invocation. If ``os.isatty(stderr)`` is true, it then calls
