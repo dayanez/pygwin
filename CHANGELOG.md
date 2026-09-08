@@ -6,17 +6,14 @@ first commit; for xonsh's history before the fork, see
 
 ## Unreleased
 
-- Cut a bundled `--onefile-cache-mode=cached` flag into the Nuitka build
-  (`.github/workflows/cd.yml` and the README's local-build instructions).
-  Nuitka's default onefile mode re-extracts the entire payload to a fresh temp
-  directory and deletes it on every single launch, since the default tempdir
-  spec is always runtime-dependent; `cached` reuses the extracted contents
-  across runs instead. See ROADMAP.md's Distribution section for the
-  measurement.
-- Fixed `__version__` (`pygwin/__init__.py`): it had been left at `0.24.2`,
-  xonsh's own version number at the time of the fork, since the very first
-  rebrand commit. `pygwin --version` now reports a version that actually
-  matches this project's own release tags.
+- Closed the last open item in ROADMAP.md (replacing the default history backend)
+  as a deliberate decision, not a dropped task: `JsonHistory()` construction
+  measures at under 1ms, so there is no real cost to justify rewriting it. Every
+  item in ROADMAP.md is now checked off, so the file was removed; its content
+  isn't lost, each item's outcome is recorded in this file's dated release
+  entries, and the full investigation detail lives on in git history on the
+  commits that closed each item out. See SYNCING.md for the record of its
+  removal.
 
 ## v0.2.0
 
@@ -53,6 +50,21 @@ first commit; for xonsh's history before the fork, see
   mislabeled real third-party xonsh-only projects (a Sublime package, a VS
   Code extension) as pygwin's own, including two install commands that
   didn't actually work.
+- Fixed the Nuitka onefile build never actually benefiting from a warm
+  cache: it never set `--onefile-cache-mode`, so Nuitka's default inferred
+  temporary extraction and fully re-extracted the whole payload, deleting it
+  again, on every single launch. Added `--onefile-cache-mode=cached` (which
+  also required setting `--company-name`/`--product-name`/`--file-version`,
+  since that mode changes the default extraction path to include them).
+  Verified against a real rebuilt `pygwin.exe`: first run about 900ms to 1s,
+  every run after that about 480-500ms, actually reusing the cache
+  directory. Also installed the `zstandard` package before building, which
+  let Nuitka compress the onefile payload; cut the same build from 74MB to
+  19MB with no code change.
+- Fixed `__version__` (`pygwin/__init__.py`): it had been left at `0.24.2`,
+  xonsh's own version number at the time of the fork, since the very first
+  rebrand commit. `pygwin --version` now reports a version that actually
+  matches this project's own release tags.
 
 ## v0.1.1
 

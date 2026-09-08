@@ -128,8 +128,6 @@ disabled. See SYNCING.md for the full list.
   unrelated `index.html` (the `xonfig` web wizard's page).
 - `SYNCING.md`: read this first. The record of what has ever diverged from xonsh,
   and why, including the full rename.
-- `ROADMAP.md`: the actual performance and observability work pygwin exists to do,
-  tracked in this file instead of GitHub issues.
 - `CREDITS.md`: attribution to xonsh and its developers, and to the license terms
   that make this fork possible in the first place.
 

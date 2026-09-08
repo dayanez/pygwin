@@ -12,9 +12,10 @@ your machine is doing while it does it? Live CPU and memory telemetry in the pro
 Automatic, transparent tuning of the heavy commands you run every day. A shell you can
 install by clicking one `.exe`, not by standing up a Python environment first.
 
-If you want the deep technical reasoning and the phase-by-phase build plan, see
-[ROADMAP.md](ROADMAP.md). This README covers what pygwin is, how to run it today, and
-how to use what is already built.
+This README covers what pygwin is, how to run it today, and how to use what is
+already built. For the deep technical reasoning behind a specific change, real
+measurements included, see this repository's git history and
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Table of contents
 
@@ -66,8 +67,8 @@ pygwin is in an early, honest state. What exists today:
 - A CI pipeline that lints and tests every push and pull request.
 - A CD pipeline that builds a standalone Windows `.exe` with [Nuitka](https://nuitka.net/)
   on release.
-- This README, [ROADMAP.md](ROADMAP.md), [SYNCING.md](SYNCING.md), and
-  [AGENTS.md](AGENTS.md) as the documentation and process backbone.
+- This README, [SYNCING.md](SYNCING.md), and [AGENTS.md](AGENTS.md) as the
+  documentation and process backbone.
 - `readline`, not `prompt_toolkit`, as the default interactive backend, with
   `prompt_toolkit` strictly opt-in even when it's installed (see
   [Performance philosophy](#performance-philosophy)).
@@ -85,12 +86,12 @@ pygwin is in an early, honest state. What exists today:
   `.exe`'s subsequent-run startup time roughly in half and its download size to
   about a quarter of the uncompressed payload.
 
-Every roadmap item this project set out to do for its first real release has now
-landed; see [ROADMAP.md](ROADMAP.md) for what's next.
-
-Read [ROADMAP.md](ROADMAP.md) for the full plan and its reasoning. This is a
-daily-driver project built and maintained by one person, not a company or a team, so
-progress happens in real, dated commits rather than a marketing timeline.
+Every item this project set out to do for its first real release has now landed; see
+[CHANGELOG.md](CHANGELOG.md) for what shipped in each version, and this repository's
+git history for the full investigation behind each one (real measurements, what was
+deliberately left undone and why). This is a daily-driver project built and
+maintained by one person, not a company or a team, so progress happens in real, dated
+commits rather than a marketing timeline.
 
 ## Installation
 
@@ -238,9 +239,9 @@ Load one manually:
 xontrib load <name>
 ```
 
-Every feature on the [roadmap](ROADMAP.md), telemetry, auto-tuning, cached process
-lookups, is planned as a xontrib or a new top-level module, not a patch scattered
-across existing core files.
+Every pygwin-only feature, telemetry, auto-tuning, cached process lookups, ships as
+a xontrib or a new top-level module, not a patch scattered across existing core
+files.
 
 ### The coreutils bundled in
 
@@ -337,15 +338,24 @@ backend, and the xontrib plugin scanner, all before you type anything.
 pygwin's position is not that a Python shell should try to match a native C or Go
 shell's single-digit-millisecond startup. That is not a fight Python wins, and chasing
 it would mean stripping away the parts of xonsh that make it worth using in the first
-place. The realistic target, once the rest of the work described in
-[ROADMAP.md](ROADMAP.md) lands, is closer to 30 to 60 milliseconds. The first piece is
-done: `readline`, not `prompt_toolkit`, is now the default backend, `prompt_toolkit`
-stays strictly opt-in even when it's installed, and getting there also meant fixing an
-eager import that pulled in `prompt_toolkit` just to compute the default `$PROMPT`,
-regardless of which backend was actually selected. That alone cut shell construction
-from about 322ms to about 246ms in local measurements (see ROADMAP.md for the exact
-methodology). What's left: lazy imports for anything not needed on the cold path, no
-foreign shell probing unless asked for, and a lighter default history backend.
+place. Instead, the work was to find and fix the real, measured, avoidable costs:
+
+- `readline`, not `prompt_toolkit`, is the default interactive backend.
+  `prompt_toolkit` stays strictly opt-in even when it's installed. This also meant
+  fixing an eager import that pulled in `prompt_toolkit` just to compute the default
+  `$PROMPT`, regardless of which backend was actually selected. Measured with
+  `scripts/measure_shell_startup.py`: shell construction went from about 322ms to
+  about 246ms.
+- Several modules that loaded unconditionally on every launch (an OS-detection call
+  that shelled out to WMI on Windows, `sqlite3` for a history backend that isn't the
+  default, `ctypes` and `shutil` outside the one function each that used them) now
+  load lazily instead. Measured with `python -X importtime -c "import pygwin.main"`:
+  cumulative import time went from about 278ms to about 100ms.
+- Foreign shell (bash/zsh/`cmd.exe`) environment probing was checked and found to
+  already be opt-in only, never automatic at startup; there was nothing to fix.
+- Replacing the default JSON history backend with something lighter was investigated
+  and deliberately not done: constructing it measures at under 1ms, so there was no
+  real cost to justify rewriting it.
 
 Where pygwin spends its complexity budget instead is observability: a background
 telemetry thread, transparent process tuning for heavy commands, and cached binary

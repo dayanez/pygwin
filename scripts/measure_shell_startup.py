@@ -1,6 +1,6 @@
 """One-off measurement script: cold-process time to construct pygwin's Shell
 object under different $SHELL_TYPE values. Not part of the package; used to
-produce the before/after numbers ROADMAP.md's startup work calls for."""
+produce real before/after startup-time numbers rather than guessing."""
 
 import statistics
 import subprocess

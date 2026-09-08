@@ -60,8 +60,8 @@ this fork and belongs to them, not to pygwin. See
 
 pygwin is a rebrand and, over time, a slimmed-down build of xonsh, not a drop-in
 replacement maintained in lockstep with it. Where the two diverge, that divergence is
-pygwin's responsibility, not xonsh's. See [ROADMAP.md](ROADMAP.md) for what has changed
-so far and what is planned.
+pygwin's responsibility, not xonsh's. See [SYNCING.md](SYNCING.md) and
+[CHANGELOG.md](CHANGELOG.md) for what has changed so far.
 
 ## Credit
 
