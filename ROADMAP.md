@@ -333,9 +333,53 @@ rush through in one pass.
       `__main__.py`. Verified against the actual compiled binary, not just source:
       `--version`, `-c` execution, subprocess capture, subshells, `$ENVVAR` access,
       and path literals all work.
-- [ ] Re-evaluate release size and startup time after the phase-two work below
-      lands; the current build is a baseline (compiles today's codebase as-is, not
-      yet stripped down), not the target.
+- [x] Re-evaluate release size and startup time after the phase-two work above
+      landed. Found the real cause by reading Nuitka's own `--help` text rather than
+      guessing: the build command in both the README and `cd.yml` never set
+      `--onefile-cache-mode`. Nuitka's default (`auto`) infers `temporary` extraction
+      whenever the tempdir spec has a runtime-dependent part, and the default spec
+      (`{TEMP}/onefile_{PID}_{TIME_US}_{RANDOM}`) always does, so every single launch
+      fully re-extracted the whole payload to a brand-new temp folder and deleted it
+      on exit, with zero warm-cache benefit between runs. Measured directly on a real
+      compiled `pygwin.exe`, before this fix: all 6 runs ~900ms, no first-run-slow-
+      then-fast pattern at all, confirming the theory. This is also almost certainly
+      what the earlier "~190-200ms subsequent runs" number above was missing: that
+      number implies caching was in effect when it was measured, which the checked-in
+      build command never actually did.
+      Fixed by adding `--onefile-cache-mode=cached` to both the README and `cd.yml`.
+      This alone wasn't enough to get a working build: `cached` mode changes the
+      default extraction path to `{CACHE_DIR}\{COMPANY}\{PRODUCT}\{VERSION}`, so
+      Nuitka refuses to build at all unless `--company-name`, `--product-name`, and
+      `--file-version`/`--product-version` are also set. Found this by actually
+      running the build, not by reading docs speculatively; added all four flags
+      (version derived from `pygwin.__version__` at build time in `cd.yml`, so it
+      never drifts from the package version).
+      Verified against a real rebuilt binary: first run ~900ms-1s (cold, nothing
+      cached), every run after that ~480-500ms, correctly reusing
+      `%LOCALAPPDATA%\pygwin\pygwin\<version>\pygwin.exe` instead of re-extracting.
+      About a 45% cut to steady-state startup versus the unfixed build.
+      Also found, incidentally, while reading the build log rather than looking for
+      it: Nuitka's onefile mode silently can't compress its payload without the
+      `zstandard` package installed, and neither the README nor `cd.yml` had it.
+      Installing it and rebuilding cut this same build from 74MB uncompressed to a
+      19MB `.exe`, with no code change and no functionality lost. Added
+      `pip install ... zstandard` alongside the existing `pip install nuitka` step in
+      both places.
+      Measured one more real tradeoff before settling on what to ship: a build from
+      a plain `pip install -e .` (no `[full]` extra, so no `prompt_toolkit`,
+      `pygments`, or `psutil`) came out smaller (11MB) and faster (~400ms
+      steady-state) than the `[full]` build (19MB, ~490ms), but can't run
+      `best`-shell mode or the `sysinfo`/`autotune` xontribs at all, since Nuitka
+      never sees code that was never importable at compile time. Kept `[full]` in
+      `cd.yml` rather than trading away the observability features this project is
+      actually for, since a smaller `.exe` that can't do what the README advertises
+      isn't a real win; documented the actual numbers and the tradeoff in the README
+      instead of quietly picking one.
+      Fixed one more real, unrelated bug found while auditing this: `pygwin/__init__.py`'s
+      `__version__` had been left at `0.24.2`, xonsh's own version number, since the
+      very first rebrand commit; `pygwin --version` was reporting a version that had
+      never matched this project's own release tags. Bumped to match the version
+      this release actually ships as.
 
 All of this belongs in new files under `xontrib/`, `xompletions/`, or a new top-level
 module where that's a real option, per AGENTS.md's one rule. It does not belong in

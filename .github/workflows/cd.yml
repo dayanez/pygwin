@@ -22,7 +22,7 @@ jobs:
       - name: Install pygwin and Nuitka
         run: |
           pip install -e ".[full]"
-          pip install nuitka
+          pip install nuitka zstandard
 
       - name: Pre-build parser tables
         # Without this, Nuitka bundles no tables at all, and every person
@@ -31,10 +31,17 @@ jobs:
         # scripts/build_parser_tables.py for why.
         run: python scripts/build_parser_tables.py
 
+      - name: Determine version
+        id: version
+        run: |
+          $version = python -c "import pygwin; print(pygwin.__version__)"
+          "version=$version" >> $env:GITHUB_OUTPUT
+
       - name: Build standalone executable
         run: >
           python -m nuitka
           --onefile
+          --onefile-cache-mode=cached
           --standalone
           --output-filename=pygwin.exe
           --output-dir=dist
@@ -42,6 +49,11 @@ jobs:
           --enable-plugin=no-qt
           --windows-console-mode=force
           --no-deployment-flag=self-execution
+          --company-name=pygwin
+          --product-name=pygwin
+          --file-description="pygwin: a Windows-first, Python-powered shell"
+          --product-version=${{ steps.version.outputs.version }}
+          --file-version=${{ steps.version.outputs.version }}
           --include-module=pygwin.parser_table
           --include-module=pygwin.completion_parser_table
           pygwin/__main__.py

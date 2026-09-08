@@ -78,11 +78,15 @@ pygwin is in an early, honest state. What exists today:
 - Transparent, reversible process auto-tuning for known CPU-heavy commands, as the
   opt-in `autotune` xontrib (see
   [Process auto-tuning: the autotune xontrib](#process-auto-tuning-the-autotune-xontrib)).
+- Cached binary path and environment lookups, cutting external command resolution
+  from about 10ms to about 1.3ms per call.
+- A Nuitka onefile build that reuses its extracted contents across runs instead of
+  re-extracting on every launch, and compresses its bundled payload, cutting the
+  `.exe`'s subsequent-run startup time roughly in half and its download size to
+  about a quarter of the uncompressed payload.
 
-What does not exist yet, and is tracked honestly rather than oversold:
-
-- Cached binary path and environment lookups, the last piece of the observability
-  work this project exists for.
+Every roadmap item this project set out to do for its first real release has now
+landed; see [ROADMAP.md](ROADMAP.md) for what's next.
 
 Read [ROADMAP.md](ROADMAP.md) for the full plan and its reasoning. This is a
 daily-driver project built and maintained by one person, not a company or a team, so
@@ -358,9 +362,9 @@ To build locally:
 
 ```
 pip install -e ".[full]"
-pip install nuitka
+pip install nuitka zstandard
 python scripts/build_parser_tables.py
-python -m nuitka --standalone --onefile --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table pygwin/__main__.py
+python -m nuitka --standalone --onefile --onefile-cache-mode=cached --output-filename=pygwin.exe --enable-plugin=no-qt --no-deployment-flag=self-execution --company-name=pygwin --product-name=pygwin --include-module=pygwin.parser_table --include-module=pygwin.completion_parser_table pygwin/__main__.py
 ```
 
 Both extra lines matter, not just the Nuitka invocation. Skip the table pre-build and
@@ -371,11 +375,34 @@ module name, not a literal `import` statement. Without both, the compiled `pygwi
 regenerates its parser tables from scratch on every single launch, adding about 1.8
 seconds to it, silently.
 
-The current release is a baseline: it compiles today's codebase as-is, not the
-stripped-down build described in the roadmap. Expect it to be sizable
-and its startup time to reflect xonsh's own, not the 30 to 60 millisecond target above.
-Rebuilding after the phase-two work in [ROADMAP.md](ROADMAP.md) lands is itself a
-roadmap item.
+`--onefile-cache-mode=cached` matters too, for a different reason. Onefile mode's
+default (`auto`) infers `temporary` extraction whenever the tempdir spec has any
+runtime-dependent part, and Nuitka's own default spec
+(`{TEMP}/onefile_{PID}_{TIME_US}_{RANDOM}`) always does. That means every launch of
+`pygwin.exe`, without this flag, fully re-extracts the whole payload to a brand-new
+temp folder and deletes it on exit, with no warm-cache benefit between runs at all.
+`cached` reuses the extracted contents across runs instead. `cached` mode also
+changes the default extraction path to include a company/product name, so
+`--company-name`/`--product-name` must be set too or Nuitka refuses to build.
+
+Measured directly against a real compiled `pygwin.exe`, on this dev machine: first
+run (cold, nothing cached yet) about 900ms to 1s; every run after that about
+480-500ms, reusing the cache directory instead of re-extracting. Before
+`--onefile-cache-mode=cached`, every single run, cold or not, took about 900ms, since
+there was no warm-cache benefit at all. Installing the `zstandard` package before
+building (`pip install zstandard`) also lets Nuitka compress the onefile payload,
+which cut this build from about 74MB uncompressed to a 19MB `.exe`.
+
+That 19MB, ~490ms build installs with `pip install -e ".[full]"` (prompt_toolkit,
+pygments, and psutil for the `sysinfo`/`autotune` xontribs, all bundled in). A build
+from a plain `pip install -e .` instead, with none of those, measured smaller (11MB)
+and faster (about 400ms steady-state) in the same test, but can't run `best`-shell
+mode or the observability xontribs at all, since the code they need was never
+importable at compile time. The CD workflow ships the `[full]` build so the
+compiled `.exe` has every feature the source install does; the 30 to 60 millisecond
+target mentioned above is about interpreter startup and shell construction inside a
+running Python process, not the onefile `.exe`'s own extract-and-launch overhead,
+which is a separate cost specific to this distribution method.
 
 ## Repository layout
 

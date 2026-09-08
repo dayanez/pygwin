@@ -6,6 +6,81 @@ first commit; for xonsh's history before the fork, see
 
 ## Unreleased
 
+- Cut a bundled `--onefile-cache-mode=cached` flag into the Nuitka build
+  (`.github/workflows/cd.yml` and the README's local-build instructions).
+  Nuitka's default onefile mode re-extracts the entire payload to a fresh temp
+  directory and deletes it on every single launch, since the default tempdir
+  spec is always runtime-dependent; `cached` reuses the extracted contents
+  across runs instead. See ROADMAP.md's Distribution section for the
+  measurement.
+- Fixed `__version__` (`pygwin/__init__.py`): it had been left at `0.24.2`,
+  xonsh's own version number at the time of the fork, since the very first
+  rebrand commit. `pygwin --version` now reports a version that actually
+  matches this project's own release tags.
+
+## v0.2.0
+
+- Added `xontrib/sysinfo.py`: a background `psutil`-backed telemetry thread
+  (CPU, memory) exposed as `cpu`/`mem` prompt fields and a `pygwin-top`
+  command, never blocking the prompt on a syscall. Opt-in, via the new
+  `observability` extra.
+- Added `xontrib/autotune.py`: detects known CPU-heavy commands (compilers,
+  build tools, renderers, encoders, archivers) via the `on_post_spec_run`
+  event and nudges their OS priority down a notch, transparently and
+  reversibly (`pygwin-tune list`/`restore`), never silently. Guards against
+  ever deprioritizing pygwin's own process.
+- Cached `$PATH` resolution behind `locate_executable()`, so resolving an
+  external command doesn't re-stat every `$PATH` directory on every single
+  subprocess call. Cut `locate_executable("git")` from about 10ms to about
+  1.3ms per call in local measurements.
+- Removed the last two runtime-recognized traces of xonsh, at the project
+  owner's request: the callable-alias protocol attributes are
+  `__pygwin_threadable__`/`__pygwin_capturable__` now (not `__xonsh_*`), and
+  pygwin no longer recognizes an `xonsh` shebang or interpreter name.
+  `~/.pygwinrc` no longer falls back to `~/.xonshrc` either. Nothing named
+  `xonsh` is recognized by pygwin at runtime anymore; only factual citations
+  to the real upstream project and its ecosystem remain, documented in
+  SYNCING.md.
+- Finished the `docs/` rename: files whose names still said `xonsh` while
+  their content already said pygwin (`xonsh_session.rst`, `xonshrc.rst`, and
+  others) are renamed, and content describing infrastructure or community
+  processes pygwin doesn't have (xonsh's marketing site, WinGet/Flatpak/
+  conda/AppImage install docs, Zulip/Mastodon/sponsors links) was removed
+  rather than relabeled.
+- Fixed several smaller rename leftovers found while auditing the above:
+  `run-tests.xsh` was setting an env var that no longer exists, a handful of
+  README/rst files still described "Xonsh" in prose, and a few docs pages
+  mislabeled real third-party xonsh-only projects (a Sublime package, a VS
+  Code extension) as pygwin's own, including two install commands that
+  didn't actually work.
+
+## v0.1.1
+
+- Made `readline` the default interactive shell backend instead of
+  `prompt_toolkit` (`$SHELL_TYPE` now defaults to `readline`, not `best`).
+  Also fixed `$PROMPT`'s default value being computed eagerly at
+  class-definition time, which imported `prompt_toolkit` regardless of the
+  selected backend, and added `pyreadline3` as a Windows-conditional base
+  dependency, since Windows ships no stdlib `readline` at all. About a 75ms,
+  23% cut to shell construction time in local measurements.
+- Lazy-imported several heavy modules that were loading unconditionally on
+  every launch: `platform_info.py`'s OS checks now use `sys.platform`
+  instead of `platform.system()` (which shells out to WMI on Windows),
+  `sqlite3` only loads if the sqlite history backend is actually selected,
+  and `ctypes`/`shutil` only load inside the specific functions that use
+  them. Cut `pygwin.main`'s cumulative import time from about 278ms to about
+  100ms in local `-X importtime` profiling.
+- Fixed a real bug in the already-shipped v0.1.0 release: the compiled
+  `pygwin.exe` bundled no pre-built parser tables, so every single command
+  hung for about 1.8 seconds regenerating them via PLY's LALR table
+  generation. Added `scripts/build_parser_tables.py`, wired it into the CD
+  workflow, and added explicit `--include-module` flags so Nuitka's static
+  import scanner actually bundles the pre-built tables (PLY loads them by a
+  dynamic string name, which Nuitka can't see on its own). First run after
+  this fix: about 583ms; subsequent runs: about 190-200ms.
+
+## v0.1.0
+
 - Forked xonsh into pygwin: renamed the CLI entry point and `--version` string,
   replaced the license and README, and set up CI, a Nuitka-based release build, and
   a GitHub Pages site.
