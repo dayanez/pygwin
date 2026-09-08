@@ -1,12 +1,3 @@
-## Commit and sync guidelines
-
-Present tense, imperative mood, first line under about 72 characters, explain why,
-not just what. See SYNCING.md for how a given commit fits into the sync and release
-cadence.
-
-This is a personal daily-driver project, not a team codebase. Commit locally when
-asked to, and leave pushing to the user by default.
-
 ## Issue and PR guidelines
 
 Never create an issue. Never create a pull request.
