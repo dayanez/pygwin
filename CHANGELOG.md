@@ -6,6 +6,15 @@ first commit; for xonsh's history before the fork, see
 
 ## Unreleased
 
+- Fixed three real cross-platform bugs in the `autotune` xontrib, all found by CI's
+  first real run against it (the commits that added it sat local-only, verified only
+  on this project's own Windows machine, until this session pushed `main`):
+  `_basename_no_exe()` didn't understand a path using the other platform's
+  separator, `pygwin-tune restore` silently reported success even when the OS
+  refused an unprivileged POSIX process permission to lower its own niceness back
+  down, and a test asserted a relative priority change that GitHub's Windows
+  runners could make vacuously fail. See this repository's git history for the
+  full detail on each.
 - Closed the last open item in ROADMAP.md (replacing the default history backend)
   as a deliberate decision, not a dropped task: `JsonHistory()` construction
   measures at under 1ms, so there is no real cost to justify rewriting it. Every
