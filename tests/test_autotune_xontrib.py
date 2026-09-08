@@ -9,6 +9,7 @@ import types
 
 import pytest
 
+import pygwin.platform_info as xp
 from xontrib import autotune
 
 
@@ -79,11 +80,24 @@ def test_skips_when_psutil_missing(monkeypatch):
 def test_lowers_priority_of_a_real_heavy_command():
     """Runs this test process's own interpreter as a stand-in: spawn a real
     child, point autotune at its own name via a monkeypatched heavy-list
-    entry, and confirm its actual OS priority changes and is restorable."""
+    entry, and confirm its actual OS priority changes.
+
+    Restoring it back is only unconditionally verified on Windows. On
+    POSIX, lowering niceness (this feature's whole first move) never needs
+    privilege, but raising it back toward the original value afterward
+    does: an unprivileged process cannot un-nice itself without
+    CAP_SYS_NICE or root. Running as root in CI would make the restore
+    assertion pass for the wrong reason (privilege, not correctness), so
+    this only asserts full restore round-trips on Windows, and asserts the
+    honest failure path (a nonzero return code, the niceness left
+    unchanged) on POSIX when not running as root.
+    """
     import subprocess
     import time
 
     import psutil
+
+    can_restore = xp.ON_WINDOWS or (hasattr(os, "geteuid") and os.geteuid() == 0)
 
     proc = subprocess.Popen(
         [sys.executable, "-c", "import time; time.sleep(5)"],
@@ -105,12 +119,22 @@ def test_lowers_priority_of_a_real_heavy_command():
         assert proc.pid in autotune._original_priority
         assert autotune._original_priority[proc.pid] == original_class
         lowered = psutil.Process(proc.pid).nice()
-        assert lowered != original_class
+        # Not `lowered != original_class`: some CI runners already start
+        # child processes at (or below) the target lowered value, which
+        # would make that comparison vacuously fail even though autotune
+        # did exactly what it was supposed to. Assert the real thing this
+        # feature promises instead: the process ends up at the specific
+        # lowered value, whatever it started at.
+        assert lowered == autotune._lowered_priority_value(psutil)
 
         rc = autotune._tune(["restore", str(proc.pid)])
-        assert rc == 0
         restored = psutil.Process(proc.pid).nice()
-        assert restored == original_class
+        if can_restore:
+            assert rc == 0
+            assert restored == original_class
+        else:
+            assert rc == 1
+            assert restored == lowered
     finally:
         proc.kill()
         proc.wait(timeout=5)
@@ -124,7 +148,7 @@ def test_tune_list_reports_nothing_when_empty(capsys):
 
 def test_tune_restore_unknown_pid_reports_it(capsys):
     rc = autotune._tune(["restore", "424242"])
-    assert rc == 0
+    assert rc == 1
     assert "was not auto-tuned" in capsys.readouterr().out
 
 

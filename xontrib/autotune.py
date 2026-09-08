@@ -54,7 +54,12 @@ _original_priority: "dict[int, int]" = {}
 
 
 def _basename_no_exe(path: str) -> str:
-    name = os.path.basename(path).lower()
+    # Deliberately not os.path.basename(): that only understands the host
+    # platform's own separator, so a Windows-style path (backslashes)
+    # passed on POSIX, or vice versa, would come back unsplit. binary_loc
+    # values are always real, host-native paths in production, but the
+    # basename logic itself has no reason to depend on the host OS.
+    name = path.replace("\\", "/").rsplit("/", 1)[-1].lower()
     if name.endswith(".exe"):
         name = name[:-4]
     return name
@@ -71,8 +76,13 @@ def _lowered_priority_value(psutil_mod):
     # Windows priority classes are a fixed enum; POSIX niceness is a scale
     # from -20 (highest) to 19 (lowest), and unprivileged users may only
     # ever raise it (deprioritize), never lower it, which is exactly the
-    # direction this feature moves in, so no elevated privileges are needed
-    # on either platform.
+    # direction the initial adjustment moves in, so lowering never needs
+    # elevated privileges on either platform. Restoring back down afterward
+    # is the opposite direction on POSIX, though: an unprivileged process
+    # cannot lower its own niceness back toward the original value without
+    # CAP_SYS_NICE (or being root), so `pygwin-tune restore` can genuinely
+    # fail there. See _tune()'s restore branch, which reports that
+    # truthfully via its return code rather than assuming it always works.
     return psutil_mod.BELOW_NORMAL_PRIORITY_CLASS if xp.ON_WINDOWS else 10
 
 
@@ -133,22 +143,31 @@ def _tune(args=None):
 
     if args[0] == "restore" and len(args) > 1:
         pids = list(_original_priority) if args[1] == "all" else [args[1]]
+        all_restored = True
         for raw_pid in pids:
             try:
                 pid = int(raw_pid)
             except ValueError:
                 print(f"pygwin-tune: {raw_pid!r} is not a pid.")
+                all_restored = False
                 continue
             original = _original_priority.pop(pid, None)
             if original is None:
                 print(f"pygwin-tune: pid {pid} was not auto-tuned.")
+                all_restored = False
                 continue
             try:
                 psutil.Process(pid).nice(original)
                 print(f"pygwin-tune: restored pid {pid} to priority {original}.")
             except (psutil.NoSuchProcess, psutil.AccessDenied) as ex:
+                # On POSIX, only a privileged process can *lower* a
+                # niceness value back down; an unprivileged restore back
+                # to a normal-or-higher priority genuinely can fail here,
+                # not just in theory. Report it truthfully via the return
+                # code rather than claiming success.
                 print(f"pygwin-tune: could not restore pid {pid}: {ex}")
-        return 0
+                all_restored = False
+        return 0 if all_restored else 1
 
     print("usage: pygwin-tune [list | restore <pid> | restore all]")
     return 1
