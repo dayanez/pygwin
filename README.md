@@ -389,9 +389,7 @@ code belongs.
 
 ## Contributing
 
-pygwin is a personal daily-driver project, not a team codebase, and it does not accept
-issues or pull requests. If you want a different feature set, fork it, the same way
-this project forked xonsh: openly, with credit, under a license that requires both.
+pygwin is a personal daily-driver project, not a team codebase, If there is an issue, contact me via dommcpro@gmail.com and or make an issue and pull request. 
 
 ## License
 
