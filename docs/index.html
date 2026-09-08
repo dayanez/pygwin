@@ -108,7 +108,7 @@
   <ul class="links">
     <li><a href="https://github.com/dayanez/pygwin">Source</a></li>
     <li><a href="https://github.com/dayanez/pygwin/blob/main/README.md">README</a></li>
-    <li><a href="https://github.com/dayanez/pygwin/blob/main/ROADMAP.md">Roadmap</a></li>
+    <li><a href="https://github.com/dayanez/pygwin/blob/main/CHANGELOG.md">Changelog</a></li>
     <li><a href="https://github.com/dayanez/pygwin/releases">Releases</a></li>
   </ul>
 
@@ -116,9 +116,10 @@
     <h2>What it is</h2>
     <p>
       pygwin runs real Python, mixed freely with subprocess commands, in one
-      interactive shell. It is built on xonsh's parser and shell engine, with a
-      new name, a leaner default configuration in progress, and a different goal:
-      a shell that also watches your machine while you use it.
+      interactive shell. It is built on xonsh's parser and shell engine, renamed
+      throughout, with a leaner default configuration and a different goal: a
+      shell that also watches your machine while you use it, with live CPU and
+      memory telemetry and transparent process auto-tuning built in.
     </p>
   </section>
 
@@ -134,10 +135,15 @@ pygwin</code></pre>
   <section>
     <h2>Status</h2>
     <p>
-      Early. The rebrand and the CI, release, and docs scaffolding are done.
-      The actual startup-time stripping and the live telemetry and process
-      auto-tuning features are still ahead, tracked openly in
-      <a href="https://github.com/dayanez/pygwin/blob/main/ROADMAP.md">ROADMAP.md</a>.
+      Every item this project set out to do for its first real release has now
+      landed: the rebrand from xonsh, a working CI and CD pipeline, a compiled
+      standalone <code>pygwin.exe</code>, and its two differentiators, the
+      <code>sysinfo</code> and <code>autotune</code> pgtribs, live telemetry and
+      transparent process priority tuning. See the
+      <a href="https://github.com/dayanez/pygwin/blob/main/CHANGELOG.md">changelog</a>
+      for what shipped in each release, and the
+      <a href="https://github.com/dayanez/pygwin/blob/main/README.md#status">README's
+      Status section</a> for the full detail.
     </p>
   </section>
 
